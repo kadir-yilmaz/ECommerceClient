@@ -1,0 +1,149 @@
+.edit-role-dialog {
+  min-width: 900px;
+  max-width: 95vw;
+  max-height: 85vh;
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1a1a1a;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
+  }
+
+  mat-dialog-content {
+    padding: 24px 0;
+    max-height: 65vh;
+    overflow-y: auto;
+
+    .full-width {
+      width: 100%;
+      margin-bottom: 32px;
+
+      ::ng-deep {
+        .mat-form-field-wrapper {
+          padding-bottom: 0;
+        }
+
+        input {
+          font-size: 16px;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .permissions-section {
+      h3 {
+        margin: 0 0 12px 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        mat-icon {
+          color: #1976d2;
+        }
+      }
+
+      .hint {
+        margin: 0 0 20px 0;
+        font-size: 14px;
+        color: #666;
+        padding: 12px 16px;
+        background-color: #f5f5f5;
+        border-left: 4px solid #1976d2;
+        border-radius: 4px;
+      }
+
+      .endpoint-tree {
+        background-color: #fafafa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 16px;
+        max-height: 450px;
+        overflow-y: auto;
+
+        .menu-name {
+          font-weight: 600;
+          color: #1976d2;
+          font-size: 15px;
+          padding: 4px 0;
+        }
+
+        .endpoint-checkbox {
+          font-size: 14px;
+          color: #333;
+          
+          ::ng-deep {
+            .mat-checkbox-label {
+              line-height: 1.5;
+            }
+          }
+        }
+
+        mat-tree-node {
+          min-height: 44px;
+          padding: 4px 0;
+
+          &:hover {
+            background-color: rgba(25, 118, 210, 0.04);
+            border-radius: 4px;
+          }
+        }
+
+        // Scrollbar styling
+        &::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+
+        &::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 4px;
+
+          &:hover {
+            background: #a8a8a8;
+          }
+        }
+      }
+    }
+  }
+
+  mat-dialog-actions {
+    padding: 20px 0 0 0;
+    margin: 0;
+    border-top: 2px solid #e0e0e0;
+    gap: 12px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 24px;
+      height: 42px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+  }
+}
+
+// Loading overlay
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}

@@ -1,0 +1,65 @@
+.roles-table-container {
+  .roles-table {
+    width: 100%;
+    background-color: transparent;
+
+    .role-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      font-size: 15px;
+
+      .role-icon {
+        color: #666;
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    .actions-header {
+      text-align: right;
+      padding-right: 24px !important;
+    }
+
+    .actions-cell {
+      text-align: right;
+      padding-right: 16px !important;
+
+      button {
+        margin-left: 8px;
+      }
+    }
+
+    .role-row {
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+      }
+    }
+
+    th {
+      background-color: rgba(0, 0, 0, 0.03);
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #666;
+    }
+
+    td {
+      color: #333;
+    }
+  }
+
+  ::ng-deep {
+    .mat-paginator {
+      background-color: transparent;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+      margin-top: 16px;
+      color: #333;
+    }
+  }
+}

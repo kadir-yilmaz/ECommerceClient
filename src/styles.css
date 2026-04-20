@@ -1,0 +1,224 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+:root {
+  --primary-color: #dc3545;
+  /* GameGaraj Red */
+  --primary-hover: #b02a37;
+  --secondary-color: #6c757d;
+  --bg-color: #f8f9fa;
+  /* Light Gray Background */
+  --sidebar-bg: linear-gradient(180deg, #1a1d2e 0%, #151824 100%);
+  --sidebar-text: rgba(255, 255, 255, 0.7);
+  --sidebar-active-bg: rgba(220, 53, 69, 0.1);
+  --sidebar-active-text: #ffffff;
+  --card-bg: #ffffff;
+  /* White Cards */
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Softer shadow */
+  --text-color: #212529;
+  /* Dark Text */
+  --border-color: #e9ecef;
+  /* Light Border */
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", "Roboto", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* Custom Scrollbar for modern look */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Premium Toastr Styles */
+#toast-container > div {
+  opacity: 1;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  padding: 16px 20px 16px 64px;
+  width: 350px;
+  background-size: 24px;
+  background-position: 24px center;
+  border-left: 6px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#toast-container > .toast-success {
+  background-color: #064e3b;
+  /* Very dark green */
+  color: #a7f3d0;
+  /* Light green text */
+  border-left-color: #10b981;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' /%3E%3C/svg%3E") !important;
+}
+
+#toast-container > .toast-error {
+  background-color: #7f1d1d;
+  /* Very dark red */
+  color: #fca5a5;
+  /* Light red text */
+  border-left-color: #ef4444;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ef4444'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' /%3E%3C/svg%3E") !important;
+}
+
+#toast-container > .toast-warning {
+  background-color: #78350f;
+  /* Very dark orange/brown */
+  color: #fde68a;
+  /* Light yellow text */
+  border-left-color: #f59e0b;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f59e0b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z' /%3E%3C/svg%3E") !important;
+}
+
+#toast-container > .toast-info {
+  background-color: #1e3a8a;
+  /* Very dark blue */
+  color: #bfdbfe;
+  /* Light blue text */
+  border-left-color: #3b82f6;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%233b82f6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z' /%3E%3C/svg%3E") !important;
+}
+
+.toast-title {
+  font-weight: 700 !important;
+  font-size: 1.05rem !important;
+  margin-bottom: 4px !important;
+  color: #ffffff !important;
+}
+
+.toast-message {
+  font-size: 0.9rem !important;
+  line-height: 1.25rem !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+#toast-container .toast-close-button {
+  color: #ffffff !important;
+  opacity: 1 !important;
+  font-size: 24px !important;
+  text-shadow: 0 1px 0 #000;
+  transition: opacity 0.3s;
+}
+
+#toast-container .toast-close-button:hover {
+  opacity: 0.8 !important;
+  color: #ffffff !important;
+}
+
+#toast-container .ngx-toastr:hover {
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5) !important;
+  transform: translateY(-2px);
+}
+
+/* Material Component Overrides for Light Theme */
+.mat-table {
+  background: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.mat-header-cell {
+  color: #495057 !important;
+  font-weight: 700 !important;
+  background: #f8f9fa !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.mat-cell {
+  color: var(--text-color) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.mat-row:hover {
+  background: #f1f3f5 !important;
+}
+
+.mat-card {
+  background: var(--card-bg) !important;
+  color: var(--text-color) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--card-shadow) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.mat-form-field-appearance-outline .mat-form-field-outline {
+  color: #ced4da !important;
+}
+
+.mat-form-field-label {
+  color: #6c757d !important;
+}
+
+.mat-input-element {
+  color: #212529 !important;
+}
+
+input::-moz-placeholder {
+  color: #adb5bd !important;
+}
+
+input::placeholder {
+  color: #adb5bd !important;
+}
+
+/* Red Accent for Buttons */
+.mat-flat-button.mat-warn,
+.mat-raised-button.mat-warn {
+  background-color: var(--primary-color) !important;
+}
+
+/* Custom Dark Dialog Styles */
+.dark-dialog .mat-dialog-container {
+  background: var(--bg-color);
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.custom-dialog-container {
+  display: flex;
+  flex-direction: column;
+}
+.custom-dialog-container .dialog-header {
+  background: var(--sidebar-bg);
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+.custom-dialog-container .dialog-body {
+  padding: 1.5rem;
+  background: var(--bg-color);
+}
+.custom-dialog-container .dialog-footer {
+  background: rgba(255, 255, 255, 0.02);
+}/*# sourceMappingURL=styles.css.map */

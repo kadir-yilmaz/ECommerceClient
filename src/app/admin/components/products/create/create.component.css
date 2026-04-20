@@ -1,0 +1,16 @@
+:host {
+  display: block;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.img-thumbnail {
+  transition: transform 0.2s ease;
+}
+
+.img-thumbnail:hover {
+  transform: scale(1.05);
+}/*# sourceMappingURL=create.component.css.map */

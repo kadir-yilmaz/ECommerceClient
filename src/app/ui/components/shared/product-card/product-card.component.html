@@ -1,0 +1,36 @@
+<article class="product-card" [class.compact]="variant === 'compact'" *ngIf="product">
+  <button type="button" class="favorite-btn" [class.active]="isFavorite" (click)="onToggleFavorite($event)">
+    <span class="heart-icon">{{ isFavorite ? '\u2665' : '\u2661' }}</span>
+  </button>
+
+  <a class="card-link" [routerLink]="['/products/detail', product?.id]">
+    <div class="product-image">
+      <img [src]="imageSource" [alt]="product.name" (error)="onImageError()">
+      <div class="image-overlay"></div>
+      <span class="badge">{{ badgeText }}</span>
+      <span class="availability-pill" [class.available]="availabilityTone === 'available'" [class.limited]="availabilityTone === 'limited'" [class.sold-out]="availabilityTone === 'sold-out'">
+        {{ stockLabel }}
+      </span>
+    </div>
+
+    <div class="product-body">
+      <div class="product-meta">
+        <p class="product-kicker">Yeni Seri</p>
+        <h3>{{ product.name }}</h3>
+      </div>
+
+      <p class="stock-text">Stok: {{ product.stock }}</p>
+
+      <div class="price-row">
+        <p class="price">{{ product.price | currency:'TRY':'symbol':'1.0-0' }}</p>
+        <span class="price-note">KDV dahil</span>
+      </div>
+    </div>
+  </a>
+
+  <div class="card-footer">
+    <button type="button" class="cart-btn" *ngIf="showAddToCart" (click)="onAddToCart()" [disabled]="product.stock <= 0">
+      {{ product.stock > 0 ? 'Sepete Ekle' : 'Stokta Yok' }}
+    </button>
+  </div>
+</article>

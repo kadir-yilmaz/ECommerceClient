@@ -1,0 +1,82 @@
+<section class="home-page">
+  <section class="hero-carousel full-bleed">
+    <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div class="carousel-indicators">
+        <button
+          *ngFor="let slide of campaignSlides; let i = index"
+          type="button"
+          data-bs-target="#homeCarousel"
+          [attr.data-bs-slide-to]="i"
+          [class.active]="i === 0"
+          [attr.aria-label]="'Slide ' + (i + 1)"
+          [attr.aria-current]="i === 0 ? 'true' : null">
+        </button>
+      </div>
+
+      <div class="carousel-inner">
+        <div class="carousel-item" *ngFor="let slide of campaignSlides; let i = index" [class.active]="i === 0">
+          <img [src]="slide.imageUrl" class="d-block w-100 carousel-image" [alt]="slide.title">
+          <div class="overlay"></div>
+          <div class="carousel-caption">
+            <p class="caption-kicker">NEXT GEN SHOPPING</p>
+            <h1>{{ slide.title }}</h1>
+            <p>{{ slide.description }}</p>
+            <div class="hero-actions">
+              <a class="cta-primary" routerLink="/products">Urunleri Kesfet</a>
+              <a class="cta-ghost" routerLink="/basket">Sepete Git</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="quick-highlights">
+    <article>
+      <h3>Ayni Gun Kargo</h3>
+      <p>16:00 oncesi siparislerde hizli hazirlama sureci.</p>
+    </article>
+    <article>
+      <h3>Guvenli Odeme</h3>
+      <p>3D secure ve taksit secenekleri ile guvenli alisveris.</p>
+    </article>
+    <article>
+      <h3>Canli Stok Takibi</h3>
+      <p>Stok ve fiyat degisimleri anlik olarak guncellenir.</p>
+    </article>
+  </section>
+
+  <section class="featured-products">
+    <div class="section-title">
+      <div>
+        <p>SEZONUN SECIMI</p>
+        <h2>One Cikan Urunler</h2>
+      </div>
+      <a routerLink="/products">Tumunu Gor</a>
+    </div>
+
+    <div class="product-grid" *ngIf="featuredProducts.length; else noProducts">
+      <app-product-card
+        *ngFor="let product of featuredProducts"
+        [product]="product"
+        [baseUrl]="baseUrl?.url"
+        variant="compact"
+        [showAddToCart]="true"
+        (addToCart)="addToBasket($event)">
+      </app-product-card>
+    </div>
+
+    <ng-template #noProducts>
+      <p class="empty-state">Henuz urun bulunamadi.</p>
+    </ng-template>
+  </section>
+</section>

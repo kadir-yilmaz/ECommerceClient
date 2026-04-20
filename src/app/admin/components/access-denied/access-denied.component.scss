@@ -1,0 +1,49 @@
+.access-denied-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding: 40px 20px;
+
+  .access-denied-content {
+    text-align: center;
+    max-width: 500px;
+
+    .lock-icon {
+      font-size: 120px;
+      width: 120px;
+      height: 120px;
+      color: #f44336;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 32px;
+      font-weight: 600;
+      color: #333;
+      margin: 0 0 16px 0;
+    }
+
+    p {
+      font-size: 16px;
+      color: #666;
+      margin: 0 0 12px 0;
+      line-height: 1.6;
+
+      &.hint {
+        font-size: 14px;
+        color: #999;
+        margin-bottom: 32px;
+      }
+    }
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 32px;
+      height: 48px;
+      font-size: 16px;
+    }
+  }
+}

@@ -1,0 +1,27 @@
+<div class="confirm-email-container">
+  <div class="confirm-email-card">
+    <div class="icon-container" *ngIf="!isConfirming">
+      <i class="fa-solid fa-circle-check success-icon" *ngIf="isSuccess"></i>
+      <i class="fa-solid fa-circle-xmark error-icon" *ngIf="!isSuccess"></i>
+    </div>
+
+    <div class="spinner-container" *ngIf="isConfirming">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+    </div>
+
+    <h1 class="title" *ngIf="isConfirming">E-posta Doğrulanıyor...</h1>
+    <h1 class="title" *ngIf="!isConfirming && isSuccess">E-posta Doğrulandı!</h1>
+    <h1 class="title" *ngIf="!isConfirming && !isSuccess">Doğrulama Başarısız</h1>
+
+    <p class="message">{{ message }}</p>
+
+    <div class="button-group" *ngIf="!isConfirming">
+      <button class="btn-primary" *ngIf="isSuccess" (click)="goToLogin()">
+        <i class="fa-solid fa-right-to-bracket"></i> Giriş Yap
+      </button>
+      <button class="btn-secondary" (click)="goToHome()">
+        <i class="fa-solid fa-house"></i> Ana Sayfa
+      </button>
+    </div>
+  </div>
+</div>

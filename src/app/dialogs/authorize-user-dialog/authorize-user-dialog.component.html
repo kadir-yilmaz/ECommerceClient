@@ -1,0 +1,18 @@
+<h1 mat-dialog-title>Kullanıcıya Rol Ata</h1>
+<div mat-dialog-content>
+  <p class="user-info">Kullanıcı: <strong>{{ data }}</strong></p>
+  <p class="instruction">Kullanıcıya atamak istediğiniz rolleri seçin:</p>
+</div>
+
+<mat-selection-list #rolesComponent>
+  <mat-list-option *ngFor="let role of listRoles" [selected]="role.selected">
+    {{role.name}}
+  </mat-list-option>
+</mat-selection-list>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="close()">İptal</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="data" cdkFocusInitial (click)="assignRoles(rolesComponent)">
+    Rolleri Ata
+  </button>
+</div>

@@ -1,0 +1,96 @@
+<div class="users-container">
+  <div class="users-header">
+    <h1>Kullanıcı Yönetimi</h1>
+    <div class="search-box">
+      <mat-icon>search</mat-icon>
+      <input 
+        type="text" 
+        placeholder="Email veya kullanıcı adı ile ara..." 
+        [(ngModel)]="searchText"
+        (input)="onSearchChange()"
+        [matAutocomplete]="auto"
+        class="search-input">
+      <button *ngIf="searchText" (click)="clearSearch()" class="clear-btn">
+        <mat-icon>close</mat-icon>
+      </button>
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onUserSelected($event)">
+        <mat-option *ngFor="let user of filteredSuggestions" [value]="user.userName">
+          <div class="suggestion-item">
+            <mat-icon class="suggestion-icon">account_circle</mat-icon>
+            <div class="suggestion-info">
+              <span class="suggestion-name">{{user.nameSurname}}</span>
+              <span class="suggestion-username">@{{user.userName}}</span>
+              <span class="suggestion-email">{{user.email}}</span>
+            </div>
+          </div>
+        </mat-option>
+        <mat-option *ngIf="searchText && filteredSuggestions.length === 0" disabled>
+          <div class="no-suggestions">
+            <mat-icon>search_off</mat-icon>
+            <span>Sonuç bulunamadı</span>
+          </div>
+        </mat-option>
+      </mat-autocomplete>
+    </div>
+  </div>
+
+  <div class="users-grid" *ngIf="dataSource && dataSource.data.length > 0">
+    <div class="user-card" *ngFor="let user of dataSource.data">
+      <div class="user-avatar">
+        <mat-icon>account_circle</mat-icon>
+      </div>
+      
+      <div class="user-info">
+        <h3 class="user-name">{{user.nameSurname}}</h3>
+        <p class="user-username">@{{user.userName}}</p>
+        <p class="user-email">
+          <mat-icon>email</mat-icon>
+          {{user.email}}
+        </p>
+        <div class="user-badges">
+          <span class="badge" *ngIf="user.twoFactorEnabled">
+            <mat-icon>verified_user</mat-icon> 2FA
+          </span>
+        </div>
+      </div>
+
+      <div class="user-actions">
+        <button mat-icon-button [matMenuTriggerFor]="menu" class="action-btn">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="assignRole(user.id)">
+            <mat-icon>security</mat-icon>
+            <span>Rol Ata</span>
+          </button>
+          <button mat-menu-item (click)="changeUserPassword(user)">
+            <mat-icon>vpn_key</mat-icon>
+            <span>Şifre Değiştir</span>
+          </button>
+          <button mat-menu-item (click)="viewUserDetails(user)">
+            <mat-icon>info</mat-icon>
+            <span>Detaylar</span>
+          </button>
+          <mat-divider></mat-divider>
+          <button mat-menu-item (click)="deleteUser(user)" class="delete-action">
+            <mat-icon>delete</mat-icon>
+            <span>Sil</span>
+          </button>
+        </mat-menu>
+      </div>
+    </div>
+  </div>
+
+  <div class="no-results" *ngIf="dataSource && dataSource.data.length === 0">
+    <mat-icon>search_off</mat-icon>
+    <p>Kullanıcı bulunamadı</p>
+  </div>
+
+  <mat-paginator 
+    (page)="pageChanged()"
+    [pageSizeOptions]="[9, 18, 36]"
+    [pageSize]="9"
+    showFirstLastButtons
+    aria-label="Kullanıcı sayfası seç">
+  </mat-paginator>
+</div>

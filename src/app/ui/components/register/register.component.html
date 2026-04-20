@@ -1,0 +1,53 @@
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="brand-logo" routerLink="/">
+      <h1>E-Commerce</h1>
+    </div>
+
+    <div class="glass-auth-card">
+      <div class="auth-tabs">
+        <a routerLink="/login" routerLinkActive="active" class="auth-tab">Giriş Yap</a>
+        <a routerLink="/register" routerLinkActive="active" class="auth-tab">Üye Ol</a>
+      </div>
+      
+      <div class="auth-content">
+        <h2 class="card-title">Hesap Oluştur</h2>
+        <p class="card-subtitle">Ayrıcalıklı alışveriş dünyasına katılın.</p>
+
+        <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)" class="auth-form" autocomplete="off">
+          <div class="input-row">
+            <div class="input-group">
+              <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+              <input formControlName="email" type="email" placeholder="E-posta" autocomplete="off"
+                [ngClass]="{'is-invalid': submitted && f.email.errors}">
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+              <input formControlName="password" type="password" placeholder="Şifre (en az 6 karakter)" autocomplete="new-password"
+                [ngClass]="{'is-invalid': submitted && f.password.errors}">
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="input-group">
+              <span class="input-icon"><i class="fa-solid fa-shield-halved"></i></span>
+              <input formControlName="passwordConfirm" type="password" placeholder="Şifre Tekrar" autocomplete="new-password"
+                [ngClass]="{'is-invalid': submitted && f.passwordConfirm.errors}">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary-auth">
+            Hesabımı Oluştur
+          </button>
+        </form>
+      </div>
+    </div>
+    
+    <div class="auth-footer">
+      <small>© 2026 E-Commerce. Tüm hakları saklıdır.</small>
+    </div>
+  </div>
+</section>

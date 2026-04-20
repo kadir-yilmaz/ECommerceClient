@@ -1,0 +1,57 @@
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+  <h2 class="text-dark m-0" style="font-weight: 700;">Create New Product</h2>
+  <button mat-flat-button routerLink="/admin/products">
+    <mat-icon>arrow_back</mat-icon> Back to List
+  </button>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Name</mat-label>
+      <input matInput #txtName>
+    </mat-form-field>
+
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Stock</mat-label>
+          <input matInput type="number" min="0" value="0" #txtStock>
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Price</mat-label>
+          <input matInput type="number" min="0" value="0" #txtPrice>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-bold">Images</label>
+      <input class="form-control" type="file" multiple accept="image/*"
+        (change)="onFileSelected($event)">
+    </div>
+
+    <!-- Image Previews -->
+    <div class="d-flex flex-wrap gap-3 mt-3" *ngIf="imagePreviews.length > 0">
+      <div *ngFor="let preview of imagePreviews; let i = index" class="position-relative"
+        style="width: 120px; height: 120px;">
+        <img [src]="preview" class="img-thumbnail"
+          style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
+          style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%);"
+          (click)="removeImage(i)">
+          &times;
+        </button>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4 gap-2">
+      <button mat-flat-button routerLink="/admin/products">Cancel</button>
+      <button mat-flat-button color="warn" (click)="create(txtName, txtStock, txtPrice)">
+        <mat-icon>add</mat-icon> Create Product
+      </button>
+    </div>
+  </div>
+</div>

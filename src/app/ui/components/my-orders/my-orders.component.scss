@@ -1,0 +1,103 @@
+.my-orders-container {
+  padding: 2rem 0;
+  min-height: 60vh;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  
+  h1 {
+    font-size: 2rem;
+    color: #1e3a8a;
+    margin-bottom: 0.5rem;
+  }
+  
+  p {
+    color: #64748b;
+  }
+}
+
+.order-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f1f5f9;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.order-code {
+  font-weight: 700;
+  color: #1e293b;
+  margin-right: 1rem;
+}
+
+.order-date {
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.order-status {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.3rem 0.8rem;
+  border-radius: 50px;
+  background: #fef3c7;
+  color: #92400e;
+
+  &.completed {
+    background: #dcfce7;
+    color: #166534;
+  }
+}
+
+.total-price {
+  font-size: 1.1rem;
+  color: #334155;
+}
+
+.no-orders-message {
+  text-align: center;
+  padding: 4rem 0;
+  
+  i {
+    font-size: 4rem;
+    color: #cbd5e1;
+    margin-bottom: 1.5rem;
+  }
+  
+  h3 {
+    margin-bottom: 1.5rem;
+    color: #475569;
+  }
+}
+
+.btn-primary {
+  display: inline-block;
+  background: #2563eb;
+  color: #ffffff;
+  padding: 0.8rem 2rem;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+
+  &:hover {
+    background: #1d4ed8;
+  }
+}

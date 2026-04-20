@@ -1,0 +1,52 @@
+<section class="auth-section">
+  <div class="auth-container">
+    <div class="brand-logo" routerLink="/">
+      <h1>E-Commerce</h1>
+    </div>
+
+    <div class="glass-auth-card">
+      <div class="auth-tabs">
+        <a routerLink="/login" routerLinkActive="active" class="auth-tab">Giriş Yap</a>
+        <a routerLink="/register" routerLinkActive="active" class="auth-tab">Üye Ol</a>
+      </div>
+      
+      <div class="auth-content">
+        <h2 class="card-title">Tekrar Hoş Geldiniz</h2>
+        <p class="card-subtitle">Güvenli alışveriş için giriş yapın.</p>
+
+        <form class="auth-form">
+          <div class="input-group">
+            <span class="input-icon"><i class="fa-solid fa-envelope"></i></span>
+            <input #txtEmail type="email" placeholder="E-posta" autocomplete="username">
+          </div>
+
+          <div class="input-group">
+            <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
+            <input #txtPassword type="password" placeholder="Şifre" autocomplete="current-password">
+          </div>
+
+          <div class="form-footer">
+            <a routerLink="/password-reset" class="forgot-link">Şifremi Unuttum?</a>
+          </div>
+
+          <button type="button" class="btn-primary-auth" (click)="login(txtEmail.value, txtPassword.value)">
+            Giriş Yap
+          </button>
+        </form>
+
+        <div class="social-login">
+          <p>Sosyal hesapla giriş yap</p>
+          <div class="social-icons">
+            <button class="social-btn google" (click)="socialAuthService.signIn('GOOGLE')"><i class="fa-brands fa-google"></i></button>
+            <button class="social-btn facebook" (click)="facebookLogin()"><i class="fa-brands fa-facebook-f"></i></button>
+            <button class="social-btn apple"><i class="fa-brands fa-apple"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="auth-footer">
+      <small>© 2026 E-Commerce. Tüm hakları saklıdır.</small>
+    </div>
+  </div>
+</section>

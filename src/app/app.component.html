@@ -1,0 +1,93 @@
+<div [class.store-shell]="!isAdminPage && !isAuthPage">
+  <header class="store-header" *ngIf="!isAdminPage && !isAuthPage">
+    <div class="store-header__top container-xl">
+      <a class="brand" routerLink="/">E-Commerce</a>
+
+      <div class="search-area">
+        <input type="text" placeholder="Aradiginiz urunu yaziniz...">
+        <button type="button">Ara</button>
+      </div>
+
+      <nav class="quick-links">
+        <a routerLink="/products" class="nav-item">Favorilerim</a>
+        <button class="basket-btn" routerLink="/basket" type="button">
+          Sepetim <span class="badge" *ngIf="(basketService.basketItemCount$ | async) > 0">{{basketService.basketItemCount$ | async}}</span>
+        </button>
+        
+        <ng-container *ngIf="!(authService.isAuthenticated$ | async)">
+          <a routerLink="/login" class="login-btn">Giris Yap</a>
+        </ng-container>
+
+        <ng-container *ngIf="authService.isAuthenticated$ | async">
+          <div class="user-dropdown">
+            <button class="user-btn">
+              <i class="fa-solid fa-user-circle"></i>
+              <span class="user-name">{{authService.userName$ | async}}</span>
+              <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <div class="dropdown-content">
+              <a routerLink="/orders">
+                <i class="fa-solid fa-box"></i> Siparişlerim
+              </a>
+              <a routerLink="/addresses">
+                <i class="fa-solid fa-location-dot"></i> Adreslerim
+              </a>
+              <a routerLink="/profile">
+                <i class="fa-solid fa-user"></i> Profilim
+              </a>
+              <div class="dropdown-divider" *ngIf="authService.hasAnyRole$ | async"></div>
+              <a routerLink="/admin" *ngIf="authService.hasAnyRole$ | async" class="admin-link">
+                <i class="fa-solid fa-lock"></i> Yönetim Paneli
+              </a>
+              <div class="dropdown-divider"></div>
+              <button (click)="signOut()" class="logout-btn">
+                <i class="fa-solid fa-right-from-bracket"></i> Çıkış Yap
+              </button>
+            </div>
+          </div>
+        </ng-container>
+      </nav>
+    </div>
+
+    <div class="store-header__categories container-xl">
+      <a routerLink="/products" routerLinkActive="active">Tum Urunler</a>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Kampanyalar</a>
+      <a routerLink="/products" routerLinkActive="active">Yeni Gelenler</a>
+    </div>
+  </header>
+
+  <main [class.store-content]="!isAdminPage && !isAuthPage" [class.container-xl]="!isAdminPage && !isAuthPage">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="store-footer" *ngIf="!isAdminPage && !isAuthPage">
+    <div class="container-xl footer-grid">
+      <section>
+        <h3>E-COMMERCE</h3>
+        <p>Yeni nesil oyuncu bilgisayarlari ve performans urunleri ile e-ticaret deneyimini hizlandir.</p>
+      </section>
+      <section>
+        <h4>Hizli Erisim</h4>
+        <a routerLink="/">Ana Sayfa</a>
+        <a routerLink="/products">Tum Urunler</a>
+        <a routerLink="/basket">Sepet</a>
+      </section>
+      <section>
+        <h4>Musteri Hizmetleri</h4>
+        <a routerLink="/products">Siparis Takibi</a>
+        <a routerLink="/products">Iade ve Degisim</a>
+        <a routerLink="/products">Teslimat Kosullari</a>
+      </section>
+      <section>
+        <h4>Bize Ulasin</h4>
+        <p>Teknoloji Vadisi, No: 123
+          Maslak, Istanbul</p>
+        <p>+90 850 123 45 67</p>
+      </section>
+    </div>
+  </footer>
+</div>
+
+<ngx-spinner size="default" name="s1" type="ball-atom"></ngx-spinner>
+<ngx-spinner size="default" name="s2" type="ball-scale-multiple"></ngx-spinner>
+<ngx-spinner size="default" name="s3" type="ball-spin-clockwise-fade-rotating"></ngx-spinner>

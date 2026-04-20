@@ -1,0 +1,24 @@
+<div class="create-role-dialog">
+  <h2 mat-dialog-title>Yeni Rol Ekle</h2>
+
+  <mat-dialog-content>
+    <div class="info-box">
+      <mat-icon>info</mat-icon>
+      <p>Rolü oluşturduktan sonra "Yetkileri Düzenle" butonuyla endpoint yetkilerini atayabilirsiniz.</p>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Rol Adı</mat-label>
+      <input matInput #txtName placeholder="Örn: Manager, Warehouse Staff" autofocus>
+      <mat-hint>Rolün açıklayıcı bir adını girin</mat-hint>
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>İptal</button>
+    <button mat-raised-button color="primary" (click)="create(txtName)">
+      <mat-icon>add</mat-icon>
+      Oluştur
+    </button>
+  </mat-dialog-actions>
+</div>

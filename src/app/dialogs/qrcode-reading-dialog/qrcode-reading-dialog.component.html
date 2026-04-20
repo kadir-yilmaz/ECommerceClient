@@ -1,0 +1,13 @@
+<h4 class="mb-3">Ürün QR Kod Tarama</h4>
+<div class="alert alert-info py-2" style="font-size: 0.9rem;">
+  Lütfen ürünün QR kodunu kameraya yaklaştırın. Otomatik olarak ürün düzenleme sayfasına yönlendirileceksiniz.
+</div>
+
+
+<ngx-scanner-qrcode #scanner="scanner" (event)="onEvent($event)"></ngx-scanner-qrcode>
+
+
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close id="btnClose">Kapat</button>
+</mat-dialog-actions>

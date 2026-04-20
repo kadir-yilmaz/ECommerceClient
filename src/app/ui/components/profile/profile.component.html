@@ -1,0 +1,76 @@
+<div class="profile-container">
+  <div class="profile-card">
+    <h1 class="profile-title">Profilim</h1>
+
+    <form class="profile-form">
+      <div class="form-group">
+        <label for="userName">Kullanıcı Adı</label>
+        <input 
+          type="text" 
+          id="userName" 
+          [(ngModel)]="userProfile.userName" 
+          name="userName"
+          autocomplete="username"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-posta</label>
+        <div class="email-group">
+          <input 
+            type="email" 
+            id="email" 
+            [(ngModel)]="userProfile.email" 
+            name="email"
+            autocomplete="email"
+            class="form-control">
+          <span class="email-status" [class.verified]="userProfile.emailConfirmed">
+            <i [class]="userProfile.emailConfirmed ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark'"></i>
+            {{ userProfile.emailConfirmed ? 'Doğrulanmış' : 'Doğrulanmamış' }}
+          </span>
+        </div>
+        <button 
+          type="button" 
+          class="verify-btn" 
+          *ngIf="!userProfile.emailConfirmed && !showCodeInput"
+          (click)="sendEmailConfirmation()">
+          <i class="fa-solid fa-envelope"></i> Doğrulama Kodu Gönder
+        </button>
+        
+        <div class="code-input-group" *ngIf="showCodeInput">
+          <input 
+            type="text" 
+            [(ngModel)]="emailVerificationCode" 
+            name="verificationCode"
+            placeholder="6 haneli kod"
+            maxlength="6"
+            class="code-input">
+          <button type="button" class="verify-code-btn" (click)="verifyEmailCode()">
+            <i class="fa-solid fa-check"></i> Doğrula
+          </button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="nameSurname">Ad Soyad</label>
+        <input 
+          type="text" 
+          id="nameSurname" 
+          [(ngModel)]="userProfile.nameSurname" 
+          name="nameSurname"
+          autocomplete="name"
+          class="form-control">
+      </div>
+
+      <div class="button-group">
+        <button type="button" class="submit-btn" (click)="updateProfile()">
+          <i class="fa-solid fa-floppy-disk"></i> Değişiklikleri Kaydet
+        </button>
+        
+        <button type="button" class="password-btn" (click)="openChangePasswordDialog()">
+          <i class="fa-solid fa-key"></i> Şifre Değiştir
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

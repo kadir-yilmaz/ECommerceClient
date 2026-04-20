@@ -1,0 +1,33 @@
+<div class="my-orders-container container-xl">
+  <div class="page-header">
+    <h1>Geçmiş Siparişlerim</h1>
+    <p>Tüm siparişlerinizi buradan takip edebilirsiniz.</p>
+  </div>
+
+  <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
+    <div class="order-card" *ngFor="let order of orders">
+      <div class="order-header">
+        <div class="order-info">
+          <span class="order-code">#{{order.orderCode}}</span>
+          <span class="order-date">{{order.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
+        </div>
+        <div class="order-status" [class.completed]="order.completed">
+          {{order.completed ? 'Tamamlandı' : 'Beklemede'}}
+        </div>
+      </div>
+      <div class="order-details">
+        <div class="total-price">
+          Toplam Tutar: <strong>{{order.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noOrders>
+    <div class="no-orders-message">
+      <i class="fa-solid fa-box-open"></i>
+      <h3>Henüz bir siparişiniz bulunmamaktadır.</h3>
+      <a routerLink="/products" class="btn-primary">Alışverişe Başla</a>
+    </div>
+  </ng-template>
+</div>

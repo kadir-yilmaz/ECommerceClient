@@ -1,0 +1,30 @@
+<section class="products-page">
+  <header class="products-header">
+    <div>
+      <p class="eyebrow">Secilmisler</p>
+      <h1>One Cikan Urunler</h1>
+    </div>
+    <a class="all-link" routerLink="/products">Tumunu Gor</a>
+  </header>
+
+  <div class="products-grid" *ngIf="products?.length; else emptyState">
+    <app-product-card
+      *ngFor="let product of products"
+      [product]="product"
+      [baseUrl]="baseUrl?.url"
+      variant="default"
+      [showAddToCart]="true"
+      (addToCart)="addToBasket($event)">
+    </app-product-card>
+  </div>
+
+  <ng-template #emptyState>
+    <p class="empty-state">Henuz urun bulunamadi.</p>
+  </ng-template>
+
+  <nav class="pager" aria-label="Page navigation example" *ngIf="totalPageCount > 1">
+    <a class="pager-btn" [routerLink]="['/products', currentPageNo - 1 <= 0 ? 1 : currentPageNo - 1]">Onceki</a>
+    <a class="pager-index">{{ currentPageNo }} / {{ totalPageCount }}</a>
+    <a class="pager-btn" [routerLink]="['/products', currentPageNo + 1 >= totalPageCount ? totalPageCount : currentPageNo + 1]">Sonraki</a>
+  </nav>
+</section>

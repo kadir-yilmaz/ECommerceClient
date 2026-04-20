@@ -1,0 +1,64 @@
+<div class="dashboard-header">
+    <h1 class="page-title">Dashboard Overview</h1>
+    <div class="header-actions">
+        <button mat-flat-button color="warn" (click)="m()">
+            <mat-icon>refresh</mat-icon> Refresh Data
+        </button>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon-wrapper sales">
+            <mat-icon>payments</mat-icon>
+        </div>
+        <div class="stat-details">
+            <span class="stat-label">Total Sales</span>
+            <h3 class="stat-value">$124,560</h3>
+            <span class="stat-trend trend-up"><mat-icon>trending_up</mat-icon> +12.5%</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper orders">
+            <mat-icon>shopping_bag</mat-icon>
+        </div>
+        <div class="stat-details">
+            <span class="stat-label">Total Orders</span>
+            <h3 class="stat-value">1,240</h3>
+            <span class="stat-trend trend-up"><mat-icon>trending_up</mat-icon> +8.2%</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper products">
+            <mat-icon>inventory_2</mat-icon>
+        </div>
+        <div class="stat-details">
+            <span class="stat-label">Total Products</span>
+            <h3 class="stat-value">458</h3>
+            <span class="stat-trend">In Stock</span>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon-wrapper customers">
+            <mat-icon>group</mat-icon>
+        </div>
+        <div class="stat-details">
+            <span class="stat-label">New Customers</span>
+            <h3 class="stat-value">84</h3>
+            <span class="stat-trend trend-down"><mat-icon>trending_down</mat-icon> -2.4%</span>
+        </div>
+    </div>
+</div>
+
+<div class="recent-activity-section">
+    <div class="section-header">
+        <h2>Recent Activity</h2>
+        <a href="#" class="view-all">View All</a>
+    </div>
+    <div class="activity-card">
+        <p class="activity-placeholder">System integration with SignalR is active. Waiting for real-time updates...</p>
+    </div>
+</div>

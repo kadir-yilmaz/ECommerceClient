@@ -1,0 +1,253 @@
+.home-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding-bottom: 2rem;
+}
+
+.full-bleed {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+.hero-carousel {
+  border-bottom: 1px solid #dbe4ef;
+}
+
+.carousel {
+  position: relative;
+  background: #020617;
+}
+
+.carousel-item {
+  position: relative;
+}
+
+.carousel-image {
+  height: clamp(360px, 58vh, 620px);
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg, rgba(15, 23, 42, 0.75) 15%, rgba(15, 23, 42, 0.25) 58%, rgba(15, 23, 42, 0.65) 100%),
+    radial-gradient(circle at 78% 22%, rgba(37, 99, 235, 0.35), transparent 35%);
+}
+
+.carousel-caption {
+  position: absolute;
+  left: 9%;
+  right: auto;
+  bottom: 15%;
+  max-width: 640px;
+  text-align: left;
+  z-index: 2;
+}
+
+.caption-kicker {
+  margin: 0;
+  color: #93c5fd;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+}
+
+.carousel-caption h1 {
+  margin: 0.45rem 0 0;
+  color: #ffffff;
+  font-size: clamp(2.1rem, 4.8vw, 4.1rem);
+  line-height: 1;
+  font-weight: 800;
+}
+
+.carousel-caption p {
+  margin-top: 0.9rem;
+  color: #e0f2fe;
+  font-size: 1.08rem;
+  max-width: 560px;
+}
+
+.hero-actions {
+  margin-top: 1.15rem;
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.cta-primary,
+.cta-ghost {
+  border-radius: 999px;
+  padding: 0.72rem 1.25rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.cta-primary {
+  background: #2563eb;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.cta-ghost {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+}
+
+.cta-ghost:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.carousel-indicators {
+  bottom: 1rem;
+}
+
+.carousel-indicators button {
+  width: 34px;
+  height: 4px;
+  border-radius: 999px;
+}
+
+.quick-highlights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.quick-highlights article {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.quick-highlights article:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+}
+
+.quick-highlights h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #0f172a;
+}
+
+.quick-highlights p {
+  margin: 0.45rem 0 0;
+  color: #475569;
+}
+
+.featured-products {
+  background-color: #ffffff;
+  border-radius: 1rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.4rem;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.1rem;
+}
+
+.section-title p {
+  margin: 0;
+  color: #2563eb;
+  letter-spacing: 0.12em;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+
+.section-title h2 {
+  margin: 0.3rem 0 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
+}
+
+.section-title a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 700;
+  border: 1px solid #93c5fd;
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.section-title a:hover {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+.product-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.product-grid app-product-card {
+  display: block;
+}
+
+.empty-state {
+  margin: 0;
+  padding: 1.1rem;
+  border-radius: 0.7rem;
+  background-color: #f8fafc;
+  color: #475569;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .quick-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .carousel-caption {
+    max-width: 520px;
+    left: 7%;
+  }
+}
+
+@media (max-width: 680px) {
+  .carousel-image {
+    height: 420px;
+  }
+
+  .carousel-caption {
+    left: 1rem;
+    right: 1rem;
+    bottom: 4.2rem;
+    max-width: none;
+  }
+
+  .carousel-caption p {
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+  }
+
+  .section-title h2 {
+    font-size: 1.45rem;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}

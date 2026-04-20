@@ -1,0 +1,47 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <mat-icon class="brand-icon">shopping_bag</mat-icon>
+    <span class="logo-text">E-COMMERCE</span>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Main Menu</div>
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
+      <mat-icon>dashboard</mat-icon>
+      <span>Dashboard</span>
+    </a>
+    <a routerLink="products" routerLinkActive="active" class="nav-item">
+      <mat-icon>inventory_2</mat-icon>
+      <span>Products</span>
+    </a>
+    <a routerLink="orders" routerLinkActive="active" class="nav-item">
+      <mat-icon>shopping_cart</mat-icon>
+      <span>Orders</span>
+    </a>
+
+    <div class="nav-label">Administration</div>
+    <a routerLink="users" routerLinkActive="active" class="nav-item">
+      <mat-icon>manage_accounts</mat-icon>
+      <span>Users</span>
+    </a>
+    <a routerLink="roles" routerLinkActive="active" class="nav-item">
+      <mat-icon>security</mat-icon>
+      <span>Roles</span>
+    </a>
+
+    <div class="sidebar-footer">
+      <a routerLink="profile" routerLinkActive="active" class="nav-item">
+        <mat-icon>person_outline</mat-icon>
+        <span>Profilim</span>
+      </a>
+      <a href="/" target="_blank" class="nav-item exit-item">
+        <mat-icon>launch</mat-icon>
+        <span>Siteyi Gör</span>
+      </a>
+      <a class="nav-item logout-item">
+        <mat-icon>logout</mat-icon>
+        <span>Çıkış Yap</span>
+      </a>
+    </div>
+  </nav>
+</aside>

@@ -1,0 +1,180 @@
+<section class="checkout-page">
+  <div class="checkout-shell">
+    <header class="checkout-hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Guvenli Odeme</span>
+        <h1>Teslimat ve kart bilgilerinizi tamamlayin</h1>
+        <p>Siparisi tek adimda onaylayin. Adres ve odeme alanlari hem istemci hem sunucu tarafinda dogrulaniyor.</p>
+      </div>
+
+      <div class="card-preview">
+        <span class="preview-chip"></span>
+        <span class="preview-brand">Secure Pay</span>
+        <p class="preview-number">{{ cardPreviewNumber }}</p>
+        <div class="preview-meta">
+          <div>
+            <span>Kart Sahibi</span>
+            <strong>{{ cardPreviewName }}</strong>
+          </div>
+          <div>
+            <span>Son Kul.</span>
+            <strong>{{ cardPreviewExpiry }}</strong>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <form class="checkout-grid" [formGroup]="checkoutForm" (ngSubmit)="completeOrder()">
+      <div class="checkout-main">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Teslimat Bilgileri</h2>
+            <p>Paketinizin sorunsuz ulasmasi icin adresi detayli girin.</p>
+          </div>
+
+          <div class="field-grid two-col">
+            <label class="field" [class.field-error]="hasControlError('contactName')">
+              <span>Ad Soyad</span>
+              <input type="text" formControlName="contactName" placeholder="Teslim alacak kisi">
+              <small class="error-text" *ngIf="getFieldError('contactName')">{{ getFieldError('contactName') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('phoneNumber')">
+              <span>Telefon</span>
+              <input type="tel" formControlName="phoneNumber" inputmode="numeric" maxlength="11" placeholder="05xxxxxxxxx" (input)="onPhoneNumberInput()">
+              <small class="error-text" *ngIf="getFieldError('phoneNumber')">{{ getFieldError('phoneNumber') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid three-col">
+            <label class="field" [class.field-error]="hasControlError('city')">
+              <span>Il</span>
+              <input type="text" formControlName="city" placeholder="Istanbul">
+              <small class="error-text" *ngIf="getFieldError('city')">{{ getFieldError('city') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('district')">
+              <span>Ilce</span>
+              <input type="text" formControlName="district" placeholder="Kadikoy">
+              <small class="error-text" *ngIf="getFieldError('district')">{{ getFieldError('district') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('postalCode')">
+              <span>Posta Kodu</span>
+              <input type="text" formControlName="postalCode" inputmode="numeric" maxlength="5" placeholder="34000" (input)="onPostalCodeInput()">
+              <small class="error-text" *ngIf="getFieldError('postalCode')">{{ getFieldError('postalCode') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" [class.field-error]="hasControlError('neighborhood')">
+              <span>Mahalle / Semt</span>
+              <input type="text" formControlName="neighborhood" placeholder="Fenerbahce Mahallesi">
+              <small class="error-text" *ngIf="getFieldError('neighborhood')">{{ getFieldError('neighborhood') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" [class.field-error]="hasControlError('addressLine')">
+              <span>Acik Adres</span>
+              <textarea rows="4" formControlName="addressLine" placeholder="Sokak, bina no, daire, kat, teslimat notu dahil detayli adres"></textarea>
+              <small class="error-text" *ngIf="getFieldError('addressLine')">{{ getFieldError('addressLine') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field">
+              <span>Siparis Notu <em>Istege bagli</em></span>
+              <textarea rows="3" formControlName="description" placeholder="Kurye icin ek notunuz varsa yazin"></textarea>
+              <small class="helper-text">En fazla 300 karakter.</small>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Kredi Karti</h2>
+            <p>Kart veriniz maskelenmis olarak loglanir, tam kart numarasi ve CVV saklanmaz.</p>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" [class.field-error]="hasControlError('cardHolderName')">
+              <span>Kart Uzerindeki Isim</span>
+              <input type="text" formControlName="cardHolderName" placeholder="AD SOYAD">
+              <small class="error-text" *ngIf="getFieldError('cardHolderName')">{{ getFieldError('cardHolderName') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid">
+            <label class="field" [class.field-error]="hasControlError('cardNumber')">
+              <span>Kart Numarasi</span>
+              <input type="text" formControlName="cardNumber" inputmode="numeric" maxlength="16" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()">
+              <small class="error-text" *ngIf="getFieldError('cardNumber')">{{ getFieldError('cardNumber') }}</small>
+            </label>
+          </div>
+
+          <div class="field-grid three-col payment-row">
+            <label class="field" [class.field-error]="hasControlError('expireMonth')">
+              <span>Ay</span>
+              <select formControlName="expireMonth">
+                <option value="">Secin</option>
+                <option *ngFor="let month of paymentMonths" [value]="month">{{ month }}</option>
+              </select>
+              <small class="error-text" *ngIf="getFieldError('expireMonth')">{{ getFieldError('expireMonth') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('expireYear')">
+              <span>Yil</span>
+              <select formControlName="expireYear">
+                <option value="">Secin</option>
+                <option *ngFor="let year of paymentYears" [value]="year">{{ year }}</option>
+              </select>
+              <small class="error-text" *ngIf="getFieldError('expireYear')">{{ getFieldError('expireYear') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('cvv')">
+              <span>CVV</span>
+              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()">
+              <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
+            </label>
+          </div>
+
+          <p class="error-banner" *ngIf="checkoutForm.errors?.['expiredCard']">Kartinizin son kullanma tarihi gecmis gorunuyor.</p>
+        </section>
+      </div>
+
+      <aside class="checkout-side">
+        <section class="panel summary-panel">
+          <div class="panel-header">
+            <h2>Siparis Ozeti</h2>
+            <p>{{ itemCount }} urun, guvenli odeme ile tamamlanacak.</p>
+          </div>
+
+          <div class="summary-list">
+            <div class="summary-item" *ngFor="let item of basketItems">
+              <div>
+                <strong>{{ item.name }}</strong>
+                <span>{{ item.quantity }} adet</span>
+              </div>
+              <b>{{ item.price * item.quantity | currency:'TRY':'symbol':'1.0-0' }}</b>
+            </div>
+          </div>
+
+          <div class="summary-total">
+            <span>Genel Toplam</span>
+            <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
+          </div>
+
+          <button type="submit" class="submit-btn" [disabled]="isSubmitting">
+            <span>{{ isSubmitting ? 'Siparis Hazirlaniyor...' : 'Siparisi Tamamla' }}</span>
+          </button>
+
+          <div class="summary-note">
+            <span class="note-dot"></span>
+            <p>Form validasyonu frontend ve backend tarafinda calisir. Kritik olaylar Serilog uzerinden maskeli olarak loglanir.</p>
+          </div>
+        </section>
+      </aside>
+    </form>
+  </div>
+</section>
