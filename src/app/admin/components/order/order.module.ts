@@ -17,6 +17,8 @@ import { DeleteDirectiveModule } from '../../../directives/admin/delete.directiv
 
 
 import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
+import { MatSelectModule } from '@angular/material/select';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,8 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,
     MatIconModule,
+    FormsModule,
+    MatSelectModule,
     RouterModule.forChild([
       { path: "", component: OrderComponent }
     ]),
