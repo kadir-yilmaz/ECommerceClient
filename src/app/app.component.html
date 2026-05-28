@@ -1,31 +1,52 @@
 <div [class.store-shell]="!isAdminPage && !isAuthPage">
-  <header class="store-header" *ngIf="!isAdminPage && !isAuthPage">
-    <div class="store-header__top container-xl">
-      <a class="brand" routerLink="/">E-Commerce</a>
+  <!-- TRENDYOL STİLİ HEADER -->
+  <header class="ty-header" *ngIf="!isAdminPage && !isAuthPage">
+    
+    <!-- Top Bar (Yardımcı Linkler) -->
+    <div class="ty-header-top">
+      <div class="container-xl top-links">
+        <a href="javascript:void(0)">İndirim Kuponlarım</a>
+        <a href="javascript:void(0)">Trendyol'da Satış Yap</a>
+        <a href="javascript:void(0)">Hakkımızda</a>
+        <a href="javascript:void(0)">Yardım & Destek</a>
+      </div>
+    </div>
 
-      <div class="search-area">
-        <input type="text" placeholder="Aradiginiz urunu yaziniz...">
-        <button type="button">Ara</button>
+    <!-- Main Bar (Orta Kısım: Logo, Arama, İkonlu Menüler) -->
+    <div class="ty-header-main container-xl">
+      <!-- Logo -->
+      <a class="ty-logo" routerLink="/">
+        e-commerce
+      </a>
+
+      <!-- Arama Çubuğu -->
+      <div class="ty-search">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" placeholder="Ürün, kategori veya marka ara">
       </div>
 
-      <nav class="quick-links">
-        <a routerLink="/products" class="nav-item">Favorilerim</a>
-        <button class="basket-btn" routerLink="/basket" type="button">
-          Sepetim <span class="badge" *ngIf="(basketService.basketItemCount$ | async) > 0">{{basketService.basketItemCount$ | async}}</span>
-        </button>
+      <!-- Kullanıcı İşlemleri -->
+      <nav class="ty-actions">
         
+        <!-- Auth: Giriş Yap / Dropdown -->
         <ng-container *ngIf="!(authService.isAuthenticated$ | async)">
-          <a routerLink="/login" class="login-btn">Giris Yap</a>
+          <a routerLink="/login" class="action-item login-link">
+            <i class="fa-regular fa-user"></i>
+            <span>Giriş Yap</span>
+          </a>
         </ng-container>
 
         <ng-container *ngIf="authService.isAuthenticated$ | async">
-          <div class="user-dropdown">
-            <button class="user-btn">
-              <i class="fa-solid fa-user-circle"></i>
-              <span class="user-name">{{authService.userName$ | async}}</span>
-              <i class="fa-solid fa-chevron-down"></i>
-            </button>
+          <div class="ty-user-dropdown">
+            <div class="action-item user-btn">
+              <i class="fa-regular fa-user"></i>
+              <span class="user-name">Hesabım</span>
+            </div>
+            <!-- Dropdown Menü -->
             <div class="dropdown-content">
+              <div class="user-info">
+                {{authService.userName$ | async}}
+              </div>
               <a routerLink="/orders">
                 <i class="fa-solid fa-box"></i> Siparişlerim
               </a>
@@ -46,42 +67,72 @@
             </div>
           </div>
         </ng-container>
+
+        <!-- Favorilerim -->
+        <a routerLink="/products" class="action-item">
+          <i class="fa-regular fa-heart"></i>
+          <span>Favorilerim</span>
+        </a>
+
+        <!-- Sepetim -->
+        <a routerLink="/basket" class="action-item basket-item">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Sepetim</span>
+          <div class="badge" *ngIf="(basketService.basketItemCount$ | async) > 0">{{basketService.basketItemCount$ | async}}</div>
+        </a>
+
       </nav>
     </div>
 
-    <div class="store-header__categories container-xl">
-      <a routerLink="/products" routerLinkActive="active">Tum Urunler</a>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Kampanyalar</a>
-      <a routerLink="/products" routerLinkActive="active">Yeni Gelenler</a>
+    <!-- Bottom Bar (Kategoriler) -->
+    <div class="ty-header-bottom container-xl">
+      <a href="javascript:void(0)" class="all-categories">
+        <i class="fa-solid fa-bars"></i>
+        <span>Kategoriler</span>
+        <span class="badge-new">Yeni</span>
+      </a>
+      <a routerLink="/products">Kadın</a>
+      <a routerLink="/products">Erkek</a>
+      <a routerLink="/products">Anne & Çocuk</a>
+      <a routerLink="/products">Ev & Yaşam</a>
+      <a routerLink="/products">Süpermarket</a>
+      <a routerLink="/products">Kozmetik</a>
+      <a routerLink="/products">Ayakkabı & Çanta</a>
+      <a routerLink="/products">Elektronik</a>
+      <a routerLink="/products">Spor & Outdoor</a>
+      <a routerLink="/products" class="highlight-link">Flaş Ürünler <span class="badge-new">Yeni</span></a>
+      <a routerLink="/products" class="highlight-link">Çok Satanlar <span class="badge-new">Yeni</span></a>
     </div>
   </header>
 
+  <!-- ANA İÇERİK -->
   <main [class.store-content]="!isAdminPage && !isAuthPage" [class.container-xl]="!isAdminPage && !isAuthPage">
     <router-outlet></router-outlet>
   </main>
 
+  <!-- FOOTER -->
   <footer class="store-footer" *ngIf="!isAdminPage && !isAuthPage">
     <div class="container-xl footer-grid">
       <section>
         <h3>E-COMMERCE</h3>
-        <p>Yeni nesil oyuncu bilgisayarlari ve performans urunleri ile e-ticaret deneyimini hizlandir.</p>
+        <p>Yeni nesil alışveriş platformu ile yüz binlerce ürün sadece bir tık uzağınızda.</p>
       </section>
       <section>
-        <h4>Hizli Erisim</h4>
+        <h4>Hızlı Erişim</h4>
         <a routerLink="/">Ana Sayfa</a>
-        <a routerLink="/products">Tum Urunler</a>
+        <a routerLink="/products">Tüm Ürünler</a>
         <a routerLink="/basket">Sepet</a>
       </section>
       <section>
-        <h4>Musteri Hizmetleri</h4>
-        <a routerLink="/products">Siparis Takibi</a>
-        <a routerLink="/products">Iade ve Degisim</a>
-        <a routerLink="/products">Teslimat Kosullari</a>
+        <h4>Müşteri Hizmetleri</h4>
+        <a routerLink="/products">Sipariş Takibi</a>
+        <a routerLink="/products">İade ve Değişim</a>
+        <a routerLink="/products">Teslimat Koşulları</a>
       </section>
       <section>
-        <h4>Bize Ulasin</h4>
+        <h4>Bize Ulaşın</h4>
         <p>Teknoloji Vadisi, No: 123
-          Maslak, Istanbul</p>
+          Maslak, İstanbul</p>
         <p>+90 850 123 45 67</p>
       </section>
     </div>

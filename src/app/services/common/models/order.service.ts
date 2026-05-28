@@ -67,4 +67,30 @@ export class OrderService {
 
     return await promiseData;
   }
+
+  async updateOrderStatus(id: string, status: number): Promise<any> {
+    const observable: Observable<any> = this.httpCLientService.put({
+      controller: "orders",
+      action: `${id}/status/${status}`
+    }, {});
+
+    return await firstValueFrom(observable);
+  }
+
+  async shipOrder(id: string, cargoCompany: string, trackingNumber: string): Promise<any> {
+    const observable: Observable<any> = this.httpCLientService.put({
+      controller: "orders",
+      action: `${id}/ship`
+    }, { cargoCompany, trackingNumber });
+
+    return await firstValueFrom(observable);
+  }
+
+  async deleteOrder(id: string): Promise<any> {
+    const observable: Observable<any> = this.httpCLientService.delete({
+      controller: "orders"
+    }, id);
+
+    return await firstValueFrom(observable);
+  }
 }

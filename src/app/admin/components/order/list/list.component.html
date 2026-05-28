@@ -1,55 +1,147 @@
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
+<div class="order-management">
+  <div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource">
 
-    <ng-container matColumnDef="orderCode">
-      <th mat-header-cell *matHeaderCellDef> Order Code </th>
-      <td mat-cell *matCellDef="let element"> {{element.orderCode}} </td>
-    </ng-container>
+      <ng-container matColumnDef="orderCode">
+        <th mat-header-cell *matHeaderCellDef> Sipariş Kodu </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="order-code-badge">#{{element.orderCode}}</span>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="userName">
-      <th mat-header-cell *matHeaderCellDef> Username </th>
-      <td mat-cell *matCellDef="let element"> {{element.userName}} </td>
-    </ng-container>
+      <ng-container matColumnDef="userName">
+        <th mat-header-cell *matHeaderCellDef> Kullanıcı </th>
+        <td mat-cell *matCellDef="let element">
+          <div class="user-cell">
+            <mat-icon class="user-icon">person</mat-icon>
+            <span>{{element.userName}}</span>
+          </div>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="totalPrice">
-      <th mat-header-cell *matHeaderCellDef> Total Price </th>
-      <td mat-cell *matCellDef="let element"> {{element.totalPrice}} </td>
-    </ng-container>
+      <ng-container matColumnDef="totalPrice">
+        <th mat-header-cell *matHeaderCellDef> Toplam Tutar </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="price-text">{{element.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="createdDate">
-      <th mat-header-cell *matHeaderCellDef> Created Date </th>
-      <td mat-cell *matCellDef="let element"> {{element.createdDate}} </td>
-    </ng-container>
+      <ng-container matColumnDef="createdDate">
+        <th mat-header-cell *matHeaderCellDef> Tarih </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="date-text">{{element.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
+        </td>
+      </ng-container>
 
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Durum </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="status-badge" [ngClass]="getStatusClass(element.status)">
+            <mat-icon class="status-icon">{{getStatusIcon(element.status)}}</mat-icon>
+            {{getStatusText(element.status)}}
+          </span>
+        </td>
+      </ng-container>
 
-    <ng-container matColumnDef="completed">
-      <th mat-header-cell *matHeaderCellDef width="30">  </th>
-      <td mat-cell *matCellDef="let element"> <img *ngIf="element.completed" style="cursor:pointer" src="../../../../../assets/completed.png" width="25" height="25" /> </td>
-    </ng-container>
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef width="180"> İşlemler </th>
+        <td mat-cell *matCellDef="let element">
+          <div class="action-buttons">
+            <!-- Ödeme tamamlandı → Hazırla -->
+            <button *ngIf="element.status === 1" mat-raised-button color="primary" class="action-btn"
+                    (click)="updateStatus(element.id, 3)" matTooltip="Hazırlamaya Başla">
+              <mat-icon>settings</mat-icon> Hazırla
+            </button>
 
-    <ng-container matColumnDef="viewdetail">
-      <th mat-header-cell *matHeaderCellDef width="30">  </th>
-      <td mat-cell *matCellDef="let element"> <img (click)="showDetail(element.id)" style="cursor:pointer" src="../../../../../assets/detail.png" width="25" height="25" /> </td>
-    </ng-container>
+            <!-- Hazırlanıyor → Kargola -->
+            <button *ngIf="element.status === 3" mat-raised-button class="action-btn ship-btn"
+                    (click)="openShipModal(element.id)" matTooltip="Kargoya Ver">
+              <mat-icon>local_shipping</mat-icon> Kargola
+            </button>
 
-    <ng-container matColumnDef="delete">
-      <th mat-header-cell *matHeaderCellDef width="30">  </th>
-      <td mat-cell *matCellDef="let element"
-          appDelete
-          [id]="element.id"
-          (callback)="getOrders()"
-          controller="orders">
-        <!--<img src="../../../../../assets/delete.png" width="25" height="25" (click)="delete(element.id, $event)" />-->
-      </td>
-    </ng-container>
+            <!-- Kargoda → Teslim -->
+            <button *ngIf="element.status === 4" mat-raised-button class="action-btn deliver-btn"
+                    (click)="updateStatus(element.id, 5)" matTooltip="Teslim Edildi">
+              <mat-icon>inventory_2</mat-icon> Teslim
+            </button>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+            <!-- Kargo bilgisi -->
+            <span *ngIf="element.status >= 4 && element.cargoCompany" class="cargo-info" matTooltip="{{element.cargoCompany}} - {{element.trackingNumber}}">
+              <mat-icon class="cargo-icon">local_shipping</mat-icon>
+              <small>{{element.trackingNumber}}</small>
+            </span>
+          </div>
+        </td>
+      </ng-container>
 
-  <mat-paginator (page)="pageChanged()"
-                 [pageSizeOptions]="[5, 10, 20]"
-                 showFirstLastButtons
-                 aria-label="Select page of periodic elements">
-  </mat-paginator>
+      <ng-container matColumnDef="viewdetail">
+        <th mat-header-cell *matHeaderCellDef width="30">  </th>
+        <td mat-cell *matCellDef="let element"> <img (click)="showDetail(element.id)" style="cursor:pointer" src="../../../../../assets/detail.png" width="25" height="25" /> </td>
+      </ng-container>
+
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef width="30">  </th>
+        <td mat-cell *matCellDef="let element"
+            appDelete
+            [id]="element.id"
+            (callback)="getOrders()"
+            controller="orders">
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator (page)="pageChanged()"
+                   [pageSizeOptions]="[5, 10, 20]"
+                   showFirstLastButtons
+                   aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>
+</div>
+
+<!-- Kargo Modal -->
+<div class="ship-modal-overlay" *ngIf="shipOrderId" (click)="shipOrderId = ''">
+  <div class="ship-modal" (click)="$event.stopPropagation()">
+    <div class="ship-modal-header">
+      <mat-icon>local_shipping</mat-icon>
+      <h3>Kargoya Ver</h3>
+      <button mat-icon-button (click)="shipOrderId = ''">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="ship-modal-body">
+      <div class="ship-info-alert">
+        <mat-icon>info</mat-icon>
+        <span>Bu siparişi kargoya vermek üzeresiniz.</span>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Kargo Firması</mat-label>
+        <mat-select [(value)]="shipCargoCompany" required>
+          <mat-option value="Yurtiçi Kargo">Yurtiçi Kargo</mat-option>
+          <mat-option value="Aras Kargo">Aras Kargo</mat-option>
+          <mat-option value="MNG Kargo">MNG Kargo</mat-option>
+          <mat-option value="PTT Kargo">PTT Kargo</mat-option>
+          <mat-option value="Sürat Kargo">Sürat Kargo</mat-option>
+          <mat-option value="Trendyol Express">Trendyol Express</mat-option>
+          <mat-option value="HepsiJET">HepsiJET</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Kargo Takip No</mat-label>
+        <input matInput [(ngModel)]="shipTrackingNumber" placeholder="Örn: 1234567890" required>
+      </mat-form-field>
+    </div>
+    <div class="ship-modal-footer">
+      <button mat-button (click)="shipOrderId = ''">İptal</button>
+      <button mat-raised-button color="primary" (click)="confirmShip()">
+        <mat-icon>local_shipping</mat-icon> Kargoya Ver
+      </button>
+    </div>
+  </div>
 </div>

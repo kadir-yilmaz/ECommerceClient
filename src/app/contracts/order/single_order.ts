@@ -6,4 +6,7 @@ export class SingleOrder {
   id: string;
   orderCode: string;
   completed: boolean;
+  status: number;
+  cargoCompany?: string;
+  trackingNumber?: string;
 }

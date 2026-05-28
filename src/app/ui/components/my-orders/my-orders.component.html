@@ -6,20 +6,81 @@
 
   <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
     <div class="order-card" *ngFor="let order of orders">
+      
       <div class="order-header">
         <div class="order-info">
           <span class="order-code">#{{order.orderCode}}</span>
           <span class="order-date">{{order.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
         </div>
-        <div class="order-status" [class.completed]="order.completed">
-          {{order.completed ? 'Tamamlandı' : 'Beklemede'}}
+        <div class="order-total">
+          <span class="price">{{order.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
         </div>
       </div>
-      <div class="order-details">
-        <div class="total-price">
-          Toplam Tutar: <strong>{{order.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</strong>
+
+      <!-- Kargo Bilgisi (Eğer Kargoya Verildiyse) -->
+      <div class="cargo-details" *ngIf="order.status >= 4 && order.cargoCompany">
+        <div class="cargo-box">
+          <i class="fa-solid fa-truck-fast text-primary"></i>
+          <div class="cargo-texts">
+            <span class="cargo-company">{{order.cargoCompany}}</span>
+            <span class="tracking-no">Takip No: <strong>{{order.trackingNumber}}</strong></span>
+          </div>
         </div>
       </div>
+
+      <!-- İptal Durumu -->
+      <div class="cancel-alert" *ngIf="order.status === 2">
+        <i class="fa-solid fa-circle-xmark"></i> Siparişiniz İptal Edilmiştir.
+      </div>
+
+      <!-- Stepper Tracking (İptal edilmemişse) -->
+      <div class="order-tracking" *ngIf="order.status !== 2">
+        <ul class="steps">
+          
+          <!-- Step 1: Sipariş Alındı -->
+          <li class="step" 
+              [class.completed]="isStepCompleted(order.status, 1)"
+              [class.active]="isStepActive(order.status, 1)">
+            <div class="step-icon">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+            <div class="step-label">Sipariş Alındı</div>
+          </li>
+
+          <!-- Step 2: Hazırlanıyor -->
+          <li class="step" 
+              [class.completed]="isStepCompleted(order.status, 2)"
+              [class.active]="isStepActive(order.status, 2)">
+            <div class="step-icon" [class.pulse-animation]="isStepActive(order.status, 2)">
+              <i class="fa-solid fa-cog" [class.fa-spin]="isStepActive(order.status, 2)"></i>
+            </div>
+            <div class="step-label">Hazırlanıyor</div>
+          </li>
+
+          <!-- Step 3: Kargoda -->
+          <li class="step" 
+              [class.completed]="isStepCompleted(order.status, 3)"
+              [class.active]="isStepActive(order.status, 3)">
+            <div class="step-icon" [class.pulse-animation]="isStepActive(order.status, 3)">
+              <i class="fa-solid fa-truck" [class.truck-move]="isStepActive(order.status, 3)"></i>
+            </div>
+            <div class="step-label">Kargoda</div>
+          </li>
+
+          <!-- Step 4: Teslim Edildi -->
+          <li class="step" 
+              [class.completed]="isStepCompleted(order.status, 4)"
+              [class.active]="isStepActive(order.status, 4)">
+            <div class="step-icon">
+              <i class="fa-solid fa-box-open" *ngIf="!isStepActive(order.status, 4) && !isStepCompleted(order.status, 4)"></i>
+              <i class="fa-solid fa-check" *ngIf="isStepActive(order.status, 4) || isStepCompleted(order.status, 4)"></i>
+            </div>
+            <div class="step-label">Teslim Edildi</div>
+          </li>
+
+        </ul>
+      </div>
+      
     </div>
   </div>
 

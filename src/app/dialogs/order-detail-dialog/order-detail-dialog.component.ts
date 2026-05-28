@@ -36,27 +36,12 @@ export class OrderDetailDialogComponent extends BaseDialog<OrderDetailDialogComp
 
   async ngOnInit(): Promise<void> {
     this.singleOrder = await this.orderService.getOrderById(this.data as string)
-    debugger
+    
     this.dataSource = this.singleOrder.basketItems;
 
-    this.totalPrice = this.singleOrder.basketItems.map((basketItem, index) => basketItem.price * basketItem.quantity).reduce((price, current) => price + current);
+    this.totalPrice = this.singleOrder.basketItems.map((basketItem: any, index: number) => basketItem.price * basketItem.quantity).reduce((price: number, current: number) => price + current);
   }
 
-  completeOrder() {
-    this.dialogService.openDialog({
-      componentType: CompleteOrderDialogComponent,
-      data: CompleteOrderState.Yes,
-      afterClosed: async () => {
-        this.spinner.show(SpinnerType.BallAtom)
-        await this.orderService.completeOrder(this.data as string);
-        this.spinner.hide(SpinnerType.BallAtom)
-        this.toastrService.message("Sipariş başarıyla tamamlanmıştır! Müşteriye bilgi verilmiştir.", "Sipariş Tamamlandı!", {
-          messageType: ToastrMessageType.Success,
-          position: ToastrPosition.BottomRight
-        });
-      }
-    });
-  }
 
 }
 

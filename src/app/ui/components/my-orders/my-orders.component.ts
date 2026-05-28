@@ -28,4 +28,37 @@ export class MyOrdersComponent extends BaseComponent implements OnInit {
     }
   }
 
+  // Stepper logic (0: Bekliyor, 1: Tamamlandı -> Step 1)
+  // (3: Hazırlanıyor -> Step 2)
+  // (4: Kargoda -> Step 3)
+  // (5: Teslim Edildi -> Step 4)
+  // 2: İptal edildi (bunun için ekstra step de eklenebilir ama standart flow 4 adım)
+
+  getStepLevel(status: number): number {
+    switch (status) {
+      case 0:
+      case 1:
+        return 1; // Sipariş Alındı (Ödeme onaylandı)
+      case 3:
+        return 2; // Hazırlanıyor
+      case 4:
+        return 3; // Kargoda
+      case 5:
+        return 4; // Teslim Edildi
+      case 2:
+        return -1; // İptal
+      default:
+        return 1;
+    }
+  }
+
+  isStepCompleted(status: number, stepIndex: number): boolean {
+    const currentStep = this.getStepLevel(status);
+    return currentStep > stepIndex;
+  }
+
+  isStepActive(status: number, stepIndex: number): boolean {
+    const currentStep = this.getStepLevel(status);
+    return currentStep === stepIndex;
+  }
 }

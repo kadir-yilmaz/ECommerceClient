@@ -54,24 +54,19 @@
         <td style="text-align:right;color:red;font-size:20px;">{{totalPrice | currency : '₺'}}</td>
       </tr>
       <tr>
-        <td style="text-align:right;font-size:12px;"><strong>Address : {{singleOrder.address}}</strong></td>
+        <td style="text-align:right;font-size:12px;"><strong>Adres : {{singleOrder.address}}</strong></td>
       </tr>
       <tr>
-        <td style="text-align:right;font-size:12px;"><strong>Description : {{singleOrder.description}}</strong></td>
+        <td style="text-align:right;font-size:12px;"><strong>Açıklama : {{singleOrder.description}}</strong></td>
+      </tr>
+      <tr *ngIf="singleOrder.status >= 4 && singleOrder.cargoCompany">
+        <td style="text-align:right;font-size:13px;color:#0ea5e9;">
+          <strong><mat-icon style="font-size:16px;width:16px;height:16px;vertical-align:bottom;">local_shipping</mat-icon> Kargo: {{singleOrder.cargoCompany}} (Takip No: {{singleOrder.trackingNumber}})</strong>
+        </td>
       </tr>
     </tbody>
   </table>
-
-
-
-
-
-
-
-
-
 </mat-dialog-content>
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Kapat</button>
-  <button mat-button [mat-dialog-close]="data" cdkFocusInitial (click)="completeOrder()" *ngIf="!singleOrder.completed">Siparişi Tamamlama</button>
 </mat-dialog-actions>
