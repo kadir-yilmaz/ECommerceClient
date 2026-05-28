@@ -35,8 +35,8 @@
               <a routerLink="/profile">
                 <i class="fa-solid fa-user"></i> Profilim
               </a>
-              <div class="dropdown-divider" *ngIf="authService.hasAnyRole$ | async"></div>
-              <a routerLink="/admin" *ngIf="authService.hasAnyRole$ | async" class="admin-link">
+              <div class="dropdown-divider" *ngIf="authService.hasAdminAccess$ | async"></div>
+              <a routerLink="/admin" target="_blank" *ngIf="authService.hasAdminAccess$ | async" class="admin-link">
                 <i class="fa-solid fa-lock"></i> Yönetim Paneli
               </a>
               <div class="dropdown-divider"></div>

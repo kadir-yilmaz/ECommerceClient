@@ -4,4 +4,5 @@ export class List_User {
   nameSurname: string;
   userName: string;
   twoFactorEnabled: boolean;
+  roles: string[];
 }

@@ -48,6 +48,9 @@
           {{user.email}}
         </p>
         <div class="user-badges">
+          <span *ngFor="let role of user.roles || []" class="badge-role" [ngClass]="'role-' + role.toLowerCase()">
+            {{role}}
+          </span>
           <span class="badge" *ngIf="user.twoFactorEnabled">
             <mat-icon>verified_user</mat-icon> 2FA
           </span>

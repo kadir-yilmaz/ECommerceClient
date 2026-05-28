@@ -10,6 +10,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from './servic
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
+
 export class AppComponent implements OnInit, OnDestroy {
   isAdminPage: boolean = false;
   isAuthPage: boolean = false;
@@ -68,3 +69,4 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 }
+

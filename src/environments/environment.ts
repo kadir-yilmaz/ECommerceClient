@@ -3,7 +3,11 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  // Local .NET API (Visual Studio'da F5 ile çalışırken)
+  baseUrl: 'https://localhost:7131/api'
+  // PHP API (XAMPP ile test ederken):
+  // baseUrl: 'http://localhost/api'
 };
 
 /*

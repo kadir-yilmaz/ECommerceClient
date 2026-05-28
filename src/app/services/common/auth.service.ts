@@ -124,4 +124,20 @@ export class AuthService {
       map(roles => roles != null && roles.length > 0)
     );
   }
+
+  /**
+   * Checks if user has admin access (has any role OTHER than default User role)
+   */
+  get hasAdminAccess(): boolean {
+    return this._roles.value != null && this._roles.value.some(role => role !== "User");
+  }
+
+  /**
+   * Observable that emits true if user has admin access
+   */
+  get hasAdminAccess$(): Observable<boolean> {
+    return this.roles$.pipe(
+      map(roles => roles != null && roles.some(role => role !== "User"))
+    );
+  }
 }

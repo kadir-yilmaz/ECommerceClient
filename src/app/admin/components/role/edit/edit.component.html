@@ -1,7 +1,7 @@
 <div class="edit-role-dialog">
   <h2 mat-dialog-title>
-    <mat-icon>edit</mat-icon>
-    Rol Düzenle
+    <mat-icon>shield</mat-icon>
+    Rol Yetkilerini Düzenle
   </h2>
 
   <mat-dialog-content>
@@ -11,7 +11,7 @@
       <mat-icon matPrefix>badge</mat-icon>
     </mat-form-field>
 
-    <div class="permissions-section">
+    <div class="permissions-section-new">
       <h3>
         <mat-icon>lock_open</mat-icon>
         Endpoint Yetkileri
@@ -21,33 +21,34 @@
         Bu role atanacak endpoint yetkilerini seçin. Seçilen endpoint'lere bu role sahip kullanıcılar erişebilir.
       </p>
 
-      <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="endpoint-tree">
-        <!-- Leaf node (Endpoint) -->
-        <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-          <button mat-icon-button disabled></button>
-          <mat-checkbox 
-            [checked]="node.selected"
-            (change)="onCheckboxChange(node)"
-            class="endpoint-checkbox"
-            color="primary">
-            {{node.name}}
-          </mat-checkbox>
-        </mat-tree-node>
-
-        <!-- Parent node (Menu) -->
-        <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
-          <button mat-icon-button matTreeNodeToggle
-                  [attr.aria-label]="'Toggle ' + node.name">
-            <mat-icon class="mat-icon-rtl-mirror">
-              {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-            </mat-icon>
-          </button>
-          <span class="menu-name">
-            <mat-icon>folder</mat-icon>
-            {{node.name}}
-          </span>
-        </mat-tree-node>
-      </mat-tree>
+      <div class="menu-groups-grid">
+        <div class="menu-group-card" *ngFor="let menu of dataSource.data">
+          <div class="menu-group-header">
+            <mat-icon class="group-icon">folder_open</mat-icon>
+            <h4>{{ menu.name }}</h4>
+          </div>
+          
+          <div class="menu-group-endpoints">
+            <div class="endpoint-item" *ngFor="let action of menu.actions">
+              <mat-checkbox 
+                [(ngModel)]="action.selected"
+                (change)="hasChanges = true"
+                class="endpoint-checkbox-new"
+                color="primary">
+                {{ action.name }}
+              </mat-checkbox>
+              
+              <span class="endpoint-badge" 
+                    [class.badge-get]="action.code?.startsWith('GET')" 
+                    [class.badge-post]="action.code?.startsWith('POST')" 
+                    [class.badge-delete]="action.code?.startsWith('DELETE')"
+                    [class.badge-put]="action.code?.startsWith('PUT')">
+                {{ action.code?.split('.')[0] || 'API' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </mat-dialog-content>
 

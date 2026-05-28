@@ -24,7 +24,7 @@
       </div>
     </header>
 
-    <form class="checkout-grid" [formGroup]="checkoutForm" (ngSubmit)="completeOrder()">
+    <form class="checkout-grid" [formGroup]="checkoutForm" (ngSubmit)="completeOrder()" autocomplete="on">
       <div class="checkout-main">
         <section class="panel">
           <div class="panel-header">
@@ -100,7 +100,7 @@
           <div class="field-grid">
             <label class="field" [class.field-error]="hasControlError('cardHolderName')">
               <span>Kart Uzerindeki Isim</span>
-              <input type="text" formControlName="cardHolderName" placeholder="AD SOYAD">
+              <input type="text" formControlName="cardHolderName" placeholder="AD SOYAD" autocomplete="cc-name">
               <small class="error-text" *ngIf="getFieldError('cardHolderName')">{{ getFieldError('cardHolderName') }}</small>
             </label>
           </div>
@@ -108,7 +108,7 @@
           <div class="field-grid">
             <label class="field" [class.field-error]="hasControlError('cardNumber')">
               <span>Kart Numarasi</span>
-              <input type="text" formControlName="cardNumber" inputmode="numeric" maxlength="16" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()">
+              <input type="text" formControlName="cardNumber" inputmode="numeric" maxlength="16" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()" autocomplete="cc-number">
               <small class="error-text" *ngIf="getFieldError('cardNumber')">{{ getFieldError('cardNumber') }}</small>
             </label>
           </div>
@@ -116,7 +116,7 @@
           <div class="field-grid three-col payment-row">
             <label class="field" [class.field-error]="hasControlError('expireMonth')">
               <span>Ay</span>
-              <select formControlName="expireMonth">
+              <select formControlName="expireMonth" autocomplete="cc-exp-month">
                 <option value="">Secin</option>
                 <option *ngFor="let month of paymentMonths" [value]="month">{{ month }}</option>
               </select>
@@ -125,7 +125,7 @@
 
             <label class="field" [class.field-error]="hasControlError('expireYear')">
               <span>Yil</span>
-              <select formControlName="expireYear">
+              <select formControlName="expireYear" autocomplete="cc-exp-year">
                 <option value="">Secin</option>
                 <option *ngFor="let year of paymentYears" [value]="year">{{ year }}</option>
               </select>
@@ -134,7 +134,7 @@
 
             <label class="field" [class.field-error]="hasControlError('cvv')">
               <span>CVV</span>
-              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()">
+              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" autocomplete="cc-csc">
               <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
             </label>
           </div>

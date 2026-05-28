@@ -33,10 +33,10 @@ export class AuthGuard implements CanActivate {
           return false;
         }
 
-        // Admin panel için herhangi bir role sahip olma kontrolü
+        // Admin panel için yönetim yetkisi kontrolü
         if (state.url.startsWith('/admin')) {
-          const hasAnyRole = this.authService.hasAnyRole;
-          if (!hasAnyRole) {
+          const hasAdminAccess = this.authService.hasAdminAccess;
+          if (!hasAdminAccess) {
             this.router.navigate([""]);
             this.toastrService.message("Bu sayfaya erişim yetkiniz yok!", "Yetkisiz Erişim!", {
               messageType: ToastrMessageType.Error,

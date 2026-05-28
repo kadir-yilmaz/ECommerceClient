@@ -21,6 +21,7 @@ import { HttpErrorHandlerInterceptorService } from './services/common/http-error
 import { BasketInterceptorService } from './services/common/basket-interceptor.service';
 import { HttpErrorInterceptor } from './services/common/http-error.interceptor';
 import { DynamicLoadComponentDirective } from './directives/common/dynamic-load-component.directive';
+import { environment } from '../environments/environment';
 
 @NgModule({
   declarations: [
@@ -51,13 +52,13 @@ import { DynamicLoadComponentDirective } from './directives/common/dynamic-load-
     JwtModule.forRoot({
       config: {
         tokenGetter: () => localStorage.getItem("accessToken"),
-        allowedDomains: ["localhost:5025", "127.0.0.1:5025", "localhost:7131", "localhost:5131", "localhost:4200", /.*\.trycloudflare\.com/]
+        allowedDomains: ["localhost:5025", "127.0.0.1:5025", "localhost:7131", "localhost:5131", "localhost:4200", "kadir.tryasp.net", /.*\.trycloudflare\.com/]
       }
     }),
     SocialLoginModule
   ],
   providers: [
-    { provide: "baseUrl", useValue: "/api" },
+    { provide: "baseUrl", useValue: environment.baseUrl },
     { provide: "baseSignalRUrl", useValue: "/" },
     {
       provide: "SocialAuthServiceConfig",

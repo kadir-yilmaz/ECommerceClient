@@ -11,3 +11,18 @@
   overflow-y: auto;
   background-color: var(--bg-color);
 }
+
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+    overflow: visible;
+  }
+
+  .main-content {
+    padding: 1rem;
+    overflow-y: visible;
+    min-height: calc(100vh - 120px);
+  }
+}

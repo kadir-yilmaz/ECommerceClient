@@ -1,0 +1,40 @@
+name: Deploy Angular to InfinityFree
+
+on:
+  push:
+    branches:
+      - main  # Tetiklenecek ana dal (master ise master yapabilirsiniz)
+    paths:
+      - 'src/**'
+      - 'angular.json'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/deploy.yml'
+
+jobs:
+  web-deploy:
+    name: Build & Deploy Angular
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get latest code
+      uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+
+    - name: Build Angular app
+      run: npm run build
+
+    - name: Sync files to FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./dist/ecommerce-client/
+        server-dir: /htdocs/
