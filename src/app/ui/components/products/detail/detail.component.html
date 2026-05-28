@@ -114,7 +114,9 @@
         <button class="ty-btn ty-btn-primary" type="button" (click)="addToBasket()" [disabled]="product.stock <= 0">
           Sepete Ekle
         </button>
-        <button class="ty-fav-icon-btn"><i class="fa-regular fa-heart"></i></button>
+        <button class="ty-fav-icon-btn" type="button" (click)="onToggleFavorite()" [class.active]="isFavorite">
+          <i class="fa-heart" [ngClass]="isFavorite ? 'fa-solid' : 'fa-regular'" [style.color]="isFavorite ? '#f27a1a' : ''"></i>
+        </button>
       </div>
 
       <div class="ty-delivery-info">
