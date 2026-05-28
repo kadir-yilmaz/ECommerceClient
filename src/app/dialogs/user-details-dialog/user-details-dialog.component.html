@@ -1,0 +1,44 @@
+<h2 mat-dialog-title class="dialog-title">
+  <mat-icon>account_circle</mat-icon> Kullanıcı Detayları
+</h2>
+<mat-dialog-content class="dialog-content">
+  <div class="user-detail-grid">
+    <div class="detail-row">
+      <span class="label">Ad Soyad:</span>
+      <span class="value">{{ data.nameSurname || 'Belirtilmemiş' }}</span>
+    </div>
+    
+    <div class="detail-row">
+      <span class="label">Kullanıcı Adı:</span>
+      <span class="value">@{{ data.userName }}</span>
+    </div>
+    
+    <div class="detail-row">
+      <span class="label">E-Posta:</span>
+      <span class="value">{{ data.email }}</span>
+    </div>
+    
+    <div class="detail-row">
+      <span class="label">İki Adımlı Doğrulama (2FA):</span>
+      <span class="value">
+        <span class="status-badge" [class.enabled]="data.twoFactorEnabled">
+          <mat-icon>{{ data.twoFactorEnabled ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ data.twoFactorEnabled ? 'Aktif' : 'Pasif' }}
+        </span>
+      </span>
+    </div>
+    
+    <div class="detail-row">
+      <span class="label">Mevcut Roller:</span>
+      <div class="roles-container">
+        <span *ngFor="let role of data.roles || []" class="badge-role" [ngClass]="'role-' + role.toLowerCase()">
+          {{ role }}
+        </span>
+        <span *ngIf="!(data.roles && data.roles.length)" class="no-roles">Hiçbir rol atanmamış</span>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" class="dialog-actions">
+  <button mat-button class="btn-close" (click)="close()">Kapat</button>
+</mat-dialog-actions>

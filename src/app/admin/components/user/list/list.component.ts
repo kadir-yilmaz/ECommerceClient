@@ -9,6 +9,7 @@ import { AuthorizeUserDialogComponent } from '../../../../dialogs/authorize-user
 import { AlertifyService, MessageType, Position } from '../../../../services/admin/alertify.service';
 import { DialogService } from '../../../../services/common/dialog.service';
 import { UserService } from '../../../../services/common/models/user.service';
+import { UserDetailsDialogComponent } from '../../../../dialogs/user-details-dialog/user-details-dialog.component';
 
 @Component({
   selector: 'app-list',
@@ -150,10 +151,12 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   viewUserDetails(user: List_User) {
-    // TODO: Implement user details dialog
-    this.alertifyService.message("Kullanıcı detayları yakında eklenecek", {
-      messageType: MessageType.Message,
-      position: Position.BottomRight
+    this.dialogService.openDialog({
+      componentType: UserDetailsDialogComponent,
+      data: user,
+      options: {
+        width: "600px"
+      }
     });
   }
 

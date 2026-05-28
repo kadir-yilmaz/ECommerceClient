@@ -1,0 +1,140 @@
+.dialog-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 700;
+  color: #1e1e1e;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #f27a1a;
+  }
+}
+
+.dialog-content {
+  font-family: 'Inter', sans-serif;
+}
+
+.user-detail-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  align-items: center;
+  padding: 12px 16px;
+  background-color: #fcfcfc;
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+
+  .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666666;
+  }
+
+  .value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333333;
+  }
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background-color: #ffebee;
+  color: #c62828;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  &.enabled {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+}
+
+.roles-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  .badge-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e0e0e0;
+    background: #f5f5f5;
+    color: #616161;
+
+    &.role-admin {
+      background: #ffebee;
+      color: #c62828;
+      border-color: #ffcdd2;
+    }
+
+    &.role-editor {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-color: #bbdefb;
+    }
+
+    &.role-user {
+      background: #f3e5f5;
+      color: #6a1b9a;
+      border-color: #e1bee7;
+    }
+  }
+
+  .no-roles {
+    font-size: 13px;
+    color: #999999;
+    font-style: italic;
+  }
+}
+
+.dialog-actions {
+  border-top: 1px solid #f0f0f0;
+  padding-top: 16px;
+  margin-top: 20px;
+
+  .btn-close {
+    background-color: #f5f5f5;
+    color: #333333;
+    font-weight: 600;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    padding: 8px 20px;
+    transition: all 0.2s;
+
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  }
+}
