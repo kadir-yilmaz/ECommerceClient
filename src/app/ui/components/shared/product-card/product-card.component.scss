@@ -275,3 +275,98 @@
     }
   }
 }
+
+/* Mobil Cihazlara Özel Kompakt Product Card Tasarımı */
+@media (max-width: 767px) {
+  .ty-product-card {
+    border-radius: 6px;
+    
+    .ty-card-image {
+      .ty-fav-btn {
+        width: 28px;
+        height: 28px;
+        top: 6px;
+        right: 6px;
+        font-size: 12px;
+      }
+      
+      .ty-badge-container {
+        top: 6px;
+        left: 6px;
+        
+        .circle-badge {
+          width: 36px;
+          height: 36px;
+          font-size: 7.5px;
+        }
+      }
+      
+      .ty-quick-view-btn {
+        display: none; /* Mobilde hızlı bakış butonunu alan kazanmak için gizliyoruz */
+      }
+    }
+
+    .ty-card-body {
+      padding: 8px;
+      
+      .ty-title-link {
+        margin-bottom: 4px;
+        
+        .ty-title-wrapper {
+          font-size: 11px;
+          line-height: 1.3;
+        }
+      }
+
+      .ty-stats-row {
+        font-size: 9px;
+        margin-bottom: 4px;
+      }
+
+      .ty-rating-row {
+        font-size: 9px;
+        margin-bottom: 4px;
+        flex-wrap: wrap;
+        gap: 2px;
+
+        .rating-score {
+          font-size: 9.5px;
+        }
+        .stars {
+          font-size: 7.5px;
+        }
+        .rating-text {
+          font-size: 9px;
+        }
+        .camera-icon {
+          display: none;
+        }
+      }
+
+      .ty-lowest-price-badge {
+        font-size: 9px;
+        margin-bottom: 2px;
+      }
+
+      .ty-price-container {
+        margin-bottom: 6px;
+        
+        .ty-new-price {
+          .ty-price-value {
+            font-size: 13px;
+          }
+          .ty-old-price {
+            font-size: 10px;
+          }
+        }
+      }
+
+      .ty-cart-btn {
+        padding: 6px 0;
+        font-size: 10.5px;
+        margin-top: 6px;
+        border-radius: 4px;
+      }
+    }
+  }
+}

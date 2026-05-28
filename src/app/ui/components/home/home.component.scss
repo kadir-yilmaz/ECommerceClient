@@ -404,7 +404,7 @@
 
   .product-slider {
     app-product-card {
-      flex: 0 0 100%;
+      flex: 0 0 calc(50% - 0.5rem);
     }
   }
 }

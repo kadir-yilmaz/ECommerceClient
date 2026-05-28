@@ -371,12 +371,30 @@
   }
 
   .sort-bar-right {
-    display: none;
+    display: flex;
+    align-items: center;
+    
+    .sort-label {
+      display: none;
+    }
+    
+    .sort-select {
+      padding: 6px 28px 6px 10px;
+      font-size: 0.82rem;
+      height: 36px;
+    }
+  }
+
+  .filter-toggle-btn {
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    height: 36px;
   }
 }
 
-@media (max-width: 575px) {
+@media (max-width: 767px) {
   .products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 }
