@@ -22,6 +22,7 @@ export class DetailComponent extends BaseComponent implements OnInit {
   baseUrl: BaseUrl;
   product: List_Product;
   selectedImagePath: string;
+  isLightboxOpen: boolean = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -177,5 +178,13 @@ export class DetailComponent extends BaseComponent implements OnInit {
 
   get isFavorite(): boolean {
     return this.product ? this.favoriteService.isFavorite(this.product.id) : false;
+  }
+
+  openLightbox(): void {
+    this.isLightboxOpen = true;
+  }
+
+  closeLightbox(): void {
+    this.isLightboxOpen = false;
   }
 }

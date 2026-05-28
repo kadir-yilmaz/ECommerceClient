@@ -148,11 +148,38 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      position: relative;
       
       img {
         max-width: 100%;
         max-height: 100%;
         object-fit: contain;
+        transition: opacity 0.3s ease;
+      }
+
+      .ty-image-zoom-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,0.4);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        border-radius: 8px;
+
+        i {
+          font-size: 36px;
+          color: #333;
+          background: #fff;
+          padding: 15px;
+          border-radius: 50%;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+      }
+
+      &:hover {
+        .ty-image-zoom-overlay {
+          opacity: 1;
+        }
       }
     }
   }
@@ -596,5 +623,71 @@
 @media (max-width: 992px) {
   .ty-detail-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* LIGHTBOX MODAL */
+.ty-lightbox-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .ty-lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 36px;
+    cursor: pointer;
+    z-index: 10000;
+    transition: transform 0.2s;
+
+    &:hover { transform: scale(1.1); color: #f27a1a; }
+  }
+
+  .ty-lightbox-content {
+    position: relative;
+    width: 90%;
+    max-width: 1000px;
+    height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      user-select: none;
+    }
+
+    .ty-lightbox-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: #fff;
+      font-size: 40px;
+      width: 60px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-radius: 8px;
+
+      &:hover { background: rgba(255, 255, 255, 0.5); color: #333; }
+      
+      &.prev { left: -60px; }
+      &.next { right: -60px; }
+    }
   }
 }
