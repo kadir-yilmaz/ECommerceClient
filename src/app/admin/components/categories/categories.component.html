@@ -1,0 +1,98 @@
+<div class="categories-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-info">
+      <h2>Kategori Yönetimi</h2>
+      <p class="subtitle">Kategorileri hiyerarşik olarak yönetebilirsiniz.</p>
+    </div>
+    <button class="btn-add" (click)="openAddForm()">
+      <mat-icon>add</mat-icon>
+      Yeni Kategori
+    </button>
+  </div>
+
+  <!-- Add/Edit Form Modal -->
+  <div class="form-overlay" *ngIf="showForm">
+    <div class="form-card">
+      <div class="form-header">
+        <h3>{{ isEditing ? 'Kategori Düzenle' : 'Yeni Kategori Ekle' }}</h3>
+        <button class="btn-close" (click)="cancelForm()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+      <div class="form-body">
+        <div class="form-group">
+          <label>Kategori Adı</label>
+          <input type="text" class="form-input" [(ngModel)]="formCategoryName" placeholder="Kategori adını giriniz..." autofocus>
+        </div>
+        <div class="form-group">
+          <label>Üst Kategori (Opsiyonel)</label>
+          <select class="form-input" [(ngModel)]="formParentCategoryId">
+            <option value="">-- Ana Kategori --</option>
+            <option *ngFor="let cat of categories" [value]="cat.id" [disabled]="cat.id === formCategoryId">
+              {{ cat.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-cancel" (click)="cancelForm()">İptal</button>
+        <button class="btn-save" (click)="saveCategory()">
+          <mat-icon>{{ isEditing ? 'save' : 'add' }}</mat-icon>
+          {{ isEditing ? 'Güncelle' : 'Ekle' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Category Tree -->
+  <div class="category-tree" *ngIf="categoryTree.length > 0">
+    <ng-container *ngFor="let node of categoryTree">
+      <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: node, depth: 0 }"></ng-container>
+    </ng-container>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="categoryTree.length === 0">
+    <mat-icon class="empty-icon">folder_open</mat-icon>
+    <h3>Henüz kategori bulunmuyor</h3>
+    <p>Yeni bir kategori ekleyerek başlayın.</p>
+  </div>
+</div>
+
+<!-- Recursive tree node template -->
+<ng-template #treeNode let-node let-depth="depth">
+  <div class="tree-item" [style.padding-left.px]="depth * 32 + 16">
+    <div class="tree-item-content">
+      <button class="expand-btn" *ngIf="node.children?.length > 0" (click)="toggleExpand(node)">
+        <mat-icon>{{ node.expanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+      </button>
+      <div class="expand-placeholder" *ngIf="!node.children?.length"></div>
+
+      <mat-icon class="folder-icon" [class.has-children]="node.children?.length > 0">
+        {{ node.children?.length > 0 ? (node.expanded ? 'folder_open' : 'folder') : 'label' }}
+      </mat-icon>
+
+      <span class="category-name">{{ node.name }}</span>
+      <span class="children-count" *ngIf="node.children?.length > 0">({{ node.children.length }})</span>
+    </div>
+
+    <div class="tree-item-actions">
+      <button class="action-btn add-child-btn" matTooltip="Alt Kategori Ekle" (click)="openAddForm(node.id)">
+        <mat-icon>add</mat-icon>
+      </button>
+      <button class="action-btn edit-btn" matTooltip="Düzenle" (click)="openEditForm(node)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button class="action-btn delete-btn" matTooltip="Sil" (click)="deleteCategory(node.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <ng-container *ngIf="node.expanded && node.children?.length > 0">
+    <ng-container *ngFor="let child of node.children">
+      <ng-container *ngTemplateOutlet="treeNode; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

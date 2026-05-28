@@ -27,6 +27,14 @@
       </div>
     </div>
 
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Category</mat-label>
+      <mat-select [(value)]="selectedCategoryId">
+        <mat-option value="">-- Kategori Seçiniz --</mat-option>
+        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <div class="mb-3">
       <label class="form-label fw-bold">Images</label>
       <input class="form-control" type="file" multiple accept="image/*"

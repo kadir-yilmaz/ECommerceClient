@@ -9,6 +9,7 @@ export class List_Product {
   updatedDate: Date;
   productImageFiles?: List_Product_Image[];
   imagePath: string;
+  categoryId?: string;
 }
 
 

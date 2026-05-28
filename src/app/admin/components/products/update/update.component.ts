@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from '../../../../base/base.component';
+import { Category } from '../../../../contracts/category';
 import { List_Product } from '../../../../contracts/list_product';
 import { List_Product_Image } from '../../../../contracts/list_product_image';
 import { BaseUrl } from '../../../../contracts/base_url';
 import { AlertifyService, MessageType, Position } from '../../../../services/admin/alertify.service';
+import { CategoryService } from '../../../../services/common/models/category.service';
 import { ProductService } from '../../../../services/common/models/product.service';
 import { FileService } from '../../../../services/common/models/file.service';
 
@@ -22,12 +24,15 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   baseUrl: BaseUrl;
   selectedFiles: File[] = [];
   newImagePreviews: string[] = [];
+  categories: Category[] = [];
+  selectedCategoryId: string = '';
 
   constructor(
     spinner: NgxSpinnerService,
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
+    private categoryService: CategoryService,
     private alertify: AlertifyService,
     private fileService: FileService
   ) {
@@ -38,6 +43,9 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     this.showSpinner(SpinnerType.BallAtom);
     this.baseUrl = await this.fileService.getBaseStorageUrl();
 
+    const catResult = await this.categoryService.getAll();
+    this.categories = catResult.categories;
+
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
       this.product = await this.productService.readById(this.productId,
@@ -47,6 +55,10 @@ export class UpdateComponent extends BaseComponent implements OnInit {
           this.router.navigate(['/admin/products']);
         }
       );
+
+      if (this.product?.categoryId) {
+        this.selectedCategoryId = this.product.categoryId;
+      }
 
       this.existingImages = await this.productService.readImages(this.productId, () => { });
     }
@@ -97,12 +109,15 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   async update(name: HTMLInputElement, stock: HTMLInputElement, price: HTMLInputElement) {
     this.showSpinner(SpinnerType.BallAtom);
 
-    const updateModel = {
+    const updateModel: any = {
       id: this.productId,
       name: name.value,
       stock: parseInt(stock.value),
       price: parseFloat(price.value)
     };
+    if (this.selectedCategoryId) {
+      updateModel.categoryId = this.selectedCategoryId;
+    }
 
     this.productService.update_json(updateModel, async () => {
       // Upload new images if any

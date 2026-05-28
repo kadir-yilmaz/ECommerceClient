@@ -15,6 +15,7 @@ import { FileUploadModule } from '../../../services/common/file-upload/file-uplo
 import { DialogModule } from '../../../dialogs/dialog.module';
 import { DeleteDirectiveModule } from '../../../directives/admin/delete.directive.module';
 
+import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { UpdateComponent } from './update/update.component';
 
@@ -38,7 +39,7 @@ import { UpdateComponent } from './update/update.component';
       }
     ]),
 
-    MatSidenavModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatDialogModule,
+    MatSidenavModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatDialogModule, MatSelectModule,
     DialogModule,
     FileUploadModule,
     DeleteDirectiveModule

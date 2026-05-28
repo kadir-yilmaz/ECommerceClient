@@ -10,8 +10,27 @@
 
       <!-- Arama Çubuğu -->
       <div class="ty-search">
-        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-        <input type="text" placeholder="Ürün, kategori veya marka ara">
+        <i class="fa-solid fa-magnifying-glass search-icon" (click)="onSearchSubmit()"></i>
+        <input type="text" 
+               [value]="searchQuery"
+               (input)="onSearchInput($event)"
+               (focus)="onSearchFocus()"
+               (blur)="onSearchBlur()"
+               (keyup.enter)="onSearchSubmit()"
+               placeholder="Ürün, kategori veya marka ara">
+               
+        <!-- Arama Önerileri Dropdown (Trendyol Stil) -->
+        <div class="ty-search-suggestions" *ngIf="showSearchSuggestions && searchSuggestions.length > 0">
+          <div class="suggestion-item" 
+               *ngFor="let item of searchSuggestions" 
+               (mousedown)="$event.preventDefault()" 
+               (click)="selectSuggestion(item)">
+            <span class="suggestion-text">{{item.text}}</span>
+            <span class="suggestion-badge" [class.badge-brand]="item.type === 'Marka'" *ngIf="item.type === 'Marka' || item.type === 'Kategori' || item.type === 'KategoriCombo'">
+              {{ item.type === 'Marka' ? 'Marka' : 'Kategori' }}
+            </span>
+          </div>
+        </div>
       </div>
 
       <!-- Kullanıcı İşlemleri -->
@@ -74,23 +93,79 @@
       </nav>
     </div>
 
-    <!-- Bottom Bar (Kategoriler) -->
-    <div class="ty-header-bottom container-xl">
-      <a href="javascript:void(0)" class="all-categories">
-        <i class="fa-solid fa-bars"></i>
-        <span>Kategoriler</span>
-      </a>
-      <a routerLink="/products">Kadın</a>
-      <a routerLink="/products">Erkek</a>
-      <a routerLink="/products">Anne & Çocuk</a>
-      <a routerLink="/products">Ev & Yaşam</a>
-      <a routerLink="/products">Süpermarket</a>
-      <a routerLink="/products">Kozmetik</a>
-      <a routerLink="/products">Ayakkabı & Çanta</a>
-      <a routerLink="/products">Elektronik</a>
-      <a routerLink="/products">Spor & Outdoor</a>
-      <a routerLink="/products" class="highlight-link">Flaş Ürünler</a>
-      <a routerLink="/products" class="highlight-link">Çok Satanlar</a>
+    <!-- Bottom Bar (Kategoriler & Mega Menü) -->
+    <div class="ty-header-bottom-wrapper">
+      <div class="ty-header-bottom container-xl">
+        <!-- Kategoriler Sekmesi (Mega Menü Tetikleyicisi) -->
+        <div class="all-categories-container" (mouseenter)="onMegaMenuHover(true)" (mouseleave)="onMegaMenuHover(false)">
+          <a href="javascript:void(0)" class="all-categories" [class.active]="megaMenuOpen" (click)="toggleMegaMenu()">
+            <i class="fa-solid fa-bars"></i>
+            <span>Kategoriler</span>
+          </a>
+
+          <!-- TRENDYOL TARZI DİNAMİK MEGA MENÜ -->
+          <div class="ty-mega-menu" *ngIf="megaMenuOpen" [class.open]="megaMenuOpen">
+            <!-- Mobil Pop-up Header (Telefonda Kapatma Butonlu Başlık) -->
+            <div class="mobile-mega-header">
+              <h3>Kategoriler</h3>
+              <button class="close-btn" (click)="closeMegaMenu($event)">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div class="mega-menu-inner">
+              <!-- Sol Kısım (Ana Kategoriler) -->
+              <div class="mega-sidebar">
+                <div *ngFor="let cat of categoryTree" 
+                     class="sidebar-item" 
+                     [class.active]="hoveredCategory?.id === cat.id"
+                     (mouseenter)="onHoverCategory(cat)"
+                     (click)="onCategoryClick(cat, $event)">
+                  <span class="sidebar-item-text">{{cat.name}}</span>
+                  <i class="fa-solid fa-chevron-right icon"></i>
+                </div>
+              </div>
+
+              <!-- Sağ Kısım (Hover Edilen Ana Kategorinin Alt Kategorileri) -->
+              <div class="mega-content" *ngIf="hoveredCategory">
+                <!-- Alt Kategoriler Hiyerarşisi Grid -->
+                <div class="mega-grid" *ngIf="hoveredCategory.children?.length > 0">
+                  <div class="mega-column" *ngFor="let sub of hoveredCategory.children">
+                    <h4 class="column-title" (click)="navigateToCategory(sub.id)">
+                      {{sub.name}}
+                    </h4>
+                    
+                    <!-- Üçüncü Derece Alt Kategoriler -->
+                    <ul class="sub-list" *ngIf="sub.children?.length > 0">
+                      <li *ngFor="let child of sub.children">
+                        <a (click)="navigateToCategory(child.id)" class="sub-link">{{child.name}}</a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Boş Alt Kategori Durumu -->
+                <div class="empty-content" *ngIf="!hoveredCategory.children || hoveredCategory.children.length === 0">
+                  <div class="empty-content-box">
+                    <i class="fa-solid fa-bag-shopping empty-icon"></i>
+                    <p>Bu kategori için alt kategori bulunmamaktadır.</p>
+                    <button class="view-all-btn" (click)="navigateToCategory(hoveredCategory.id)">
+                      Tüm {{hoveredCategory.name}} Ürünlerini Gör
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dinamik Diğer Kategoriler (Tıklayınca Direkt Gider, Hover ile Dropdown Açmaz) -->
+        <ng-container *ngFor="let cat of categoryTree.slice(0, 9)">
+          <a (click)="navigateToCategory(cat.id)" class="bottom-category-link">
+            {{cat.name}}
+          </a>
+        </ng-container>
+      </div>
     </div>
   </header>
 

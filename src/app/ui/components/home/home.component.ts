@@ -43,7 +43,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
     try {
       this.baseUrl = await this.fileService.getBaseStorageUrl();
       
-      const productData = await this.productService.read(0, 8, () => { }, () => { });
+      const productData = await this.productService.read(0, 8, undefined, undefined, undefined, () => { }, () => { });
       this.featuredProducts = productData.products.map<List_Product>((product) => ({
         ...product,
         imagePath: product.productImageFiles?.length

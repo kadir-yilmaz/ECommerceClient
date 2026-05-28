@@ -72,10 +72,15 @@ export class ProductService {
       });
   }
 
-  async read(page: number = 0, size: number = 5, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalProductCount: number; products: List_Product[] }> {
+  async read(page: number = 0, size: number = 5, categoryId?: string, sortType?: string, searchTerm?: string, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalProductCount: number; products: List_Product[] }> {
+    let queryString = `page=${page}&size=${size}`;
+    if (categoryId) queryString += `&categoryId=${categoryId}`;
+    if (sortType) queryString += `&sortType=${sortType}`;
+    if (searchTerm) queryString += `&search=${encodeURIComponent(searchTerm)}`;
+
     const promiseData: Promise<{ totalProductCount: number; products: List_Product[] }> = this.httpClientService.get<{ totalProductCount: number; products: List_Product[] }>({
       controller: "products",
-      queryString: `page=${page}&size=${size}`
+      queryString: queryString
     }).toPromise();
 
     promiseData.then(d => successCallBack())
@@ -175,5 +180,14 @@ export class ProductService {
 
     await firstValueFrom(observable);
     if (successCallBack) successCallBack();
+  }
+
+  async getSearchSuggestions(q: string): Promise<Array<{ text: string, type: string, targetId?: string }>> {
+    const observable = this.httpClientService.get<Array<{ text: string, type: string, targetId?: string }>>({
+      controller: "products",
+      action: "search-suggestions",
+      queryString: `q=${encodeURIComponent(q)}`
+    });
+    return await firstValueFrom(observable);
   }
 }

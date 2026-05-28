@@ -1,32 +1,134 @@
 <section class="products-page">
-  <header class="products-header">
-    <div>
-      <p class="eyebrow">Seçilmişler</p>
-      <h1>Öne Çıkan Ürünler</h1>
+  <!-- Sort Bar -->
+  <div class="sort-bar">
+    <div class="sort-bar-left">
+      <button class="filter-toggle-btn" (click)="toggleSidebar()">
+        <i class="fa-solid fa-sliders"></i>
+        Filtrele
+      </button>
+      <span class="result-count" *ngIf="totalProductCount">{{ totalProductCount }} ürün</span>
     </div>
-    <a class="all-link" routerLink="/products">Tümünü Gör</a>
-  </header>
-
-  <div class="products-grid" *ngIf="products?.length; else emptyState">
-    <app-product-card
-      *ngFor="let product of products"
-      [product]="product"
-      [baseUrl]="baseUrl?.url"
-      variant="default"
-      [showAddToCart]="true"
-      [isFavorite]="isProductFavorite(product.id)"
-      (addToCart)="addToBasket($event)"
-      (toggleFavorite)="onToggleFavorite($event)">
-    </app-product-card>
+    <div class="sort-bar-right">
+      <span class="sort-label">Sıralama:</span>
+      <div class="sort-select-wrapper">
+        <select class="sort-select" [value]="selectedSortType" (change)="onSortChange($any($event.target).value)">
+          <option *ngFor="let opt of sortOptions" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+      </div>
+    </div>
   </div>
 
-  <ng-template #emptyState>
-    <p class="empty-state">Henuz urun bulunamadi.</p>
-  </ng-template>
+  <!-- Active Filters -->
+  <div class="active-filters" *ngIf="hasActiveFilters">
+    <span class="active-filter-chip" *ngIf="selectedCategoryId" (click)="onCategorySelect('')">
+      {{ getCategoryName(selectedCategoryId) }}
+      <i class="fa-solid fa-xmark"></i>
+    </span>
+    <span class="active-filter-chip" *ngIf="selectedSortType" (click)="onSortChange('')">
+      {{ (sortOptions | keyvalue)?.length ? '' : '' }}
+      <ng-container *ngFor="let opt of sortOptions">
+        <ng-container *ngIf="opt.value === selectedSortType">{{ opt.label }}</ng-container>
+      </ng-container>
+      <i class="fa-solid fa-xmark"></i>
+    </span>
+    <button class="clear-all-btn" (click)="clearFilters()">Temizle</button>
+  </div>
 
-  <nav class="pager" aria-label="Page navigation example" *ngIf="totalPageCount > 1">
-    <a class="pager-btn" [routerLink]="['/products', currentPageNo - 1 <= 0 ? 1 : currentPageNo - 1]">Onceki</a>
-    <a class="pager-index">{{ currentPageNo }} / {{ totalPageCount }}</a>
-    <a class="pager-btn" [routerLink]="['/products', currentPageNo + 1 >= totalPageCount ? totalPageCount : currentPageNo + 1]">Sonraki</a>
-  </nav>
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" [class.open]="sidebarOpen" (click)="toggleSidebar()"></div>
+
+  <div class="products-layout">
+    <!-- Filter Sidebar -->
+    <aside class="filter-sidebar" [class.open]="sidebarOpen">
+      <div class="sidebar-header-mobile">
+        <h3>Filtreler</h3>
+        <button class="sidebar-close-btn" (click)="toggleSidebar()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Categories -->
+      <div class="filter-section">
+        <h4 class="filter-title">Kategoriler</h4>
+        <ul class="category-list">
+          <li class="category-item" [class.active]="selectedCategoryId === ''" (click)="onCategorySelect('')">
+            Tüm Kategoriler
+          </li>
+          <ng-container *ngFor="let node of categoryTree">
+            <ng-container *ngTemplateOutlet="catItem; context: { $implicit: node, depth: 0 }"></ng-container>
+          </ng-container>
+        </ul>
+      </div>
+
+      <!-- Sort (mobile only) -->
+      <div class="filter-section mobile-sort-section">
+        <h4 class="filter-title">Sıralama</h4>
+        <ul class="category-list">
+          <li *ngFor="let opt of sortOptions"
+            class="category-item"
+            [class.active]="selectedSortType === opt.value"
+            (click)="onSortChange(opt.value); toggleSidebar();">
+            {{ opt.label }}
+          </li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Products -->
+    <div class="products-main">
+      <div class="products-grid" *ngIf="products?.length; else emptyState">
+        <app-product-card
+          *ngFor="let product of products"
+          [product]="product"
+          [baseUrl]="baseUrl?.url"
+          variant="default"
+          [showAddToCart]="true"
+          [isFavorite]="isProductFavorite(product.id)"
+          (addToCart)="addToBasket($event)"
+          (toggleFavorite)="onToggleFavorite($event)">
+        </app-product-card>
+      </div>
+
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <i class="fa-solid fa-box-open empty-icon"></i>
+          <p>Bu kriterlere uygun ürün bulunamadı.</p>
+          <button class="clear-filters-btn" *ngIf="hasActiveFilters" (click)="clearFilters()">Filtreleri Temizle</button>
+        </div>
+      </ng-template>
+
+      <nav class="pager" aria-label="Page navigation" *ngIf="totalPageCount > 1">
+        <a class="pager-btn" [routerLink]="['/products', currentPageNo - 1 <= 0 ? 1 : currentPageNo - 1]"
+          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+          <i class="fa-solid fa-chevron-left"></i>
+        </a>
+        <a *ngFor="let page of pageList"
+          class="pager-num" [class.active]="page === currentPageNo"
+          [routerLink]="['/products', page]"
+          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+          {{ page }}
+        </a>
+        <a class="pager-btn" [routerLink]="['/products', currentPageNo + 1 >= totalPageCount ? totalPageCount : currentPageNo + 1]"
+          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+          <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      </nav>
+    </div>
+  </div>
 </section>
+
+<!-- Recursive category template -->
+<ng-template #catItem let-node let-depth="depth">
+  <li class="category-item"
+    [class.active]="selectedCategoryId === node.id"
+    [style.padding-left.px]="depth * 16 + 12"
+    (click)="onCategorySelect(node.id)">
+    <span class="cat-name">{{ node.name }}</span>
+    <span class="cat-count" *ngIf="node.children?.length">({{ node.children.length }})</span>
+  </li>
+  <ng-container *ngIf="node.children?.length">
+    <ng-container *ngFor="let child of node.children">
+      <ng-container *ngTemplateOutlet="catItem; context: { $implicit: child, depth: depth + 1 }"></ng-container>
+    </ng-container>
+  </ng-container>
+</ng-template>

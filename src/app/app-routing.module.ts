@@ -48,6 +48,11 @@ const routes: Routes = [
         path: "campaigns", 
         loadChildren: () => import("./admin/components/campaigns/campaigns.module").then(module => module.CampaignsModule), 
         canActivate: [AuthGuard] 
+      },
+      { 
+        path: "categories", 
+        loadChildren: () => import("./admin/components/categories/categories.module").then(module => module.CategoriesModule), 
+        canActivate: [AuthGuard] 
       }
     ]
   },

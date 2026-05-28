@@ -27,6 +27,14 @@
       </div>
     </div>
 
+    <mat-form-field appearance="outline" class="w-100 mb-3">
+      <mat-label>Category</mat-label>
+      <mat-select [(value)]="selectedCategoryId">
+        <mat-option value="">-- Kategori Seçiniz --</mat-option>
+        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
     <!-- Existing Images -->
     <div class="mb-4" *ngIf="existingImages && existingImages.length > 0">
       <label class="form-label fw-bold mb-2">Current Images</label>
