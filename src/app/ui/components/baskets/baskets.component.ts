@@ -42,6 +42,24 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     return this.basketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
+  get shippingFee(): number {
+    return this.totalPrice >= 500 ? 0 : 59.99;
+  }
+
+  get grandTotal(): number {
+    return this.totalPrice + this.shippingFee;
+  }
+
+  async incrementQuantity(basketItem: List_Basket_Item) {
+    await this.changeQuantity(basketItem.basketItemId, basketItem.quantity + 1);
+  }
+
+  async decrementQuantity(basketItem: List_Basket_Item) {
+    if (basketItem.quantity > 1) {
+      await this.changeQuantity(basketItem.basketItemId, basketItem.quantity - 1);
+    }
+  }
+
   async ngOnInit(): Promise<void> {
     this.basketSubscription = this.basketService.basketItems$.subscribe(items => {
       this.basketItems = items;

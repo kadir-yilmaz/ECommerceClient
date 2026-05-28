@@ -1,82 +1,123 @@
-<section class="basket-page">
-  <div class="basket-hero">
-    <div>
-      <p class="eyebrow">SEPET OZETI</p>
-      <h1>Sepetini gozden gecir, teslimata hazirla.</h1>
-      <p class="hero-copy">
-        Artik popup yok. Sepet detaylari, urun adetleri ve toplam tutar tek sayfada net bir sekilde burada.
-      </p>
-    </div>
+<section class="cart-page">
+  <div class="cart-header-container">
+    <h1 class="cart-title">Sepetim <span class="cart-count">({{ itemCount }} Ürün)</span></h1>
+  </div>
 
-    <div class="hero-chip">
-      <span>{{ itemCount }}</span>
-      <small>urun</small>
+  <!-- Auth Warning Banner -->
+  <div class="auth-warning-banner" *ngIf="!authService.isAuthenticated">
+    <mat-icon class="warning-icon">info</mat-icon>
+    <div class="warning-text">
+      <span>Alışverişini daha hızlı tamamlamak için</span>
+      <a routerLink="/login" [queryParams]="{ returnUrl: '/basket' }" class="login-link">Giriş Yap</a>
     </div>
   </div>
 
   <ng-container *ngIf="basketItems.length; else emptyBasket">
-    <div class="basket-layout">
-      <section class="basket-list">
-        <article class="basket-card" *ngFor="let basketItem of basketItems; let i = index">
-          <div class="basket-card__index">{{ i + 1 }}</div>
+    <div class="cart-split-layout">
+      <!-- Left Side: Basket Items -->
+      <section class="cart-items-section">
+        <article class="cart-item-card" *ngFor="let basketItem of basketItems; let i = index">
+          <div class="cart-item-checkbox-container">
+            <span class="checked-checkbox">
+              <mat-icon>check_box</mat-icon>
+            </span>
+          </div>
 
-          <div class="basket-card__content">
-            <div class="basket-card__info">
+          <div class="cart-item-image">
+            <mat-icon>inventory_2</mat-icon>
+          </div>
+
+          <div class="cart-item-content">
+            <div class="cart-item-details">
               <h2>{{ basketItem.name }}</h2>
-              <p>Birim fiyat: {{ basketItem.price | currency:'TRY':'symbol':'1.0-0' }}</p>
+              <p class="unit-price">Birim Fiyat: <strong>{{ basketItem.price | currency:'TRY':'symbol':'1.0-0' }}</strong></p>
+              <p class="delivery-tag">
+                <mat-icon>local_shipping</mat-icon> Tahmini Kargoya Teslim: 3 iş günü içinde
+              </p>
             </div>
 
-            <div class="basket-card__actions">
-              <label>
-                <span>Adet</span>
-                <input
-                  type="number"
-                  min="1"
-                  [value]="basketItem.quantity"
-                  (change)="changeQuantity(basketItem.basketItemId, $any($event.target).value)"
-                />
-              </label>
+            <div class="cart-item-actions">
+              <!-- Pill-shaped quantity selector -->
+              <div class="quantity-selector">
+                <button 
+                  type="button" 
+                  (click)="decrementQuantity(basketItem)" 
+                  [disabled]="basketItem.quantity <= 1"
+                  class="qty-btn qty-minus">
+                  <mat-icon>remove</mat-icon>
+                </button>
+                <span class="qty-val">{{ basketItem.quantity }}</span>
+                <button 
+                  type="button" 
+                  (click)="incrementQuantity(basketItem)" 
+                  class="qty-btn qty-plus">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
 
-              <div class="basket-card__price">
-                {{ basketItem.price * basketItem.quantity | currency:'TRY':'symbol':'1.0-0' }}
+              <div class="cart-item-price-block">
+                <div class="subtotal-price">
+                  {{ basketItem.price * basketItem.quantity | currency:'TRY':'symbol':'1.0-0' }}
+                </div>
               </div>
             </div>
           </div>
 
-          <button type="button" class="remove-btn" (click)="removeBasketItem(basketItem.basketItemId)">
-            Kaldir
+          <button type="button" class="remove-item-btn" (click)="removeBasketItem(basketItem.basketItemId)" title="Ürünü Sil">
+            <mat-icon>delete_outline</mat-icon> Sil
           </button>
         </article>
       </section>
 
-      <aside class="basket-summary">
-        <div class="summary-panel">
-          <p class="summary-panel__eyebrow">ODENEK</p>
-          <h2>Siparis Ozeti</h2>
+      <!-- Right Side: Sticky Order Summary -->
+      <aside class="cart-summary-section">
+        <div class="summary-sticky-card">
+          <h2>Sepet Özeti</h2>
 
-          <div class="summary-row">
-            <span>Toplam urun</span>
-            <strong>{{ itemCount }}</strong>
-          </div>
-          <div class="summary-row">
-            <span>Ara toplam</span>
-            <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
-          </div>
-          <div class="summary-row muted">
-            <span>Kargo</span>
-            <strong>Kasada hesaplanacak</strong>
+          <!-- Free Shipping Warning Bar -->
+          <div class="free-shipping-banner" *ngIf="totalPrice < 500">
+            <p class="shipping-warning-text">
+              Kargonun bedava olması için <strong>{{ 500 - totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong> daha ürün ekleyin!
+            </p>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="(totalPrice / 500) * 100"></div>
+            </div>
           </div>
 
-          <div class="summary-total">
-            <span>Genel toplam</span>
-            <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
+          <!-- Free Shipping Success Banner -->
+          <div class="free-shipping-success-banner" *ngIf="totalPrice >= 500">
+            <mat-icon>check_circle</mat-icon>
+            <span>Tebrikler! Kargonuz bedava.</span>
           </div>
 
-          <button type="button" class="primary-action" (click)="proceedToCheckout()">
-            {{ authService.isAuthenticated ? 'Checkouta Git' : 'Giris Yapip Devam Et' }}
-          </button>
-          <button type="button" class="secondary-action" (click)="continueShopping()">
-            Alisverise Devam Et
+          <div class="summary-rows">
+            <div class="summary-row">
+              <span>Ara Toplam</span>
+              <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
+            </div>
+            <div class="summary-row">
+              <span>Kargo Ücreti</span>
+              <strong [class.free-shipping]="totalPrice >= 500">
+                {{ totalPrice >= 500 ? 'Bedava' : (shippingFee | currency:'TRY':'symbol':'1.0-0') }}
+              </strong>
+            </div>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total-row">
+            <span>Toplam</span>
+            <strong class="total-price">{{ grandTotal | currency:'TRY':'symbol':'1.0-0' }}</strong>
+          </div>
+
+          <div class="coupon-code-container">
+            <button type="button" class="coupon-btn">
+              <mat-icon>add</mat-icon> İndirim Kodu Gir
+            </button>
+          </div>
+
+          <button type="button" class="btn-primary-checkout" (click)="proceedToCheckout()">
+            Sepeti Onayla
           </button>
         </div>
       </aside>
@@ -84,12 +125,12 @@
   </ng-container>
 
   <ng-template #emptyBasket>
-    <section class="empty-state">
-      <div class="empty-state__panel">
-        <p class="eyebrow">SEPET BOS</p>
-        <h2>Henuz sepetine urun eklemedin.</h2>
-        <p>One cikan urunleri inceleyip sepetini doldurdugunda burada modern bir siparis ozeti goreceksin.</p>
-        <button type="button" class="primary-action" (click)="continueShopping()">Urunlere Don</button>
+    <section class="empty-cart-state">
+      <div class="empty-cart-panel">
+        <mat-icon class="empty-icon">shopping_cart</mat-icon>
+        <h2>Sepetinizde ürün bulunmamaktadır.</h2>
+        <p>Hemen ürünlerimizi inceleyip sepetinizi doldurmaya başlayabilirsiniz!</p>
+        <button type="button" class="btn-primary-checkout" (click)="continueShopping()">Ürünlere Göz At</button>
       </div>
     </section>
   </ng-template>
