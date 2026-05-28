@@ -11,10 +11,21 @@
     <!-- Sol Taraf: Galeri -->
     <article class="ty-gallery-card">
       <div class="ty-main-image-container">
-        <div class="ty-campaign-badge">
-          <i class="fa-solid fa-tag"></i> KUPONLU ÜRÜN
+        <!-- Sol Üst Rozetler -->
+        <div class="ty-top-badges">
+          <div class="ty-badge-sigorta" *ngIf="product.price > 1000">
+            <i class="fa-solid fa-shield-halved"></i> SİGORTAYA UYGUN
+          </div>
+          <div class="ty-badge-circle" *ngIf="product.stock > 50">
+            <span>EN ÇOK</span>
+            <span>SATAN</span>
+          </div>
         </div>
-        <button class="ty-slider-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
+
+        <button type="button" class="ty-slider-btn prev" (click)="prevImage()" *ngIf="product.productImageFiles?.length > 1">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        
         <div class="ty-main-image">
           <img
             *ngIf="selectedImagePath; else defaultImage"
@@ -24,22 +35,41 @@
             <img src="../../../../../assets/default-product.png" [alt]="product.name">
           </ng-template>
         </div>
-        <button class="ty-slider-btn next"><i class="fa-solid fa-chevron-right"></i></button>
+        
+        <button type="button" class="ty-slider-btn next" (click)="nextImage()" *ngIf="product.productImageFiles?.length > 1">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <!-- Sol Alt Rozetler (TROY vb.) -->
+        <div class="ty-bottom-badges">
+          <div class="ty-badge-troy">
+            <span class="troy-logo">TROY</span>
+            <span class="troy-text">kartını kaydet</span>
+            <span class="troy-price">300 TL</span>
+            <span class="troy-text">indirim kazan</span>
+            <span class="troy-small">*2.500 TL ve üzeri<br>ilk alışverişte geçerli</span>
+          </div>
+        </div>
       </div>
       
-      <div class="ty-bottom-campaign-bar">
+      <!-- Kampanya Bant (Yeşil) -->
+      <div class="ty-bottom-campaign-bar green-bar">
         <span><i class="fa-solid fa-tags"></i> Kampanyalı Fiyat</span>
         <span>Sepette Uygulanacak!</span>
       </div>
 
-      <div class="ty-thumbs" *ngIf="product.productImageFiles?.length">
-        <button
-          type="button"
-          *ngFor="let image of product.productImageFiles"
-          [class.active]="image.path === selectedImagePath"
-          (click)="selectImage(image.path)">
-          <img [src]="getProductImage(image.path)" [alt]="product.name">
-        </button>
+      <!-- Küçük Resimler (Thumbnails) -->
+      <div class="ty-thumbs-container" *ngIf="product.productImageFiles?.length">
+        <div class="ty-thumbs">
+          <button
+            type="button"
+            class="ty-thumb-btn"
+            *ngFor="let image of product.productImageFiles"
+            [class.active]="image.path === selectedImagePath"
+            (click)="selectImage(image.path)">
+            <img [src]="getProductImage(image.path)" [alt]="product.name">
+          </button>
+        </div>
       </div>
     </article>
 

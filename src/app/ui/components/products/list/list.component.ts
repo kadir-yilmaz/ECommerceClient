@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from '../../../../base/base.component';
 import { BaseUrl } from '../../../../contracts/base_url';
 import { Create_Basket_Item } from '../../../../contracts/basket/create_basket_item';
 import { List_Product } from '../../../../contracts/list_product';
+import { AuthService } from '../../../../services/common/auth.service';
 import { BasketService } from '../../../../services/common/models/basket.service';
+import { FavoriteService } from '../../../../services/common/models/favorite.service';
 import { FileService } from '../../../../services/common/models/file.service';
 import { ProductService } from '../../../../services/common/models/product.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../../../services/ui/custom-toastr.service';
@@ -22,6 +24,9 @@ export class ListComponent extends BaseComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private fileService: FileService,
     private basketService: BasketService,
+    private favoriteService: FavoriteService,
+    private authService: AuthService,
+    private router: Router,
     spinner: NgxSpinnerService,
     private customToastrService: CustomToastrService
   ) {
@@ -102,5 +107,33 @@ export class ListComponent extends BaseComponent implements OnInit {
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }
+  }
+
+  async onToggleFavorite(product: List_Product) {
+    if (!this.authService.isAuthenticated) {
+      this.customToastrService.message('Favorilere eklemek için giriş yapmalısınız.', 'Giriş Gerekli', {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+
+    const isAdded = await this.favoriteService.toggle(product.id);
+    if (isAdded) {
+      this.customToastrService.message('Ürün favorilere eklendi.', 'Favorilere Eklendi', {
+        messageType: ToastrMessageType.Success,
+        position: ToastrPosition.BottomRight
+      });
+    } else {
+      this.customToastrService.message('Ürün favorilerden çıkarıldı.', 'Favorilerden Çıkarıldı', {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+    }
+  }
+
+  isProductFavorite(productId: string): boolean {
+    return this.favoriteService.isFavorite(productId);
   }
 }

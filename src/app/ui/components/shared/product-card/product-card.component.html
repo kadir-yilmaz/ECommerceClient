@@ -1,9 +1,15 @@
 <article class="ty-product-card" *ngIf="product">
-  <div class="ty-card-image">
+  <div class="ty-card-image" 
+       (mousemove)="onImageMouseMove($event)" 
+       (mouseenter)="onImageMouseEnter()" 
+       (mouseleave)="onImageMouseLeave()">
+       
     <!-- Kampanya rozetleri -->
-    <div class="ty-badge-container">
-      <span class="ty-badge flash-sale" *ngIf="product.stock > 50">EN ÇOK SATAN</span>
-      <span class="ty-badge fast-delivery" *ngIf="product.stock < 10 && product.stock > 0">HIZLI TESLİMAT</span>
+    <div class="ty-badge-container" *ngIf="product.stock > 50">
+      <div class="ty-badge circle-badge">
+        <span>EN ÇOK</span>
+        <span>SATAN</span>
+      </div>
     </div>
     
     <!-- Favori Butonu -->
@@ -12,21 +18,38 @@
       <i class="fa-regular fa-heart" *ngIf="!isFavorite"></i>
     </button>
     
+    <!-- Hızlı Bakış Butonu -->
+    <button type="button" class="ty-quick-view-btn" *ngIf="hoveringImage">
+      <i class="fa-solid fa-eye"></i> Hızlı Bakış
+    </button>
+    
     <a [routerLink]="['/products/detail', product?.id]" class="ty-img-link">
-      <img [src]="imageSource" [alt]="product.name" (error)="onImageError()">
+      <img [src]="currentImageSource" [alt]="product.name" (error)="onImageError()">
     </a>
+
+    <!-- Slider Dots -->
+    <div class="ty-slider-dots" *ngIf="allImages.length > 1">
+      <span class="dot" *ngFor="let img of allImages; let i = index" [class.active]="i === activeImageIndex"></span>
+    </div>
   </div>
+
 
   <div class="ty-card-body">
     <a [routerLink]="['/products/detail', product?.id]" class="ty-title-link">
       <div class="ty-title-wrapper">
-        <span class="ty-brand">{{ brandName }}</span>
-        <span class="ty-name">{{ product.name }}</span>
+        <span class="ty-brand">{{ brandName }} <i class="fa-solid fa-circle-check brand-tick"></i></span>
+        <span class="ty-name">{{ formattedProductName }}</span>
       </div>
     </a>
     
+    <!-- Satın alma istatistikleri -->
+    <div class="ty-stats-row">
+      <i class="fa-solid fa-rocket rocket-icon"></i> 3 günde <span class="highlight-text">10,6B kişi</span> ekledi!
+    </div>
+
     <!-- Değerlendirme Satırı -->
     <div class="ty-rating-row">
+      <span class="rating-score">{{ rating | number:'1.1-1' }}</span>
       <div class="stars">
         <i class="fa-solid fa-star"></i>
         <i class="fa-solid fa-star"></i>
@@ -35,19 +58,30 @@
         <i class="fa-solid fa-star-half-stroke"></i>
       </div>
       <span class="rating-text">({{ reviewCount }})</span>
+      <i class="fa-solid fa-camera camera-icon" *ngIf="reviewCount > 1000"></i>
     </div>
     
-    <!-- Ziyaret/Popülerlik rozeti -->
-    <div class="ty-visit-badge" *ngIf="reviewCount > 8000">
-      <i class="fa-solid fa-fire"></i> En Çok Ziyaret Edilen 1. Ürün
+    <!-- En düşük fiyat uyarısı -->
+    <div class="ty-lowest-price-badge">
+      Son 10 Günün En Düşük Fiyatı
     </div>
 
     <!-- Fiyatlar -->
     <div class="ty-price-container">
-      <div class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</div>
       <div class="ty-new-price">
         <span class="ty-price-value">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span>
+        <span class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</span>
       </div>
     </div>
+
+    <!-- Sepete Ekle Butonu -->
+    <button type="button" class="ty-cart-btn" [class.in-cart]="inCart" (click)="onAddToCart($event)" *ngIf="showAddToCart">
+      <ng-container *ngIf="!inCart">
+        Sepete Ekle
+      </ng-container>
+      <ng-container *ngIf="inCart">
+        <i class="fa-solid fa-check"></i> Sepette
+      </ng-container>
+    </button>
   </div>
 </article>

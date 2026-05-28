@@ -1,0 +1,51 @@
+<section class="favorites-page">
+  <div class="favorites-header">
+    <h1>Favorilerim <span>({{ itemCount }} Urun)</span></h1>
+  </div>
+
+  <ng-container *ngIf="favoriteItems.length; else emptyFavorites">
+    <section class="favorite-items">
+      <article class="favorite-card" *ngFor="let item of favoriteItems">
+        <a class="favorite-image" [routerLink]="['/products/detail', item.productId]">
+          <img [src]="getProductImage(item)" [alt]="item.name">
+        </a>
+
+        <div class="favorite-content">
+          <a class="favorite-title" [routerLink]="['/products/detail', item.productId]">
+            {{ item.name }}
+          </a>
+          <p class="stock-state" [class.out]="item.stock <= 0">
+            {{ item.stock > 0 ? 'Stokta var' : 'Stokta yok' }}
+          </p>
+          <strong class="favorite-price">{{ item.price | currency:'TRY':'symbol':'1.0-0' }}</strong>
+        </div>
+
+        <div class="favorite-actions">
+          <button type="button" 
+                  class="add-basket-btn" 
+                  [class.in-basket]="isInBasket(item.name)"
+                  (click)="!isInBasket(item.name) && addToBasket(item)" 
+                  [disabled]="item.stock <= 0">
+            <mat-icon *ngIf="!isInBasket(item.name)">shopping_cart</mat-icon>
+            <mat-icon *ngIf="isInBasket(item.name)">check_circle</mat-icon>
+            {{ isInBasket(item.name) ? 'Sepette' : 'Sepete Ekle' }}
+          </button>
+          <button type="button" class="remove-btn" (click)="removeFavorite(item)" title="Favorilerden kaldir">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </article>
+    </section>
+  </ng-container>
+
+  <ng-template #emptyFavorites>
+    <section class="empty-favorites">
+      <div class="empty-panel">
+        <mat-icon class="empty-icon">favorite_border</mat-icon>
+        <h2>Favori listen bos</h2>
+        <p>Begendigin urunleri favorilerine ekleyip daha sonra kolayca bulabilirsin.</p>
+        <button type="button" class="shop-btn" (click)="continueShopping()">Urunleri Kesfet</button>
+      </div>
+    </section>
+  </ng-template>
+</section>

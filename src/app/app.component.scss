@@ -129,10 +129,35 @@
 
     i {
       font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    /* Sepet ikonunu içi boş (hollow) yapma hilesi */
+    i.fa-cart-shopping {
+      color: transparent;
+      -webkit-text-stroke: 1.5px #333;
+    }
+
+    /* User ve Heart ikonları için regular (400) ağırlık */
+    i.fa-user, i.fa-heart {
+      font-weight: 400 !important;
     }
 
     &:hover {
       color: #f27a1a;
+
+      i {
+        color: #f27a1a;
+      }
+
+      i.fa-cart-shopping {
+        color: #f27a1a;
+        -webkit-text-stroke: 0px transparent;
+      }
+
+      i.fa-user, i.fa-heart {
+        font-weight: 900 !important; /* Solid (dolu) versiyona geçiş */
+      }
     }
   }
 }
@@ -225,8 +250,8 @@
   }
 }
 
-/* Sepet Badge */
-.basket-item {
+/* Sepet ve Favori Badge */
+.basket-item, .favorite-item {
   position: relative;
   
   .badge {

@@ -1,10 +1,10 @@
 <section class="products-page">
   <header class="products-header">
     <div>
-      <p class="eyebrow">Secilmisler</p>
-      <h1>One Cikan Urunler</h1>
+      <p class="eyebrow">Seçilmişler</p>
+      <h1>Öne Çıkan Ürünler</h1>
     </div>
-    <a class="all-link" routerLink="/products">Tumunu Gor</a>
+    <a class="all-link" routerLink="/products">Tümünü Gör</a>
   </header>
 
   <div class="products-grid" *ngIf="products?.length; else emptyState">
@@ -14,7 +14,9 @@
       [baseUrl]="baseUrl?.url"
       variant="default"
       [showAddToCart]="true"
-      (addToCart)="addToBasket($event)">
+      [isFavorite]="isProductFavorite(product.id)"
+      (addToCart)="addToBasket($event)"
+      (toggleFavorite)="onToggleFavorite($event)">
     </app-product-card>
   </div>
 

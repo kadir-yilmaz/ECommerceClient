@@ -43,8 +43,18 @@ const routes: Routes = [
       { 
         path: "access-denied", 
         loadChildren: () => import("./admin/components/access-denied/access-denied.module").then(module => module.AccessDeniedModule) 
+      },
+      { 
+        path: "campaigns", 
+        loadChildren: () => import("./admin/components/campaigns/campaigns.module").then(module => module.CampaignsModule), 
+        canActivate: [AuthGuard] 
       }
     ]
+  },
+  { 
+    path: "favorites", 
+    loadChildren: () => import("./ui/components/favorites/favorites.module").then(module => module.FavoritesModule),
+    canActivate: [AuthGuard]
   },
   { 
     path: "basket", 

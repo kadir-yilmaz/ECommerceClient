@@ -1,0 +1,50 @@
+<div class="campaigns-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>Kampanya Yönetimi</mat-card-title>
+      <mat-card-subtitle>Anasayfada gösterilecek kampanya görsellerini buradan yönetebilirsiniz.</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <app-file-upload 
+        [options]="fileUploadOptions">
+      </app-file-upload>
+
+      <div class="campaign-images-grid" *ngIf="campaignImages.length > 0">
+        <div class="campaign-image-card" *ngFor="let image of campaignImages">
+          <img [src]="image.path" [alt]="image.fileName">
+      
+          <!-- Visible Title Footer -->
+          <div class="card-footer">
+            <span class="campaign-title">{{ image.title || 'Başlık Yok' }}</span>
+            <button class="edit-btn" (click)="openEditModal(image)">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </div>
+
+          <!-- Delete Action -->
+          <div class="image-actions">
+            <button mat-mini-fab color="warn" (click)="deleteImage(image.id)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="empty-state" *ngIf="campaignImages.length === 0">
+        <p>Henüz yüklenmiş kampanya görseli bulunmuyor.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Custom Edit Title Modal -->
+  <div class="custom-modal-overlay" *ngIf="editingImageId">
+    <div class="custom-modal">
+      <h3>Başlığı Düzenle</h3>
+      <input type="text" class="form-control" [value]="editingImageTitle" placeholder="Kampanya Başlığı..." #modalTitleInput>
+      <div class="modal-actions">
+        <button class="cancel-btn" (click)="cancelEdit()">İptal</button>
+        <button class="save-btn" (click)="saveEdit(modalTitleInput.value)">Kaydet</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from './services/common/auth.service';
 import { BasketService } from './services/common/models/basket.service';
+import { FavoriteService } from './services/common/models/favorite.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from './services/ui/custom-toastr.service';
 
 @Component({
@@ -20,7 +21,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public authService: AuthService,
     private toastrService: CustomToastrService,
     public router: Router,
-    public basketService: BasketService
+    public basketService: BasketService,
+    public favoriteService: FavoriteService
   ) {
     authService.identityCheck();
     basketService.get();
@@ -35,8 +37,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Reactive auth state değişikliklerini dinle
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(() => {
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(isAuth => {
       this.basketService.get();
+      if (isAuth) {
+        this.favoriteService.get();
+      }
     });
   }
 
@@ -55,6 +60,9 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Step 3: Clear basket state
     this.basketService.clear();
+    
+    // Step 3b: Clear favorite state
+    this.favoriteService.clear();
     
     // Step 4: Refresh basket for guest session
     this.basketService.get();

@@ -76,6 +76,22 @@ export class DetailComponent extends BaseComponent implements OnInit {
     this.selectedImagePath = path;
   }
 
+  nextImage(): void {
+    if (!this.product?.productImageFiles?.length) return;
+    const currentIndex = this.product.productImageFiles.findIndex(img => img.path === this.selectedImagePath);
+    if (currentIndex === -1) return;
+    const nextIndex = (currentIndex + 1) % this.product.productImageFiles.length;
+    this.selectedImagePath = this.product.productImageFiles[nextIndex].path;
+  }
+
+  prevImage(): void {
+    if (!this.product?.productImageFiles?.length) return;
+    const currentIndex = this.product.productImageFiles.findIndex(img => img.path === this.selectedImagePath);
+    if (currentIndex === -1) return;
+    const prevIndex = (currentIndex - 1 + this.product.productImageFiles.length) % this.product.productImageFiles.length;
+    this.selectedImagePath = this.product.productImageFiles[prevIndex].path;
+  }
+
   get originalPrice(): number {
     return this.product?.price ? this.product.price * 1.20 : 0;
   }

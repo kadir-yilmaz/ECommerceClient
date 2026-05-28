@@ -2,26 +2,50 @@
   <section class="featured-products">
     <div class="section-title">
       <div>
-        <p>SEZONUN SECIMI</p>
-        <h2>One Cikan Urunler</h2>
+        <p>SEZONUN SEÇİMİ</p>
+        <h2>Öne Çıkan Ürünler</h2>
       </div>
-      <a routerLink="/products">Tumunu Gor</a>
+      <a routerLink="/products">Tümünü Gör</a>
     </div>
 
-    <div class="product-grid" *ngIf="featuredProducts.length; else noProducts">
-      <app-product-card
-        *ngFor="let product of featuredProducts"
-        [product]="product"
-        [baseUrl]="baseUrl?.url"
-        variant="compact"
-        [showAddToCart]="true"
-        (addToCart)="addToBasket($event)">
-      </app-product-card>
+    <div class="slider-container" *ngIf="featuredProducts.length; else noProducts">
+      <button class="slider-btn prev" (click)="scrollProducts('left')">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      
+      <div class="product-slider" #productsScroll>
+        <app-product-card
+          *ngFor="let product of featuredProducts"
+          [product]="product"
+          [baseUrl]="baseUrl?.url"
+          variant="compact"
+          [showAddToCart]="true"
+          [isFavorite]="isProductFavorite(product.id)"
+          (addToCart)="addToBasket($event)"
+          (toggleFavorite)="onToggleFavorite($event)">
+        </app-product-card>
+      </div>
+
+      <button class="slider-btn next" (click)="scrollProducts('right')">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
 
     <ng-template #noProducts>
       <p class="empty-state">Henuz urun bulunamadi.</p>
     </ng-template>
+  </section>
+
+  <section class="campaign-grid-section" *ngIf="campaignSlides && campaignSlides.length > 0">
+    <div class="campaign-grid">
+      <div class="campaign-card" *ngFor="let slide of campaignSlides">
+        <img [src]="slide.path" [alt]="slide.fileName">
+        <div class="campaign-title-overlay" *ngIf="slide.title">
+          <h2>{{ slide.title }}</h2>
+          <button class="cta-btn">Hemen İncele</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <section class="quick-highlights">
