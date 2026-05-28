@@ -1,17 +1,6 @@
-<div [class.store-shell]="!isAdminPage && !isAuthPage">
+<div [class.store-shell]="!isAdminPage">
   <!-- TRENDYOL STİLİ HEADER -->
-  <header class="ty-header" *ngIf="!isAdminPage && !isAuthPage">
-    
-    <!-- Top Bar (Yardımcı Linkler) -->
-    <div class="ty-header-top">
-      <div class="container-xl top-links">
-        <a href="javascript:void(0)">İndirim Kuponlarım</a>
-        <a href="javascript:void(0)">Trendyol'da Satış Yap</a>
-        <a href="javascript:void(0)">Hakkımızda</a>
-        <a href="javascript:void(0)">Yardım & Destek</a>
-      </div>
-    </div>
-
+  <header class="ty-header" *ngIf="!isAdminPage">
     <!-- Main Bar (Orta Kısım: Logo, Arama, İkonlu Menüler) -->
     <div class="ty-header-main container-xl">
       <!-- Logo -->
@@ -106,12 +95,12 @@
   </header>
 
   <!-- ANA İÇERİK -->
-  <main [class.store-content]="!isAdminPage && !isAuthPage" [class.container-xl]="!isAdminPage && !isAuthPage">
+  <main [class.store-content]="!isAdminPage" [class.container-xl]="!isAdminPage">
     <router-outlet></router-outlet>
   </main>
 
   <!-- FOOTER -->
-  <footer class="store-footer" *ngIf="!isAdminPage && !isAuthPage">
+  <footer class="store-footer" *ngIf="!isAdminPage">
     <div class="container-xl footer-grid">
       <section>
         <h3>E-COMMERCE</h3>

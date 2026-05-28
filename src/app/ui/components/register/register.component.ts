@@ -16,6 +16,9 @@ import { Router } from '@angular/router'; // Added Router import
 export class RegisterComponent extends BaseComponent implements OnInit {
 
   submitted: boolean = false;
+  hidePassword = true;
+  hidePasswordConfirm = true;
+
   constructor(private formBuilder: UntypedFormBuilder, private userService: UserService, private router: Router, spinner: NgxSpinnerService, private toastrService: CustomToastrService) {
     super(spinner);
   }

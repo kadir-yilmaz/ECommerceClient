@@ -1,282 +1,169 @@
-.product-card {
-  position: relative;
+.ty-product-card {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  border-radius: 16px;
-  background: #ffffff;
-  overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.product-card:hover {
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  transform: translateY(-4px);
-}
-
-.favorite-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.favorite-btn:hover {
-  transform: scale(1.1);
-  color: #f97316;
-  background: #ffffff;
-}
-
-.favorite-btn.active {
-  color: #f97316;
-  background: #fff7ed;
-}
-
-.heart-icon {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.card-link {
-  color: inherit;
-  text-decoration: none;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-}
-
-.product-image {
-  position: relative;
-  aspect-ratio: 1;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.product-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 24px;
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.product-card:hover .product-image img {
-  transform: scale(1.06);
-}
-
-.image-overlay {
-  display: none;
-}
-
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 5;
-  padding: 6px 12px;
+  background-color: #fff;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
-}
-
-.availability-pill {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 5;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: #ffffff;
-  backdrop-filter: blur(8px);
-}
-
-.availability-pill.available {
-  background: rgba(16, 185, 129, 0.9);
-}
-
-.availability-pill.limited {
-  background: rgba(245, 158, 11, 0.9);
-}
-
-.availability-pill.sold-out {
-  background: rgba(239, 68, 68, 0.9);
-}
-
-.product-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px;
-  flex: 1;
-}
-
-.product-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.product-kicker {
-  margin: 0;
-  color: #2563eb;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-}
-
-.product-body h3 {
-  margin: 0;
-  color: #0f172a;
-  font-size: 15px;
-  line-height: 1.4;
-  font-weight: 600;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 42px;
-}
-
-.stock-text {
-  margin: 0;
-  color: #64748b;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.price-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-top: auto;
-  padding-top: 8px;
-}
-
-.price {
-  margin: 0;
-  color: #0f172a;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-
-.price-note {
-  color: #94a3b8;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.card-footer {
-  padding: 0 16px 16px;
-}
-
-.cart-btn {
-  width: 100%;
-  border: none;
-  border-radius: 12px;
-  padding: 12px;
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transition: all 0.2s ease-in-out;
   position: relative;
-  overflow: hidden;
-}
+  text-decoration: none;
+  cursor: pointer;
 
-.cart-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.cart-btn:hover:not(:disabled)::before {
-  width: 300px;
-  height: 300px;
-}
-
-.cart-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
-}
-
-.cart-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.cart-btn:disabled {
-  background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.product-card.compact .product-image {
-  aspect-ratio: 1;
-}
-
-.product-card.compact .product-body {
-  gap: 6px;
-  padding: 12px;
-}
-
-.product-card.compact .card-footer {
-  padding: 0 12px 12px;
-}
-
-.product-card.compact .product-body h3 {
-  font-size: 14px;
-  min-height: 40px;
-}
-
-.product-card.compact .price {
-  font-size: 20px;
-}
-
-@media (max-width: 768px) {
-  .product-card {
-    border-radius: 12px;
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border-color: #f27a1a; /* Trendyol Turuncusu */
   }
 
-  .product-body h3 {
-    font-size: 14px;
+  .ty-card-image {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4;
+    background-color: #f8fafc;
+    overflow: hidden;
+
+    .ty-img-link {
+      display: block;
+      width: 100%;
+      height: 100%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    }
+
+    .ty-badge-container {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+
+      .ty-badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: #fff;
+
+        &.flash-sale {
+          background-color: #ff6000;
+        }
+
+        &.fast-delivery {
+          background-color: #1a8f3d;
+        }
+      }
+    }
+
+    .ty-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #94a3b8;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+
+      &:hover, &.active {
+        color: #f27a1a;
+      }
+    }
   }
 
-  .price {
-    font-size: 20px;
+  .ty-card-body {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+
+    .ty-title-link {
+      text-decoration: none;
+      color: #333;
+      margin-bottom: 8px;
+
+      .ty-title-wrapper {
+        font-size: 13px;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        .ty-brand {
+          font-weight: 700;
+          margin-right: 4px;
+        }
+        
+        .ty-name {
+          color: #666;
+        }
+      }
+    }
+
+    .ty-rating-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 8px;
+
+      .stars {
+        color: #f27a1a;
+        font-size: 11px;
+      }
+
+      .rating-text {
+        font-size: 11px;
+        color: #94a3b8;
+      }
+    }
+
+    .ty-visit-badge {
+      background-color: #fff4ed;
+      color: #f27a1a;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 4px;
+      margin-bottom: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .ty-price-container {
+      margin-top: auto;
+
+      .ty-old-price {
+        font-size: 12px;
+        color: #94a3b8;
+        text-decoration: line-through;
+        margin-bottom: 2px;
+      }
+
+      .ty-new-price {
+        display: flex;
+        flex-direction: column;
+
+        .ty-price-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #f27a1a;
+        }
+      }
+    }
   }
 }

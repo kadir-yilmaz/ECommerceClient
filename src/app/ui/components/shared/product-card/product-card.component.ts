@@ -60,6 +60,26 @@ export class ProductCardComponent implements OnChanges {
     return 'available';
   }
 
+  get originalPrice(): number {
+    return this.product?.price ? this.product.price * 1.20 : 0;
+  }
+
+  get reviewCount(): number {
+    if(!this.product) return 0;
+    return (this.product.name.length * 87) % 15000 + 150;
+  }
+
+  get rating(): number {
+    if(!this.product) return 0;
+    return 4 + (this.product.name.length % 10) / 10;
+  }
+
+  get brandName(): string {
+    if(!this.product || !this.product.name) return '';
+    return this.product.name.split(' ')[0].toUpperCase();
+  }
+
+
   onImageError(): void {
     this.imageFailed = true;
   }

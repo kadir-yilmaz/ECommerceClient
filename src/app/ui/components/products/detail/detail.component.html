@@ -1,25 +1,38 @@
-<section class="detail-page" *ngIf="product">
-  <nav class="breadcrumb-row">
-    <a routerLink="/">Ana Sayfa</a>
-    <span>/</span>
-    <a routerLink="/products">Urunler</a>
-    <span>/</span>
+<section class="ty-detail-page container-xl" *ngIf="product">
+  <nav class="ty-breadcrumb">
+    <a routerLink="/">Trendyol</a>
+    <span><i class="fa-solid fa-chevron-right"></i></span>
+    <a routerLink="/products">Ürünler</a>
+    <span><i class="fa-solid fa-chevron-right"></i></span>
     <strong>{{ product.name }}</strong>
   </nav>
 
-  <div class="detail-grid">
-    <article class="gallery-card">
-      <div class="main-image">
-        <img
-          *ngIf="selectedImagePath; else defaultImage"
-          [src]="getProductImage(selectedImagePath)"
-          [alt]="product.name">
-        <ng-template #defaultImage>
-          <img src="../../../../../assets/default-product.png" [alt]="product.name">
-        </ng-template>
+  <div class="ty-detail-grid">
+    <!-- Sol Taraf: Galeri -->
+    <article class="ty-gallery-card">
+      <div class="ty-main-image-container">
+        <div class="ty-campaign-badge">
+          <i class="fa-solid fa-tag"></i> KUPONLU ÜRÜN
+        </div>
+        <button class="ty-slider-btn prev"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="ty-main-image">
+          <img
+            *ngIf="selectedImagePath; else defaultImage"
+            [src]="getProductImage(selectedImagePath)"
+            [alt]="product.name">
+          <ng-template #defaultImage>
+            <img src="../../../../../assets/default-product.png" [alt]="product.name">
+          </ng-template>
+        </div>
+        <button class="ty-slider-btn next"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      
+      <div class="ty-bottom-campaign-bar">
+        <span><i class="fa-solid fa-tags"></i> Kampanyalı Fiyat</span>
+        <span>Sepette Uygulanacak!</span>
       </div>
 
-      <div class="thumbs" *ngIf="product.productImageFiles?.length">
+      <div class="ty-thumbs" *ngIf="product.productImageFiles?.length">
         <button
           type="button"
           *ngFor="let image of product.productImageFiles"
@@ -30,57 +43,112 @@
       </div>
     </article>
 
-    <article class="content-card">
-      <p class="category">Oyun Donanimi</p>
-      <h1>{{ product.name }}</h1>
-
-      <div class="rating-row">
-        <span class="stars">★★★★★</span>
-        <span>4.8 (38 degerlendirme)</span>
-      </div>
-
-      <div class="price-row">
-        <div>
-          <span class="label">Fiyat</span>
-          <p>{{ product.price | currency:'TRY':'symbol':'1.0-0' }}</p>
+    <!-- Orta Taraf: Ürün Detayları -->
+    <article class="ty-content-card">
+      <div class="ty-title-area">
+        <h1>
+          <span class="ty-brand-name">{{ brandName }}</span> 
+          <span class="ty-product-name">{{ product.name }}</span>
+        </h1>
+        
+        <div class="ty-rating-bar">
+          <span class="ty-rating-score">{{ rating | number:'1.1-1' }}</span>
+          <span class="ty-stars">
+             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+          </span>
+          <a href="javascript:void(0)" class="ty-review-count">{{ reviewCount }} Değerlendirme</a>
+          <span class="ty-dot">•</span>
+          <a href="javascript:void(0)" class="ty-qa-count">827 Soru-Cevap</a>
         </div>
-        <span class="stock" [class.out]="product.stock <= 0">
-          {{ product.stock > 0 ? ('Stokta ' + product.stock + ' adet') : 'Stokta yok' }}
-        </span>
-      </div>
-
-      <div class="meta-list">
-        <div>
-          <span>Marka</span>
-          <strong>{{ product.name.split(' ')[0] }}</strong>
+        
+        <div class="ty-coupon-pill">
+          <span class="pill-title"><i class="fa-solid fa-ticket"></i> Kupon Fırsatı!</span>
+          <button class="pill-btn">Kazan</button>
         </div>
-        <div>
-          <span>Gonderim</span>
-          <strong>Ucretsiz Kargo</strong>
-        </div>
-        <div>
-          <span>Teslimat</span>
-          <strong>Yarin kargoda</strong>
+        
+        <div class="ty-sales-count">
+          <i class="fa-solid fa-rocket"></i> 3 günde <strong>{{ soldCount }} ürün</strong> satıldı!
         </div>
       </div>
 
-      <div class="action-row">
-        <button class="ghost-btn" type="button" (click)="addToBasket()" [disabled]="product.stock <= 0">
-          Simdi Al
+      <div class="ty-price-area">
+        <p class="ty-price-label"><i class="fa-solid fa-cart-shopping"></i> Kampanyalı Fiyat</p>
+        <div class="ty-new-price">Sepette <span>{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span></div>
+        <div class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</div>
+      </div>
+
+      <div class="ty-action-row">
+        <button class="ty-btn ty-btn-ghost" type="button" (click)="addToBasket()" [disabled]="product.stock <= 0">
+          Şimdi Al
         </button>
-        <button class="primary-btn" type="button" (click)="addToBasket()" [disabled]="product.stock <= 0">
+        <button class="ty-btn ty-btn-primary" type="button" (click)="addToBasket()" [disabled]="product.stock <= 0">
           Sepete Ekle
         </button>
+        <button class="ty-fav-icon-btn"><i class="fa-regular fa-heart"></i></button>
+      </div>
+
+      <div class="ty-delivery-info">
+        <div class="delivery-header">
+          <i class="fa-solid fa-box"></i> Tahmini Kargoya Teslim: <strong>2 gün içinde kargoda</strong>
+        </div>
+        <div class="delivery-body">
+          <div class="location-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="location-text">
+            <strong>Tahmini Teslim:</strong>
+            <p>Adresini seç ne zaman teslim edileceğini öğren!</p>
+          </div>
+          <button class="location-btn">Konum Seç <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+
+      <div class="ty-payment-options">
+        <h4>Ödeme Seçenekleri</h4>
+        <div class="payment-box">
+          <i class="fa-solid fa-credit-card"></i>
+          <div class="payment-text">
+            <strong>12 Aya Varan Taksit Fırsatı</strong>
+            <span>Aylık {{(product.price / 12) | currency:'TRY':'symbol':'1.2-2'}}'den başlayan 12 aya varan taksit fırsatı</span>
+          </div>
+        </div>
       </div>
     </article>
 
-    <aside class="info-card">
-      <h3>Kampanyalar</h3>
-      <ul>
-        <li>150 TL uzeri kargo bedava</li>
-        <li>9 taksit secenegi</li>
-        <li>Ayni gun kargo firsati</li>
-      </ul>
+    <!-- Sağ Taraf: Satıcı ve Promosyonlar -->
+    <aside class="ty-info-sidebar">
+      <div class="ty-sidebar-card">
+        <div class="ty-sidebar-header">ÜRÜNÜN KAMPANYALARI</div>
+        <div class="ty-campaign-item">
+          <div class="icon-text"><i class="fa-solid fa-tag" style="color: #f27a1a;"></i> Sepette %80 İndirim</div>
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+        <div class="ty-campaign-item">
+          <div class="icon-text"><i class="fa-solid fa-tag" style="color: #f27a1a;"></i> 150 TL'ye %20 İndirim</div>
+          <i class="fa-solid fa-chevron-right"></i>
+        </div>
+      </div>
+
+      <div class="ty-sidebar-card ty-seller-card">
+        <div class="seller-header">
+          <div class="seller-name">{{ brandName }} <span class="badge-blue"><i class="fa-solid fa-check"></i></span></div>
+          <div class="seller-score">8.9 <i class="fa-solid fa-circle-info"></i></div>
+        </div>
+        <p class="seller-followers">2,5M Takipçi</p>
+        
+        <div class="seller-links">
+          <a href="javascript:void(0)"><i class="fa-solid fa-store"></i> Takip Et</a>
+          <a href="javascript:void(0)"><i class="fa-regular fa-comment"></i> Satıcı Soruları (827) <i class="fa-solid fa-chevron-right"></i></a>
+        </div>
+        
+        <button class="store-btn">MAĞAZAYA GİT <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      
+      <div class="ty-sidebar-card ty-collection-card">
+        <div class="collection-inner">
+          <div class="icon-square"><i class="fa-solid fa-bookmark"></i></div>
+          <span>Koleksiyona Ekle</span>
+        </div>
+        <i class="fa-solid fa-plus"></i>
+      </div>
     </aside>
   </div>
 </section>

@@ -1,36 +1,53 @@
-<article class="product-card" [class.compact]="variant === 'compact'" *ngIf="product">
-  <button type="button" class="favorite-btn" [class.active]="isFavorite" (click)="onToggleFavorite($event)">
-    <span class="heart-icon">{{ isFavorite ? '\u2665' : '\u2661' }}</span>
-  </button>
-
-  <a class="card-link" [routerLink]="['/products/detail', product?.id]">
-    <div class="product-image">
-      <img [src]="imageSource" [alt]="product.name" (error)="onImageError()">
-      <div class="image-overlay"></div>
-      <span class="badge">{{ badgeText }}</span>
-      <span class="availability-pill" [class.available]="availabilityTone === 'available'" [class.limited]="availabilityTone === 'limited'" [class.sold-out]="availabilityTone === 'sold-out'">
-        {{ stockLabel }}
-      </span>
+<article class="ty-product-card" *ngIf="product">
+  <div class="ty-card-image">
+    <!-- Kampanya rozetleri -->
+    <div class="ty-badge-container">
+      <span class="ty-badge flash-sale" *ngIf="product.stock > 50">EN ÇOK SATAN</span>
+      <span class="ty-badge fast-delivery" *ngIf="product.stock < 10 && product.stock > 0">HIZLI TESLİMAT</span>
     </div>
-
-    <div class="product-body">
-      <div class="product-meta">
-        <p class="product-kicker">Yeni Seri</p>
-        <h3>{{ product.name }}</h3>
-      </div>
-
-      <p class="stock-text">Stok: {{ product.stock }}</p>
-
-      <div class="price-row">
-        <p class="price">{{ product.price | currency:'TRY':'symbol':'1.0-0' }}</p>
-        <span class="price-note">KDV dahil</span>
-      </div>
-    </div>
-  </a>
-
-  <div class="card-footer">
-    <button type="button" class="cart-btn" *ngIf="showAddToCart" (click)="onAddToCart()" [disabled]="product.stock <= 0">
-      {{ product.stock > 0 ? 'Sepete Ekle' : 'Stokta Yok' }}
+    
+    <!-- Favori Butonu -->
+    <button type="button" class="ty-fav-btn" [class.active]="isFavorite" (click)="onToggleFavorite($event)">
+      <i class="fa-solid fa-heart" *ngIf="isFavorite"></i>
+      <i class="fa-regular fa-heart" *ngIf="!isFavorite"></i>
     </button>
+    
+    <a [routerLink]="['/products/detail', product?.id]" class="ty-img-link">
+      <img [src]="imageSource" [alt]="product.name" (error)="onImageError()">
+    </a>
+  </div>
+
+  <div class="ty-card-body">
+    <a [routerLink]="['/products/detail', product?.id]" class="ty-title-link">
+      <div class="ty-title-wrapper">
+        <span class="ty-brand">{{ brandName }}</span>
+        <span class="ty-name">{{ product.name }}</span>
+      </div>
+    </a>
+    
+    <!-- Değerlendirme Satırı -->
+    <div class="ty-rating-row">
+      <div class="stars">
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star-half-stroke"></i>
+      </div>
+      <span class="rating-text">({{ reviewCount }})</span>
+    </div>
+    
+    <!-- Ziyaret/Popülerlik rozeti -->
+    <div class="ty-visit-badge" *ngIf="reviewCount > 8000">
+      <i class="fa-solid fa-fire"></i> En Çok Ziyaret Edilen 1. Ürün
+    </div>
+
+    <!-- Fiyatlar -->
+    <div class="ty-price-container">
+      <div class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</div>
+      <div class="ty-new-price">
+        <span class="ty-price-value">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
   </div>
 </article>

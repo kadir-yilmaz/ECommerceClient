@@ -19,6 +19,8 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../..
 })
 export class LoginComponent extends BaseComponent implements OnInit {
 
+  hidePassword = true;
+
   constructor(
     private userAuthService: UserAuthService, 
     spinner: NgxSpinnerService, 

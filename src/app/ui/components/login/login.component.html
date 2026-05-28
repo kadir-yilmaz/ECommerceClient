@@ -1,9 +1,5 @@
 <section class="auth-section">
   <div class="auth-container">
-    <div class="brand-logo" routerLink="/">
-      <h1>E-Commerce</h1>
-    </div>
-
     <div class="glass-auth-card">
       <div class="auth-tabs">
         <a routerLink="/login" routerLinkActive="active" class="auth-tab">Giriş Yap</a>
@@ -22,7 +18,10 @@
 
           <div class="input-group">
             <span class="input-icon"><i class="fa-solid fa-lock"></i></span>
-            <input #txtPassword type="password" placeholder="Şifre" autocomplete="current-password">
+            <input #txtPassword [type]="hidePassword ? 'password' : 'text'" placeholder="Şifre" autocomplete="current-password" class="password-input">
+            <span class="input-icon-right" (click)="hidePassword = !hidePassword">
+              <i class="fa-solid" [ngClass]="hidePassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </span>
           </div>
 
           <div class="form-footer">
@@ -43,10 +42,6 @@
           </div>
         </div>
       </div>
-    </div>
-    
-    <div class="auth-footer">
-      <small>© 2026 E-Commerce. Tüm hakları saklıdır.</small>
     </div>
   </div>
 </section>
