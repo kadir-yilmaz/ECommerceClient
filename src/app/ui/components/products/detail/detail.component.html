@@ -177,20 +177,36 @@
   </button>
   
   <div class="ty-lightbox-content" (click)="$event.stopPropagation()">
-    <button type="button" class="ty-lightbox-btn prev" (click)="prevImage()" *ngIf="product.productImageFiles?.length > 1">
-      <i class="fa-solid fa-chevron-left"></i>
-    </button>
-    
-    <img
-      *ngIf="selectedImagePath; else defaultLightboxImage"
-      [src]="getProductImage(selectedImagePath)"
-      [alt]="product.name">
-    <ng-template #defaultLightboxImage>
-      <img src="../../../../../assets/default-product.png" [alt]="product.name">
-    </ng-template>
-    
-    <button type="button" class="ty-lightbox-btn next" (click)="nextImage()" *ngIf="product.productImageFiles?.length > 1">
-      <i class="fa-solid fa-chevron-right"></i>
-    </button>
+    <div class="ty-lightbox-main-img">
+      <button type="button" class="ty-lightbox-btn prev" (click)="prevImage()" *ngIf="product.productImageFiles?.length > 1">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      
+      <img
+        *ngIf="selectedImagePath; else defaultLightboxImage"
+        [src]="getProductImage(selectedImagePath)"
+        [alt]="product.name">
+      <ng-template #defaultLightboxImage>
+        <img src="../../../../../assets/default-product.png" [alt]="product.name">
+      </ng-template>
+      
+      <button type="button" class="ty-lightbox-btn next" (click)="nextImage()" *ngIf="product.productImageFiles?.length > 1">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+
+    <!-- Küçük Resimler (Thumbnails) for Lightbox -->
+    <div class="ty-thumbs-container" *ngIf="product.productImageFiles?.length">
+      <div class="ty-thumbs">
+        <button
+          type="button"
+          class="ty-thumb-btn"
+          *ngFor="let image of product.productImageFiles"
+          [class.active]="image.path === selectedImagePath"
+          (click)="selectImage(image.path)">
+          <img [src]="getProductImage(image.path)" [alt]="product.name">
+        </button>
+      </div>
+    </div>
   </div>
 </div>

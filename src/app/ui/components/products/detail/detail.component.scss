@@ -630,11 +630,12 @@
 .ty-lightbox-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.95);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 
   .ty-lightbox-close {
     position: absolute;
@@ -655,39 +656,129 @@
     position: relative;
     width: 90%;
     max-width: 1000px;
-    height: 90vh;
+    height: 100%;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    padding: 60px 0 20px 0;
 
-    img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      user-select: none;
-    }
-
-    .ty-lightbox-btn {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: #fff;
-      font-size: 40px;
-      width: 60px;
-      height: 100px;
+    .ty-lightbox-main-img {
+      position: relative;
+      flex: 1;
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border-radius: 8px;
+      min-height: 0;
 
-      &:hover { background: rgba(255, 255, 255, 0.5); color: #333; }
+      img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        user-select: none;
+      }
+
+      .ty-lightbox-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        font-size: 40px;
+        width: 60px;
+        height: 100px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 8px;
+
+        &:hover { background: rgba(255, 255, 255, 0.5); color: #333; }
+        
+        &.prev { left: -60px; }
+        &.next { right: -60px; }
+      }
+    }
+
+    .ty-thumbs-container {
+      margin-top: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+
+      .ty-thumbs {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 5px 0;
+        max-width: 100%;
+        
+        &::-webkit-scrollbar { height: 6px; }
+        &::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .ty-thumb-btn {
+          width: 60px;
+          height: 80px;
+          border: 1px solid #333;
+          border-radius: 4px;
+          background: #fff;
+          cursor: pointer;
+          padding: 4px;
+          flex-shrink: 0;
+          transition: border-color 0.2s;
+
+          &.active {
+            border: 2px solid #f27a1a;
+            padding: 3px;
+          }
+
+          &:hover:not(.active) {
+            border-color: #f27a1a;
+          }
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .ty-lightbox-overlay {
+    .ty-lightbox-close {
+      top: 10px;
+      right: 15px;
+      font-size: 28px;
+    }
+    
+    .ty-lightbox-content {
+      width: 100%;
+      padding: 50px 10px 20px 10px;
       
-      &.prev { left: -60px; }
-      &.next { right: -60px; }
+      .ty-lightbox-main-img {
+        .ty-lightbox-btn {
+          width: 40px;
+          height: 60px;
+          font-size: 24px;
+          border-radius: 4px;
+          background: rgba(0, 0, 0, 0.3);
+          
+          &.prev { left: 5px; }
+          &.next { right: 5px; }
+        }
+      }
+
+      .ty-thumbs-container .ty-thumbs .ty-thumb-btn {
+        width: 50px;
+        height: 65px;
+      }
     }
   }
 }
