@@ -30,7 +30,7 @@
           <div class="cart-item-content">
             <div class="cart-item-details">
               <h2>{{ basketItem.name }}</h2>
-              <p class="unit-price">Birim Fiyat: <strong>{{ basketItem.price | currency:'TRY':'symbol':'1.0-0' }}</strong></p>
+              <p class="unit-price">Birim Fiyat: <strong>{{ basketItem.price | turkishCurrency }}</strong></p>
               <p class="delivery-tag">
                 <mat-icon>local_shipping</mat-icon> Tahmini Kargoya Teslim: 3 iş günü içinde
               </p>
@@ -57,7 +57,7 @@
 
               <div class="cart-item-price-block">
                 <div class="subtotal-price">
-                  {{ basketItem.price * basketItem.quantity | currency:'TRY':'symbol':'1.0-0' }}
+                  {{ basketItem.price * basketItem.quantity | turkishCurrency }}
                 </div>
               </div>
             </div>
@@ -77,7 +77,7 @@
           <!-- Free Shipping Warning Bar -->
           <div class="free-shipping-banner" *ngIf="totalPrice < 500">
             <p class="shipping-warning-text">
-              Kargonun bedava olması için <strong>{{ 500 - totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong> daha ürün ekleyin!
+              Kargonun bedava olması için <strong>{{ 500 - totalPrice | turkishCurrency }}</strong> daha ürün ekleyin!
             </p>
             <div class="progress-bar-bg">
               <div class="progress-bar-fill" [style.width.%]="(totalPrice / 500) * 100"></div>
@@ -93,12 +93,12 @@
           <div class="summary-rows">
             <div class="summary-row">
               <span>Ara Toplam</span>
-              <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
+              <strong>{{ totalPrice | turkishCurrency }}</strong>
             </div>
             <div class="summary-row">
               <span>Kargo Ücreti</span>
               <strong [class.free-shipping]="totalPrice >= 500">
-                {{ totalPrice >= 500 ? 'Bedava' : (shippingFee | currency:'TRY':'symbol':'1.0-0') }}
+                {{ totalPrice >= 500 ? 'Bedava' : (shippingFee | turkishCurrency) }}
               </strong>
             </div>
           </div>
@@ -107,7 +107,7 @@
 
           <div class="summary-total-row">
             <span>Toplam</span>
-            <strong class="total-price">{{ grandTotal | currency:'TRY':'symbol':'1.0-0' }}</strong>
+            <strong class="total-price">{{ grandTotal | turkishCurrency }}</strong>
           </div>
 
           <div class="coupon-code-container">

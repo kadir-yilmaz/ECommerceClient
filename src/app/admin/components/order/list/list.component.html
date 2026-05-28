@@ -1,126 +1,162 @@
-<div class="order-management">
-  <div class="mat-elevation-z8">
-    <table mat-table [dataSource]="dataSource">
+<div class="admin-orders-container">
+  <!-- Page Header -->
+  <div class="page-header mb-4">
+    <div class="header-left">
+      <h2 class="page-title">Sipariş Yönetimi</h2>
+      <p class="page-subtitle">Sipariş durumlarını güncelleyin, kargo işlemlerini yönetin ve aşamaları takip edin</p>
+    </div>
+  </div>
 
-      <ng-container matColumnDef="orderCode">
-        <th mat-header-cell *matHeaderCellDef> Sipariş Kodu </th>
-        <td mat-cell *matCellDef="let element">
-          <span class="order-code-badge">#{{element.orderCode}}</span>
-        </td>
-      </ng-container>
+  <!-- Search & Toolbar Card -->
+  <div class="toolbar-card mb-4">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" #searchInput (input)="applyFilter($event)" placeholder="Sipariş kodu, kullanıcı adı veya durum ile ara..." class="search-input" />
+      <button class="clear-btn" *ngIf="searchInput.value" (click)="clearSearch(searchInput)" title="Temizle">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
 
-      <ng-container matColumnDef="userName">
-        <th mat-header-cell *matHeaderCellDef> Kullanıcı </th>
-        <td mat-cell *matCellDef="let element">
-          <div class="user-cell">
-            <mat-icon class="user-icon">person</mat-icon>
-            <span>{{element.userName}}</span>
-          </div>
-        </td>
-      </ng-container>
+  <!-- Table Card -->
+  <div class="table-card shadow-premium">
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" class="premium-table">
 
-      <ng-container matColumnDef="totalPrice">
-        <th mat-header-cell *matHeaderCellDef> Toplam Tutar </th>
-        <td mat-cell *matCellDef="let element">
-          <span class="price-text">{{element.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
-        </td>
-      </ng-container>
+        <!-- Order Code Column -->
+        <ng-container matColumnDef="orderCode">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Sipariş Kodu </th>
+          <td mat-cell *matCellDef="let element" class="table-cell code-cell">
+            <span class="order-code-badge">#{{element.orderCode}}</span>
+          </td>
+        </ng-container>
 
-      <ng-container matColumnDef="createdDate">
-        <th mat-header-cell *matHeaderCellDef> Tarih </th>
-        <td mat-cell *matCellDef="let element">
-          <span class="date-text">{{element.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
-        </td>
-      </ng-container>
+        <!-- User Column -->
+        <ng-container matColumnDef="userName">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Kullanıcı </th>
+          <td mat-cell *matCellDef="let element" class="table-cell name-cell">
+            <div class="user-cell">
+              <mat-icon class="user-icon">person</mat-icon>
+              <span>{{element.userName}}</span>
+            </div>
+          </td>
+        </ng-container>
 
-      <!-- Status Column -->
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef> Durum </th>
-        <td mat-cell *matCellDef="let element">
-          <span class="status-badge" [ngClass]="getStatusClass(element.status)">
-            <mat-icon class="status-icon">{{getStatusIcon(element.status)}}</mat-icon>
-            {{getStatusText(element.status)}}
-          </span>
-        </td>
-      </ng-container>
+        <!-- Total Price Column -->
+        <ng-container matColumnDef="totalPrice">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Toplam Tutar </th>
+          <td mat-cell *matCellDef="let element" class="table-cell price-cell">
+            <span class="product-price">{{element.totalPrice | currency:'TRY':'symbol':'1.2-2'}}</span>
+          </td>
+        </ng-container>
 
-      <!-- Actions Column -->
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef width="180"> İşlemler </th>
-        <td mat-cell *matCellDef="let element">
-          <div class="action-buttons">
-            <!-- Ödeme tamamlandı → Hazırla -->
-            <button *ngIf="element.status === 1" mat-raised-button color="primary" class="action-btn"
-                    (click)="updateStatus(element.id, 3)" matTooltip="Hazırlamaya Başla">
-              <mat-icon>settings</mat-icon> Hazırla
-            </button>
+        <!-- Date Column -->
+        <ng-container matColumnDef="createdDate">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Sipariş Tarihi </th>
+          <td mat-cell *matCellDef="let element" class="table-cell date-cell">
+            <span class="date-text">{{element.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
+          </td>
+        </ng-container>
 
-            <!-- Hazırlanıyor → Kargola -->
-            <button *ngIf="element.status === 3" mat-raised-button class="action-btn ship-btn"
-                    (click)="openShipModal(element.id)" matTooltip="Kargoya Ver">
-              <mat-icon>local_shipping</mat-icon> Kargola
-            </button>
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Sipariş Durumu </th>
+          <td mat-cell *matCellDef="let element" class="table-cell">
+            <div class="status-badge-container">
+              <span class="status-badge" [ngClass]="getStatusClass(element.status)">
+                <span class="status-dot"></span>
+                <mat-icon class="status-icon-premium">{{getStatusIcon(element.status)}}</mat-icon>
+                <span class="status-text-premium">{{getStatusText(element.status)}}</span>
+              </span>
+              
+              <span *ngIf="element.completed" class="completed-badge animate-pulse" title="Sipariş tamamlanmıştır">
+                <mat-icon>check_circle</mat-icon>
+                <span>Tamamlandı</span>
+              </span>
+            </div>
+          </td>
+        </ng-container>
 
-            <!-- Kargoda → Teslim -->
-            <button *ngIf="element.status === 4" mat-raised-button class="action-btn deliver-btn"
-                    (click)="updateStatus(element.id, 5)" matTooltip="Teslim Edildi">
-              <mat-icon>inventory_2</mat-icon> Teslim
-            </button>
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="table-header actions-header"> İşlemler </th>
+          <td mat-cell *matCellDef="let element" class="table-cell">
+            <div class="action-buttons">
+              <!-- Siparişi Hazırla (Pending/Completed → Hazırlanıyor) -->
+              <button *ngIf="element.status === 0 || element.status === 1" class="action-btn-premium prepare-btn"
+                      (click)="updateStatus(element.id, 3)" title="Hazırlamaya Başla">
+                <mat-icon>settings</mat-icon> <span>Siparişi Hazırla</span>
+              </button>
 
-            <!-- Kargo bilgisi -->
-            <span *ngIf="element.status >= 4 && element.cargoCompany" class="cargo-info" matTooltip="{{element.cargoCompany}} - {{element.trackingNumber}}">
-              <mat-icon class="cargo-icon">local_shipping</mat-icon>
-              <small>{{element.trackingNumber}}</small>
-            </span>
-          </div>
-        </td>
-      </ng-container>
+              <!-- Kargoya Ver (Hazırlanıyor → Kargoda) -->
+              <button *ngIf="element.status === 3" class="action-btn-premium ship-btn"
+                      (click)="openShipModal(element.id)" title="Kargoya Ver">
+                <mat-icon>local_shipping</mat-icon> <span>Kargoya Ver</span>
+              </button>
 
-      <ng-container matColumnDef="viewdetail">
-        <th mat-header-cell *matHeaderCellDef width="30">  </th>
-        <td mat-cell *matCellDef="let element"> <img (click)="showDetail(element.id)" style="cursor:pointer" src="../../../../../assets/detail.png" width="25" height="25" /> </td>
-      </ng-container>
+              <!-- Teslim Et (Kargoda → Teslim Edildi) -->
+              <button *ngIf="element.status === 4" class="action-btn-premium deliver-btn"
+                      (click)="updateStatus(element.id, 5)" title="Teslim Edildi Olarak İşaretle">
+                <mat-icon>done_all</mat-icon> <span>Teslim Et</span>
+              </button>
 
-      <ng-container matColumnDef="delete">
-        <th mat-header-cell *matHeaderCellDef width="30">  </th>
-        <td mat-cell *matCellDef="let element"
-            appDelete
-            [id]="element.id"
-            (callback)="getOrders()"
-            controller="orders">
-        </td>
-      </ng-container>
+              <!-- Tamamlandı Olarak İşaretle (Kargoda veya Teslim Edildi iken henüz tamamlanmamışsa) -->
+              <button *ngIf="!element.completed && (element.status === 4 || element.status === 5)" class="action-btn-premium complete-btn"
+                      (click)="completeOrder(element.id)" title="Tamamlandı Olarak İşaretle">
+                <mat-icon>check_circle</mat-icon> <span>Tamamla</span>
+              </button>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
+              <!-- Kargo Takip Bilgisi Göstergesi (Kargolanmış veya teslim edilmişse) -->
+              <span *ngIf="element.status >= 4 && element.cargoCompany" class="cargo-badge-premium" [matTooltip]="element.cargoCompany + ' - ' + element.trackingNumber">
+                <mat-icon>local_shipping</mat-icon>
+                <span class="cargo-company-text">{{element.cargoCompany}}</span>
+                <span class="cargo-tracking-text">#{{element.trackingNumber}}</span>
+              </span>
 
-    <mat-paginator (page)="pageChanged()"
-                   [pageSizeOptions]="[5, 10, 20]"
-                   showFirstLastButtons
-                   aria-label="Select page of periodic elements">
-    </mat-paginator>
+              <button class="circle-action-btn detail-btn" (click)="showDetail(element.id)" title="Detayları Göster">
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <span appDelete [id]="element.id" (callback)="getOrders()"
+                    controller="orders" class="circle-action-btn delete-inline-btn"
+                    title="Sil">
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="premium-header-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="premium-row"></tr>
+      </table>
+    </div>
+
+    <!-- Paginator Footer -->
+    <div class="paginator-wrapper">
+      <mat-paginator (page)="pageChanged()" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+                     aria-label="Select page of orders">
+      </mat-paginator>
+    </div>
   </div>
 </div>
 
 <!-- Kargo Modal -->
 <div class="ship-modal-overlay" *ngIf="shipOrderId" (click)="shipOrderId = ''">
-  <div class="ship-modal" (click)="$event.stopPropagation()">
+  <div class="ship-modal animate-slide-in" (click)="$event.stopPropagation()">
     <div class="ship-modal-header">
       <mat-icon>local_shipping</mat-icon>
       <h3>Kargoya Ver</h3>
-      <button mat-icon-button (click)="shipOrderId = ''">
+      <button class="close-btn" (click)="shipOrderId = ''" title="Kapat">
         <mat-icon>close</mat-icon>
       </button>
     </div>
     <div class="ship-modal-body">
       <div class="ship-info-alert">
         <mat-icon>info</mat-icon>
-        <span>Bu siparişi kargoya vermek üzeresiniz.</span>
+        <span>Bu siparişi kargoya vermek üzeresiniz. Müşteriye kargo bilgileriyle birlikte bilgilendirme e-postası gönderilecektir.</span>
       </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Kargo Firması</mat-label>
+      <mat-form-field appearance="outline" class="full-width premium-field">
+        <mat-label>Kargo Firması Seçin</mat-label>
         <mat-select [(value)]="shipCargoCompany" required>
           <mat-option value="Yurtiçi Kargo">Yurtiçi Kargo</mat-option>
           <mat-option value="Aras Kargo">Aras Kargo</mat-option>
@@ -132,15 +168,15 @@
         </mat-select>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Kargo Takip No</mat-label>
+      <mat-form-field appearance="outline" class="full-width premium-field">
+        <mat-label>Kargo Takip Numarası</mat-label>
         <input matInput [(ngModel)]="shipTrackingNumber" placeholder="Örn: 1234567890" required>
       </mat-form-field>
     </div>
     <div class="ship-modal-footer">
-      <button mat-button (click)="shipOrderId = ''">İptal</button>
-      <button mat-raised-button color="primary" (click)="confirmShip()">
-        <mat-icon>local_shipping</mat-icon> Kargoya Ver
+      <button class="modal-action-btn-custom modal-cancel-btn" (click)="shipOrderId = ''">İptal</button>
+      <button class="modal-action-btn-custom modal-confirm-btn" (click)="confirmShip()">
+        <mat-icon>local_shipping</mat-icon> <span>Kargoya Ver</span>
       </button>
     </div>
   </div>

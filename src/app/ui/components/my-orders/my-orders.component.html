@@ -13,11 +13,29 @@
           <span class="order-date">{{order.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
         </div>
         <div class="order-total">
-          <span class="price">{{order.totalPrice | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+          <span class="price">{{order.totalPrice | turkishCurrency}}</span>
         </div>
       </div>
 
       <!-- Kargo Bilgisi (Eğer Kargoya Verildiyse) -->
+      <div class="order-products" *ngIf="order.orderItems?.length">
+        <div class="products-title">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span>Alinan Urunler</span>
+        </div>
+
+        <div class="product-row" *ngFor="let item of order.orderItems">
+          <div class="product-main">
+            <span class="product-icon"><i class="fa-solid fa-box"></i></span>
+            <div>
+              <strong>{{ item.productName }}</strong>
+              <span>{{ item.quantity }} adet x {{ item.unitPrice | turkishCurrency }}</span>
+            </div>
+          </div>
+          <b>{{ item.totalPrice | turkishCurrency }}</b>
+        </div>
+      </div>
+
       <div class="cargo-details" *ngIf="order.status >= 4 && order.cargoCompany">
         <div class="cargo-box">
           <i class="fa-solid fa-truck-fast text-primary"></i>

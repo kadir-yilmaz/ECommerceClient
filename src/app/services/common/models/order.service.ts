@@ -39,8 +39,8 @@ export class OrderService {
     }, id);
 
     const promiseData = firstValueFrom(observable);
-    promiseData.then(value => successCallBack())
-      .catch(error => errorCallBack(error))
+    promiseData.then(value => successCallBack?.())
+      .catch(error => errorCallBack?.(error))
 
     return await promiseData;
   }
@@ -83,7 +83,12 @@ export class OrderService {
       action: `${id}/ship`
     }, { cargoCompany, trackingNumber });
 
-    return await firstValueFrom(observable);
+    const response = await firstValueFrom(observable);
+    if (response && response.succeeded === false) {
+      throw response;
+    }
+
+    return response;
   }
 
   async deleteOrder(id: string): Promise<any> {

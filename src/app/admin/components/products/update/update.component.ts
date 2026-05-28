@@ -48,19 +48,23 @@ export class UpdateComponent extends BaseComponent implements OnInit {
 
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
-      this.product = await this.productService.readById(this.productId,
-        () => { },
-        (error) => {
-          this.alertify.message("Ürün bulunamadı.", { dismissOthers: true, messageType: MessageType.Error, position: Position.BottomRight });
-          this.router.navigate(['/admin/products']);
+      try {
+        this.product = await this.productService.readById(this.productId,
+          () => { },
+          (error) => {
+            this.alertify.message("Ürün bulunamadı.", { dismissOthers: true, messageType: MessageType.Error, position: Position.BottomRight });
+            this.router.navigate(['/admin/products']);
+          }
+        );
+
+        if (this.product?.categoryId) {
+          this.selectedCategoryId = this.product.categoryId;
         }
-      );
 
-      if (this.product?.categoryId) {
-        this.selectedCategoryId = this.product.categoryId;
+        this.existingImages = await this.productService.readImages(this.productId, () => { });
+      } catch (error) {
+        this.hideSpinner(SpinnerType.BallAtom);
       }
-
-      this.existingImages = await this.productService.readImages(this.productId, () => { });
     }
     this.hideSpinner(SpinnerType.BallAtom);
   }
@@ -94,16 +98,18 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   }
 
   async deleteExistingImage(imageId: string, index: number) {
-    this.showSpinner(SpinnerType.BallAtom);
-    await this.productService.deleteImage(this.productId, imageId, () => {
-      this.hideSpinner(SpinnerType.BallAtom);
-      this.existingImages.splice(index, 1);
-      this.alertify.message("Görsel silindi.", {
-        dismissOthers: true,
-        messageType: MessageType.Success,
-        position: Position.BottomRight
+    if (confirm("Bu ürün görselini silmek istediğinize emin misiniz?")) {
+      this.showSpinner(SpinnerType.BallAtom);
+      await this.productService.deleteImage(this.productId, imageId, () => {
+        this.hideSpinner(SpinnerType.BallAtom);
+        this.existingImages.splice(index, 1);
+        this.alertify.message("Görsel silindi.", {
+          dismissOthers: true,
+          messageType: MessageType.Success,
+          position: Position.BottomRight
+        });
       });
-    });
+    }
   }
 
   async update(name: HTMLInputElement, stock: HTMLInputElement, price: HTMLInputElement) {

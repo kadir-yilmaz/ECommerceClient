@@ -88,8 +88,15 @@
 
       <div class="ty-price-area">
         <p class="ty-price-label"><i class="fa-solid fa-cart-shopping"></i> Kampanyalı Fiyat</p>
-        <div class="ty-new-price">Sepette <span>{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span></div>
-        <div class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</div>
+        <div class="ty-new-price">Sepette <span>{{ product.price | turkishCurrency }}</span></div>
+        <div class="ty-old-price">{{ originalPrice | turkishCurrency }}</div>
+      </div>
+
+      <!-- Stok Bilgisi -->
+      <div class="ty-stock-indicator" [ngClass]="product.stock < 20 ? 'stock-low' : 'stock-ok'">
+        <i class="fa-solid" [ngClass]="product.stock < 20 ? 'fa-triangle-exclamation' : 'fa-box-open'"></i>
+        <span *ngIf="product.stock > 0">Stokta <strong>{{ product.stock }}</strong> adet kaldı</span>
+        <span *ngIf="product.stock <= 0">Bu ürün şu an stokta yok</span>
       </div>
 
       <div class="ty-action-row">
@@ -124,7 +131,7 @@
           <i class="fa-solid fa-credit-card"></i>
           <div class="payment-text">
             <strong>12 Aya Varan Taksit Fırsatı</strong>
-            <span>Aylık {{(product.price / 12) | currency:'TRY':'symbol':'1.2-2'}}'den başlayan 12 aya varan taksit fırsatı</span>
+            <span>Aylık {{(product.price / 12) | turkishCurrency}}'den başlayan 12 aya varan taksit fırsatı</span>
           </div>
         </div>
       </div>

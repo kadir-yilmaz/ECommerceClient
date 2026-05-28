@@ -44,21 +44,23 @@ export class CampaignsComponent extends BaseComponent implements OnInit {
   }
 
   async deleteImage(id: string) {
-    this.showSpinner(SpinnerType.BallAtom);
-    try {
-      await this.campaignService.deleteCampaignImage(id);
-      this.customToastrService.message('Kampanya resmi başarıyla silindi.', 'Başarılı', {
-        messageType: ToastrMessageType.Success,
-        position: ToastrPosition.BottomRight
-      });
-      await this.getCampaignImages();
-    } catch {
-      this.customToastrService.message('Kampanya resmi silinemedi.', 'Hata', {
-        messageType: ToastrMessageType.Error,
-        position: ToastrPosition.BottomRight
-      });
-    } finally {
-      this.hideSpinner(SpinnerType.BallAtom);
+    if (confirm("Bu kampanya resmini silmek istediğinize emin misiniz?")) {
+      this.showSpinner(SpinnerType.BallAtom);
+      try {
+        await this.campaignService.deleteCampaignImage(id);
+        this.customToastrService.message('Kampanya resmi başarıyla silindi.', 'Başarılı', {
+          messageType: ToastrMessageType.Success,
+          position: ToastrPosition.BottomRight
+        });
+        await this.getCampaignImages();
+      } catch {
+        this.customToastrService.message('Kampanya resmi silinemedi.', 'Hata', {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
+      } finally {
+        this.hideSpinner(SpinnerType.BallAtom);
+      }
     }
   }
 

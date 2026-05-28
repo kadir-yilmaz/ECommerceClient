@@ -348,6 +348,37 @@
     }
   }
 
+  .ty-stock-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 6px;
+    margin-bottom: 16px;
+
+    i { font-size: 14px; }
+
+    &.stock-ok {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #a5d6a7;
+    }
+
+    &.stock-low {
+      background-color: #fff8e1;
+      color: #f57f17;
+      border: 1px solid #ffe082;
+      animation: pulse-warning 2s ease-in-out infinite;
+    }
+  }
+
+  @keyframes pulse-warning {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(245, 127, 23, 0.3); }
+    50%       { box-shadow: 0 0 0 5px rgba(245, 127, 23, 0); }
+  }
+
   .ty-action-row {
     display: flex;
     gap: 12px;

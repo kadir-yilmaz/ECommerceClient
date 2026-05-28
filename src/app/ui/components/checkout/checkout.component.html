@@ -1,29 +1,5 @@
 <section class="checkout-page">
   <div class="checkout-shell">
-    <header class="checkout-hero">
-      <div class="hero-copy">
-        <span class="eyebrow">Guvenli Odeme</span>
-        <h1>Teslimat ve kart bilgilerinizi tamamlayin</h1>
-        <p>Siparisi tek adimda onaylayin. Adres ve odeme alanlari hem istemci hem sunucu tarafinda dogrulaniyor.</p>
-      </div>
-
-      <div class="card-preview">
-        <span class="preview-chip"></span>
-        <span class="preview-brand">Secure Pay</span>
-        <p class="preview-number">{{ cardPreviewNumber }}</p>
-        <div class="preview-meta">
-          <div>
-            <span>Kart Sahibi</span>
-            <strong>{{ cardPreviewName }}</strong>
-          </div>
-          <div>
-            <span>Son Kul.</span>
-            <strong>{{ cardPreviewExpiry }}</strong>
-          </div>
-        </div>
-      </div>
-    </header>
-
     <form class="checkout-grid" [formGroup]="checkoutForm" (ngSubmit)="completeOrder()" autocomplete="on">
       <div class="checkout-main">
         <section class="panel">
@@ -94,7 +70,35 @@
         <section class="panel">
           <div class="panel-header">
             <h2>Kredi Karti</h2>
-            <p>Kart veriniz maskelenmis olarak loglanir, tam kart numarasi ve CVV saklanmaz.</p>
+          </div>
+
+          <div class="card-stage" [class.is-flipped]="isCvvFocused">
+            <div class="card-preview card-front">
+              <div class="card-topline">
+                <span class="preview-chip"></span>
+                <span class="preview-brand">Secure Pay</span>
+              </div>
+              <p class="preview-number">{{ cardPreviewNumber }}</p>
+              <div class="preview-meta">
+                <div>
+                  <span>Kart Sahibi</span>
+                  <strong>{{ cardPreviewName }}</strong>
+                </div>
+                <div>
+                  <span>Son Kul.</span>
+                  <strong>{{ cardPreviewExpiry }}</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card-preview card-back">
+              <div class="magnetic-strip"></div>
+              <div class="signature-row">
+                <span></span>
+                <strong>{{ cardPreviewCvv }}</strong>
+              </div>
+              <p>CVV</p>
+            </div>
           </div>
 
           <div class="field-grid">
@@ -113,28 +117,16 @@
             </label>
           </div>
 
-          <div class="field-grid three-col payment-row">
-            <label class="field" [class.field-error]="hasControlError('expireMonth')">
-              <span>Ay</span>
-              <select formControlName="expireMonth" autocomplete="cc-exp-month">
-                <option value="">Secin</option>
-                <option *ngFor="let month of paymentMonths" [value]="month">{{ month }}</option>
-              </select>
-              <small class="error-text" *ngIf="getFieldError('expireMonth')">{{ getFieldError('expireMonth') }}</small>
-            </label>
-
-            <label class="field" [class.field-error]="hasControlError('expireYear')">
-              <span>Yil</span>
-              <select formControlName="expireYear" autocomplete="cc-exp-year">
-                <option value="">Secin</option>
-                <option *ngFor="let year of paymentYears" [value]="year">{{ year }}</option>
-              </select>
-              <small class="error-text" *ngIf="getFieldError('expireYear')">{{ getFieldError('expireYear') }}</small>
+          <div class="field-grid two-col payment-row">
+            <label class="field" [class.field-error]="hasControlError('expireDate')">
+              <span>Son Kullanma</span>
+              <input type="text" formControlName="expireDate" inputmode="numeric" maxlength="5" placeholder="AA/YY" (input)="onExpireDateInput()" autocomplete="cc-exp">
+              <small class="error-text" *ngIf="getFieldError('expireDate')">{{ getFieldError('expireDate') }}</small>
             </label>
 
             <label class="field" [class.field-error]="hasControlError('cvv')">
               <span>CVV</span>
-              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" autocomplete="cc-csc">
+              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" (focus)="isCvvFocused = true" (blur)="isCvvFocused = false" autocomplete="cc-csc">
               <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
             </label>
           </div>
@@ -156,13 +148,13 @@
                 <strong>{{ item.name }}</strong>
                 <span>{{ item.quantity }} adet</span>
               </div>
-              <b>{{ item.price * item.quantity | currency:'TRY':'symbol':'1.0-0' }}</b>
+              <b>{{ item.price * item.quantity | turkishCurrency }}</b>
             </div>
           </div>
 
           <div class="summary-total">
             <span>Genel Toplam</span>
-            <strong>{{ totalPrice | currency:'TRY':'symbol':'1.0-0' }}</strong>
+            <strong>{{ totalPrice | turkishCurrency }}</strong>
           </div>
 
           <button type="submit" class="submit-btn" [disabled]="isSubmitting">

@@ -1,83 +1,133 @@
-<div class="page-header d-flex justify-content-between align-items-center mb-4">
-  <h2 class="text-dark m-0" style="font-weight: 700;">Products Management</h2>
-  <div class="actions d-flex gap-2">
-    <button mat-flat-button color="primary" (click)="openQrCodeReadingDialog()">
-      <mat-icon>qr_code_scanner</mat-icon> QR Okut
-    </button>
-    <button mat-flat-button color="warn" routerLink="/admin/products/create">
-      <mat-icon>add</mat-icon> Create Product
-    </button>
+<div class="admin-products-container">
+  <!-- Page Header -->
+  <div class="page-header mb-4">
+    <div class="header-left">
+      <h2 class="page-title">Products Management</h2>
+      <p class="page-subtitle">Manage inventory, track stock levels, and generate QR codes</p>
+    </div>
+    <div class="actions-group">
+      <button class="action-btn-custom qr-scanner-btn" (click)="openQrCodeReadingDialog()">
+        <mat-icon>qr_code_scanner</mat-icon>
+        <span>Scan QR Code</span>
+      </button>
+      <button class="action-btn-custom create-btn" routerLink="/admin/products/create">
+        <mat-icon>add</mat-icon>
+        <span>Create Product</span>
+      </button>
+    </div>
   </div>
-</div>
 
-<div class="mat-elevation-z8">
-  <table mat-table [dataSource]="dataSource">
+  <!-- Search & Toolbar Card -->
+  <div class="toolbar-card mb-4">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" #searchInput (input)="onSearch($event)" placeholder="Search by product name, price or stock status..." class="search-input" />
+      <button class="clear-btn" *ngIf="searchInput.value" (click)="clearSearch(searchInput)" title="Clear search">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div class="search-badge" *ngIf="searchTerm">
+      <span>Showing results for: <strong>"{{ searchTerm }}"</strong></span>
+    </div>
+  </div>
 
-    <ng-container matColumnDef="photo">
-      <th mat-header-cell *matHeaderCellDef> Photo </th>
-      <td mat-cell *matCellDef="let element">
-        <img *ngIf="element.imagePath" [src]="baseUrl?.url + '/' + element.imagePath" width="50" height="50"
-          style="border-radius: 5px; object-fit: cover; margin: 5px 0;" [alt]="element.name">
-        <img *ngIf="!element.imagePath" src="../../../../../assets/default-product.png" width="50" height="50"
-          style="border-radius: 5px; object-fit: cover; margin: 5px 0;" [alt]="element.name">
-      </td>
-    </ng-container>
+  <!-- Table Card -->
+  <div class="table-card shadow-premium">
+    <div class="table-responsive">
+      <table mat-table [dataSource]="dataSource" class="premium-table">
 
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let element"> {{element.name}} </td>
-    </ng-container>
+        <!-- Photo Column -->
+        <ng-container matColumnDef="photo">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Photo </th>
+          <td mat-cell *matCellDef="let element" class="table-cell photo-cell">
+            <div class="product-img-wrapper">
+              <img *ngIf="element.imagePath" [src]="baseUrl?.url + '/' + element.imagePath" (error)="onImageError($event)" class="product-img" [alt]="element.name">
+              <img *ngIf="!element.imagePath" src="../../../../../assets/default-product.png" class="product-img" [alt]="element.name">
+            </div>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="stock">
-      <th mat-header-cell *matHeaderCellDef> Stock </th>
-      <td mat-cell *matCellDef="let element"> {{element.stock}} </td>
-    </ng-container>
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Name </th>
+          <td mat-cell *matCellDef="let element" class="table-cell name-cell">
+            <span class="product-name">{{element.name}}</span>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="price">
-      <th mat-header-cell *matHeaderCellDef> Price </th>
-      <td mat-cell *matCellDef="let element"> {{element.price}} </td>
-    </ng-container>
+        <!-- Stock Column -->
+        <ng-container matColumnDef="stock">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Stock </th>
+          <td mat-cell *matCellDef="let element" class="table-cell">
+            <span class="stock-badge" [class.in-stock]="element.stock > 50" [class.low-stock]="element.stock > 0 && element.stock <= 50" [class.out-of-stock]="element.stock === 0">
+              <span class="status-dot"></span>
+              <span class="status-text">{{ element.stock === 0 ? 'Out of Stock' : element.stock + ' Units' }}</span>
+            </span>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="createdDate">
-      <th mat-header-cell *matHeaderCellDef> Created Date </th>
-      <td mat-cell *matCellDef="let element"> {{element.createdDate}} </td>
-    </ng-container>
+        <!-- Price Column -->
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Price </th>
+          <td mat-cell *matCellDef="let element" class="table-cell price-cell">
+            <span class="product-price">{{element.price | currency:'TRY':'symbol':'1.2-2'}}</span>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="updatedDate">
-      <th mat-header-cell *matHeaderCellDef> Updated Date </th>
-      <td mat-cell *matCellDef="let element"> {{element.updatedDate}} </td>
-    </ng-container>
+        <!-- Created Date Column -->
+        <ng-container matColumnDef="createdDate">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Created Date </th>
+          <td mat-cell *matCellDef="let element" class="table-cell date-cell">
+            <span class="date-text">{{element.createdDate | date: 'dd.MM.yyyy HH:mm'}}</span>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="qrcode">
-      <th mat-header-cell *matHeaderCellDef width="30"> </th>
-      <td mat-cell *matCellDef="let element">
-        <a (click)="showQrCode(element.id)" style="cursor:pointer" title="QR Code Göster">
-          <mat-icon style="color: #555;">qr_code</mat-icon>
-        </a>
-      </td>
-    </ng-container>
+        <!-- Updated Date Column -->
+        <ng-container matColumnDef="updatedDate">
+          <th mat-header-cell *matHeaderCellDef class="table-header"> Updated Date </th>
+          <td mat-cell *matCellDef="let element" class="table-cell date-cell">
+            <span class="date-text">{{element.updatedDate === '0001-01-01T00:00:00' ? '-' : (element.updatedDate | date: 'dd.MM.yyyy HH:mm')}}</span>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="edit">
-      <th mat-header-cell *matHeaderCellDef width="30"> </th>
-      <td mat-cell *matCellDef="let element">
-        <a [routerLink]="['/admin/products/edit', element.id]" style="cursor:pointer">
-          <img src="../../../../../assets/edit.png" width="25" height="25" />
-        </a>
-      </td>
-    </ng-container>
+        <!-- QR Code Column -->
+        <ng-container matColumnDef="qrcode">
+          <th mat-header-cell *matHeaderCellDef class="table-header" width="50"> </th>
+          <td mat-cell *matCellDef="let element" class="table-cell action-cell">
+            <button class="circle-action-btn qr-btn" (click)="showQrCode(element.id)" title="Show QR Code">
+              <mat-icon>qr_code</mat-icon>
+            </button>
+          </td>
+        </ng-container>
 
-    <ng-container matColumnDef="delete">
-      <th mat-header-cell *matHeaderCellDef width="30"> </th>
-      <td mat-cell *matCellDef="let element" appDelete [id]="element.id" (callback)="getProducts()"
-        controller="products">
-      </td>
-    </ng-container>
+        <!-- Edit Column -->
+        <ng-container matColumnDef="edit">
+          <th mat-header-cell *matHeaderCellDef class="table-header" width="50"> </th>
+          <td mat-cell *matCellDef="let element" class="table-cell action-cell">
+            <a [routerLink]="['/admin/products/edit', element.id]" class="circle-action-btn edit-btn" title="Edit Product">
+              <mat-icon>edit</mat-icon>
+            </a>
+          </td>
+        </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+        <!-- Delete Column -->
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef class="table-header" width="50"> </th>
+          <td mat-cell *matCellDef="let element" appDelete [id]="element.id" (callback)="getProducts()"
+            controller="products" class="table-cell delete-cell">
+          </td>
+        </ng-container>
 
-  <mat-paginator (page)="pageChanged()" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
-    aria-label="Select page of periodic elements">
-  </mat-paginator>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" class="premium-header-row"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="premium-row"></tr>
+      </table>
+    </div>
+
+    <!-- Paginator Footer -->
+    <div class="paginator-wrapper">
+      <mat-paginator (page)="pageChanged()" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+        aria-label="Select page of products">
+      </mat-paginator>
+    </div>
+  </div>
 </div>

@@ -44,11 +44,24 @@ export class DetailComponent extends BaseComponent implements OnInit {
 
     this.activatedRoute.params.subscribe(async (params) => {
       const productId = params["id"];
-      this.product = await this.productService.readById(productId, () => { }, () => { });
-      const images: List_Product_Image[] = await this.productService.readImages(productId, () => { });
-      this.product.productImageFiles = images;
-      this.selectedImagePath = this.getShowcaseImagePath();
-      this.hideSpinner(SpinnerType.BallAtom);
+      try {
+        this.product = await this.productService.readById(productId, () => { }, () => { });
+        if (this.product) {
+          const images: List_Product_Image[] = await this.productService.readImages(productId, () => { });
+          this.product.productImageFiles = images;
+          this.selectedImagePath = this.getShowcaseImagePath();
+        } else {
+          throw new Error("Product null");
+        }
+      } catch (error) {
+        this.customToastrService.message("Ürün bulunamadı.", "Hata", {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
+        this.router.navigate(["/"]);
+      } finally {
+        this.hideSpinner(SpinnerType.BallAtom);
+      }
     });
   }
 

@@ -25,6 +25,7 @@ import { MatInputModule } from '@angular/material/input';
 import { NgxScannerQrcodeModule } from 'ngx-scanner-qrcode';
 import { UserDetailsDialogComponent } from './user-details-dialog/user-details-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedUiModule } from '../ui/components/shared/shared-ui.module';
 
 @NgModule({
   declarations: [
@@ -43,6 +44,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,
     MatDialogModule, MatButtonModule, MatCardModule, MatTableModule, MatToolbarModule, MatBadgeModule, MatListModule, MatFormFieldModule, MatInputModule, MatIconModule,
+    SharedUiModule,
     FileUploadModule,
     NgxScannerQrcodeModule
   ]

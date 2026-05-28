@@ -15,14 +15,14 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
   styleUrls: ['./checkout.component.scss']
 })
 export class CheckoutComponent extends BaseComponent implements OnInit {
+  private readonly iyzicoMaxPaymentAmount = 100000;
+
   checkoutForm: UntypedFormGroup;
   basketItems: List_Basket_Item[] = [];
   submitted = false;
   isSubmitting = false;
+  isCvvFocused = false;
   serverValidationErrors: { [key: string]: string[] } = {};
-
-  readonly paymentMonths = Array.from({ length: 12 }, (_, index) => `${index + 1}`.padStart(2, '0'));
-  readonly paymentYears = Array.from({ length: 12 }, (_, index) => `${new Date().getFullYear() + index}`);
 
   constructor(
     spinner: NgxSpinnerService,
@@ -58,10 +58,11 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   }
 
   get cardPreviewExpiry(): string {
-    const month = this.f['expireMonth']?.value || 'AA';
-    const yearValue = this.f['expireYear']?.value;
-    const year = yearValue ? yearValue.toString().slice(-2) : 'YY';
-    return `${month}/${year}`;
+    return this.f['expireDate']?.value || 'AA/YY';
+  }
+
+  get cardPreviewCvv(): string {
+    return this.f['cvv']?.value || '•••';
   }
 
   async ngOnInit(): Promise<void> {
@@ -81,8 +82,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       description: ['', [Validators.maxLength(300)]],
       cardHolderName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/), this.luhnValidator()]],
-      expireMonth: ['', [Validators.required]],
-      expireYear: ['', [Validators.required]],
+      expireDate: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
       cvv: ['', [Validators.required, Validators.pattern(/^\d{3}$/)]]
     }, {
       validators: [this.futureExpiryValidator()]
@@ -112,6 +112,12 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     this.f['cardNumber'].setValue(digits, { emitEvent: false });
   }
 
+  onExpireDateInput(): void {
+    const digits = (this.f['expireDate'].value ?? '').replace(/\D/g, '').slice(0, 4);
+    const value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
+    this.f['expireDate'].setValue(value, { emitEvent: false });
+  }
+
   onPhoneNumberInput(): void {
     const digits = (this.f['phoneNumber'].value ?? '').replace(/\D/g, '').slice(0, 11);
     this.f['phoneNumber'].setValue(digits, { emitEvent: false });
@@ -131,6 +137,18 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     this.submitted = true;
     this.serverValidationErrors = {};
 
+    if (this.totalPrice > this.iyzicoMaxPaymentAmount) {
+      this.toastrService.message(
+        'Iyzico 100.000 TL uzeri odemeleri kabul etmez. Lutfen sepet tutarini 100.000 TL veya altina dusurun.',
+        'Odeme Limiti Asildi',
+        {
+          messageType: ToastrMessageType.Warning,
+          position: ToastrPosition.BottomRight
+        }
+      );
+      return;
+    }
+
     if (this.checkoutForm.invalid) {
       this.checkoutForm.markAllAsTouched();
       return;
@@ -141,6 +159,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
     try {
       const formValue = this.checkoutForm.value;
+      const [expireMonth, expireYear] = this.parseExpireDate(formValue.expireDate);
       const order: Create_Order = {
         description: formValue.description?.trim() ?? '',
         contactName: formValue.contactName.trim(),
@@ -152,8 +171,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
         addressLine: formValue.addressLine.trim(),
         cardHolderName: formValue.cardHolderName.trim(),
         cardNumber: formValue.cardNumber.replace(/\D/g, ''),
-        expireMonth: formValue.expireMonth,
-        expireYear: formValue.expireYear,
+        expireMonth,
+        expireYear,
         cvv: formValue.cvv
       };
 
@@ -169,10 +188,35 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     } catch (error: any) {
       this.serverValidationErrors = this.extractValidationErrors(error);
       this.checkoutForm.markAllAsTouched();
+
+      const errorMessage = this.extractErrorMessage(error);
+      if (errorMessage) {
+        this.toastrService.message(errorMessage, 'Siparis Olusturulamadi', {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
+      }
     } finally {
       this.isSubmitting = false;
       this.hideSpinner(SpinnerType.BallAtom);
     }
+  }
+
+  private extractErrorMessage(error: any): string | null {
+    const payload = error?.error;
+    if (!payload) {
+      return null;
+    }
+
+    if (typeof payload === 'string') {
+      return payload;
+    }
+
+    if (typeof payload.message === 'string') {
+      return payload.message;
+    }
+
+    return null;
   }
 
   private extractValidationErrors(error: any): { [key: string]: string[] } {
@@ -200,8 +244,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       'AddressLine': 'addressLine',
       'CardHolderName': 'cardHolderName',
       'CardNumber': 'cardNumber',
-      'ExpireMonth': 'expireMonth',
-      'ExpireYear': 'expireYear',
+      'ExpireMonth': 'expireDate',
+      'ExpireYear': 'expireDate',
       'Cvv': 'cvv',
       'Description': 'description'
     };
@@ -240,8 +284,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       'addressLine': 'Acik adres zorunlu.',
       'cardHolderName': 'Kart sahibi bilgisi zorunlu.',
       'cardNumber': 'Kart numarasi zorunlu.',
-      'expireMonth': 'Son kullanma ayi zorunlu.',
-      'expireYear': 'Son kullanma yili zorunlu.',
+      'expireDate': 'Son kullanma tarihi zorunlu.',
       'cvv': 'CVV zorunlu.'
     };
     return messages[field] || 'Bu alan zorunlu.';
@@ -260,6 +303,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       'phoneNumber': 'Telefon numarasi 10 veya 11 haneli olmali.',
       'postalCode': 'Posta kodu 5 haneli olmali.',
       'cardNumber': 'Kart numarasi 16 haneli olmali.',
+      'expireDate': 'Son kullanma tarihi AA/YY formatinda olmali.',
       'cvv': 'CVV 3 haneli olmali.'
     };
     return messages[field] || 'Gecersiz format.';
@@ -294,15 +338,15 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
   private futureExpiryValidator(): ValidatorFn {
     return (group: AbstractControl): ValidationErrors | null => {
-      const monthValue = group.get('expireMonth')?.value;
-      const yearValue = group.get('expireYear')?.value;
+      const expireDate = group.get('expireDate')?.value;
 
-      if (!monthValue || !yearValue) {
+      if (!expireDate || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(expireDate)) {
         return null;
       }
 
+      const [monthValue, yearValue] = expireDate.split('/');
       const month = Number(monthValue);
-      const year = Number(yearValue);
+      const year = 2000 + Number(yearValue);
       const now = new Date();
 
       if (year < now.getFullYear()) {
@@ -315,6 +359,11 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
       return null;
     };
+  }
+
+  private parseExpireDate(expireDate: string): [string, string] {
+    const [month, year] = expireDate.split('/');
+    return [month, `20${year}`];
   }
 
   hasControlError(controlName: string): boolean {

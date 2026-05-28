@@ -82,10 +82,7 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
           break;
 
         case HttpStatusCode.Forbidden:
-          this.toastrService.message("Bu işlemi yapmaya yetkiniz bulunmamaktadır!", "Yetkisiz işlem!", {
-            messageType: ToastrMessageType.Warning,
-            position: ToastrPosition.BottomRight
-          });
+          this._handleForbidden();
           break;
 
         default:
@@ -97,24 +94,38 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
     }));
   }
 
+  private _handleForbidden() {
+    const url = this.router.url;
+
+    // Admin panelinde 403 → toast göster
+    if (url.startsWith('/admin')) {
+      this.toastrService.message('Bu işlemi yapmaya yetkiniz bulunmamaktadır!', 'Yetkisiz işlem!', {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+    }
+    // Kullanıcı sayfalarında 403 → sessizce yoksay
+    // (arka planda favoriler, sepet, vb. istekler kullanıcıya gösterilmemeli)
+  }
+
   private _handleUnauthorized() {
     const url = this.router.url;
 
     // Don't show toast for expected unauthenticated requests (baskets, products list etc.)
-    if (url === "/products" || url === "/" || url.startsWith("/products/")) {
+    if (url === '/products' || url === '/' || url.startsWith('/products/')) {
       // Silently redirect or ignore — user is just browsing
-    } else if (url.startsWith("/admin")) {
-      this.toastrService.message("Bu sayfaya erişim yetkiniz yok!", "Yetkisiz Erişim!", {
+    } else if (url.startsWith('/admin')) {
+      this.toastrService.message('Bu sayfaya erişim yetkiniz yok!', 'Yetkisiz Erişim!', {
         messageType: ToastrMessageType.Warning,
         position: ToastrPosition.BottomRight
       });
-      this.router.navigate(["/"]);
+      this.router.navigate(['/']);
     } else {
-      this.toastrService.message("Oturum açmanız gerekiyor.", "Oturum Gerekli", {
+      this.toastrService.message('Oturum açmanız gerekiyor.', 'Oturum Gerekli', {
         messageType: ToastrMessageType.Warning,
         position: ToastrPosition.BottomRight
       });
-      this.router.navigate(["login"], { queryParams: { returnUrl: url } });
+      this.router.navigate(['login'], { queryParams: { returnUrl: url } });
     }
   }
 }

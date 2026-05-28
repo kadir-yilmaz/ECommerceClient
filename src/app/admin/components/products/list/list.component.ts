@@ -13,6 +13,8 @@ import { FileService } from '../../../../services/common/models/file.service';
 import { BaseUrl } from '../../../../contracts/base_url';
 import { QrcodeDialogComponent } from '../../../../dialogs/qrcode-dialog/qrcode-dialog.component';
 import { QrcodeReadingDialogComponent } from '../../../../dialogs/qrcode-reading-dialog/qrcode-reading-dialog.component';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
   selector: 'app-list',
@@ -33,9 +35,12 @@ export class ListComponent extends BaseComponent implements OnInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   baseUrl: BaseUrl;
 
+  searchTerm: string = '';
+  private searchSubject: Subject<string> = new Subject<string>();
+
   async getProducts() {
     this.showSpinner(SpinnerType.BallAtom);
-    const allProducts: { totalProductCount: number; products: List_Product[] } = await this.productService.read(this.paginator ? this.paginator.pageIndex : 0, this.paginator ? this.paginator.pageSize : 5, undefined, undefined, undefined, () => this.hideSpinner(SpinnerType.BallAtom), errorMessage => this.alertifyService.message(errorMessage, {
+    const allProducts: { totalProductCount: number; products: List_Product[] } = await this.productService.read(this.paginator ? this.paginator.pageIndex : 0, this.paginator ? this.paginator.pageSize : 5, undefined, undefined, this.searchTerm, () => this.hideSpinner(SpinnerType.BallAtom), errorMessage => this.alertifyService.message(errorMessage, {
       dismissOthers: true,
       messageType: MessageType.Error,
       position: Position.BottomRight
@@ -69,7 +74,34 @@ export class ListComponent extends BaseComponent implements OnInit {
 
   async ngOnInit() {
     this.baseUrl = await this.fileService.getBaseStorageUrl();
+    
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged()
+    ).subscribe(async (text) => {
+      this.searchTerm = text;
+      if (this.paginator) {
+        this.paginator.pageIndex = 0; // Reset page number on search
+      }
+      await this.getProducts();
+    });
+
     await this.getProducts();
+  }
+
+  onSearch(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
+  }
+
+  clearSearch(searchInput: HTMLInputElement) {
+    searchInput.value = '';
+    this.searchTerm = '';
+    this.searchSubject.next('');
+  }
+
+  onImageError(event: Event) {
+    (event.target as HTMLImageElement).src = '../../../../../assets/default-product.png';
   }
 
   showQrCode(productId: string) {

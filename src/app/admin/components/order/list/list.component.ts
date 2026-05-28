@@ -26,7 +26,7 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
 
-  displayedColumns: string[] = ['orderCode', 'userName', 'totalPrice', 'createdDate', 'status', 'actions', 'viewdetail', 'delete'];
+  displayedColumns: string[] = ['orderCode', 'userName', 'totalPrice', 'createdDate', 'status', 'actions'];
   dataSource: MatTableDataSource<List_Order> = null;
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -62,7 +62,7 @@ export class ListComponent extends BaseComponent implements OnInit {
       componentType: OrderDetailDialogComponent,
       data: id,
       options: {
-        width: "750px"
+        width: "960px"
       },
       afterClosed: () => {
         this.getOrders();
@@ -155,6 +155,41 @@ export class ListComponent extends BaseComponent implements OnInit {
         messageType: MessageType.Error,
         position: Position.BottomRight
       });
+    }
+  }
+
+  async completeOrder(orderId: string) {
+    try {
+      this.showSpinner(SpinnerType.BallAtom);
+      await this.orderService.completeOrder(orderId);
+      this.hideSpinner(SpinnerType.BallAtom);
+      this.alertifyService.message("Sipariş başarıyla tamamlandı. Müşteriye tamamlama e-postası gönderildi.", {
+        dismissOthers: true,
+        messageType: MessageType.Success,
+        position: Position.BottomRight
+      });
+      await this.getOrders();
+    } catch (error) {
+      this.hideSpinner(SpinnerType.BallAtom);
+      this.alertifyService.message("Sipariş tamamlanırken bir hata oluştu.", {
+        dismissOthers: true,
+        messageType: MessageType.Error,
+        position: Position.BottomRight
+      });
+    }
+  }
+
+  applyFilter(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    if (this.dataSource) {
+      this.dataSource.filter = filterValue.trim().toLowerCase();
+    }
+  }
+
+  clearSearch(searchInput: HTMLInputElement) {
+    searchInput.value = '';
+    if (this.dataSource) {
+      this.dataSource.filter = '';
     }
   }
 }

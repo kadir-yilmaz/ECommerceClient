@@ -42,10 +42,6 @@
       </div>
     </a>
     
-    <!-- Satın alma istatistikleri -->
-    <div class="ty-stats-row">
-      <i class="fa-solid fa-rocket rocket-icon"></i> 3 günde <span class="highlight-text">10,6B kişi</span> ekledi!
-    </div>
 
     <!-- Değerlendirme Satırı -->
     <div class="ty-rating-row">
@@ -58,19 +54,19 @@
         <i class="fa-solid fa-star-half-stroke"></i>
       </div>
       <span class="rating-text">({{ reviewCount }})</span>
-      <i class="fa-solid fa-camera camera-icon" *ngIf="reviewCount > 1000"></i>
     </div>
     
-    <!-- En düşük fiyat uyarısı -->
-    <div class="ty-lowest-price-badge">
-      Son 10 Günün En Düşük Fiyatı
+    <div class="ty-stock-badge" [ngClass]="product.stock < 20 ? 'stock-low' : 'stock-ok'">
+      <i class="fa-solid" [ngClass]="product.stock < 20 ? 'fa-triangle-exclamation' : 'fa-box-open'"></i>
+      <span *ngIf="product.stock > 0">Stokta {{ product.stock }} adet</span>
+      <span *ngIf="product.stock <= 0">Stokta yok</span>
     </div>
 
     <!-- Fiyatlar -->
     <div class="ty-price-container">
       <div class="ty-new-price">
-        <span class="ty-price-value">{{ product.price | currency:'TRY':'symbol':'1.2-2' }}</span>
-        <span class="ty-old-price">{{ originalPrice | currency:'TRY':'symbol':'1.2-2' }}</span>
+        <span class="ty-price-value">{{ product.price | turkishCurrency }}</span>
+        <span class="ty-old-price">{{ originalPrice | turkishCurrency }}</span>
       </div>
     </div>
 

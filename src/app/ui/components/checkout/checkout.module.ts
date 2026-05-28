@@ -4,6 +4,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { CheckoutRoutingModule } from './checkout-routing.module';
 import { CheckoutComponent } from './checkout.component';
+import { SharedUiModule } from '../shared/shared-ui.module';
 
 
 @NgModule({
@@ -13,7 +14,8 @@ import { CheckoutComponent } from './checkout.component';
   imports: [
     CommonModule,
     CheckoutRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SharedUiModule
   ]
 })
 export class CheckoutModule { }
