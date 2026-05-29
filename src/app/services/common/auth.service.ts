@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { AuthTokenStore } from './auth-token-store';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +24,7 @@ export class AuthService {
   public roles$ = this._roles.asObservable();
 
   identityCheck() {
-    const token: string = localStorage.getItem("accessToken");
+    const token: string | null = AuthTokenStore.accessToken;
 
     let expired: boolean;
     try {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt'
+import { AuthTokenStore } from '../../services/common/auth-token-store';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../services/ui/custom-toastr.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { SpinnerType } from '../../base/base.component';
@@ -27,7 +28,7 @@ export class AuthGuard implements CanActivate {
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
     this.spinner.show(SpinnerType.BallAtom);
 
-    const token: string = localStorage.getItem("accessToken");
+    const token: string | null = AuthTokenStore.accessToken;
 
     let expired: boolean;
     try {
@@ -39,15 +40,12 @@ export class AuthGuard implements CanActivate {
     let isAuthenticated = token != null && !expired;
 
     if (!isAuthenticated) {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) {
-        try {
-          await this.userAuthService.refreshTokenLogin(refreshToken);
-          isAuthenticated = this.authService.isAuthenticated;
-        } catch (error) {
-          console.error("AuthGuard silent refresh failed:", error);
-          isAuthenticated = false;
-        }
+      try {
+        await this.userAuthService.refreshTokenLogin();
+        isAuthenticated = this.authService.isAuthenticated;
+      } catch (error) {
+        console.error("AuthGuard silent refresh failed:", error);
+        isAuthenticated = false;
       }
     }
 

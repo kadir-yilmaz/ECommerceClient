@@ -6,6 +6,7 @@ import { catchError, Observable, switchMap, throwError } from 'rxjs';
 import { SpinnerType } from '../../base/base.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { UserAuthService } from './models/user-auth.service';
+import { AuthTokenStore } from './auth-token-store';
 
 @Injectable({
   providedIn: 'root'
@@ -32,16 +33,15 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
 
       switch (error.status) {
         case HttpStatusCode.Unauthorized:
-          const refreshToken = localStorage.getItem("refreshToken");
           const isLoginPage = this.router.url.includes("/login");
+          const isRefreshTokenRequest = req.url.includes("refreshtokenlogin");
 
-          if (refreshToken && !isLoginPage) {
+          if (!isLoginPage && !isRefreshTokenRequest) {
             // Arka planda token yenile ve isteği tekrarla
-            return this.userAuthService.refreshTokenLoginObservable(refreshToken).pipe(
+            return this.userAuthService.refreshTokenLoginObservable().pipe(
               switchMap((response: any) => {
                 if (response && response.token) {
-                  localStorage.setItem("accessToken", response.token.accessToken);
-                  localStorage.setItem("refreshToken", response.token.refreshToken);
+                  AuthTokenStore.accessToken = response.token.accessToken;
                   this.userAuthService.setAuthenticated();
                   
                   // Orijinal isteği yeni token ile tekrar gönder
@@ -59,7 +59,7 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
               })
             );
           } else {
-            if (!isLoginPage) {
+            if (!isLoginPage && !isRefreshTokenRequest) {
               this._handleUnauthorized();
             }
             return throwError(() => error);

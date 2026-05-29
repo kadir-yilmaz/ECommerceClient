@@ -56,13 +56,10 @@ export class AppComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     // Session restoration
     if (!this.authService.isAuthenticated) {
-      const refreshToken = localStorage.getItem("refreshToken");
-      if (refreshToken) {
-        try {
-          await this.userAuthService.refreshTokenLogin(refreshToken);
-        } catch (e) {
-          console.error("Silent refresh on app load failed", e);
-        }
+      try {
+        await this.userAuthService.refreshTokenLogin();
+      } catch (e) {
+        console.error("Silent refresh on app load failed", e);
       }
     }
 
@@ -192,27 +189,24 @@ export class AppComponent implements OnInit, OnDestroy {
     this.authSubscription?.unsubscribe();
   }
 
-  signOut() {
-    // Step 1: Remove tokens from localStorage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
+  async signOut() {
+    // Step 1: Call logout endpoint and clear RAM auth state
+    await this.userAuthService.logout();
+
     localStorage.removeItem('guest_basket_id');
-    
-    // Step 2: Clear authentication state
-    this.authService.clearAuthentication();
-    
+
     // Step 3: Clear basket state
     this.basketService.clear();
-    
+
     // Step 3b: Clear favorite state
     this.favoriteService.clear();
-    
+
     // Step 4: Refresh basket for guest session
     this.basketService.get();
-    
+
     // Step 5: Navigate to home
     this.router.navigate(['']);
-    
+
     // Step 6: Show confirmation
     this.toastrService.message('Oturum kapatilmistir.', 'Oturum Kapatildi', {
       messageType: ToastrMessageType.Info,

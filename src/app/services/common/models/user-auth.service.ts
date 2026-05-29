@@ -7,6 +7,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../ui
 import { HttpClientService } from '../http-client.service';
 import { AuthService } from '../auth.service';
 import { BasketService } from './basket.service';
+import { AuthTokenStore } from '../auth-token-store';
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +24,7 @@ export class UserAuthService {
     const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
 
     if (tokenResponse) {
-      localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-      localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
+      AuthTokenStore.accessToken = tokenResponse.token.accessToken;
 
       // Merge guest basket with user basket
       const guestBasketId = localStorage.getItem("guest_basket_id");
@@ -55,15 +55,14 @@ export class UserAuthService {
     callBackFunction?.();
   }
 
-  async refreshTokenLogin(refreshToken: string, callBackFunction?: (state) => void): Promise<any> {
+  async refreshTokenLogin(refreshToken?: string, callBackFunction?: (state) => void): Promise<any> {
     const observable: Observable<any | TokenResponse> = this.refreshTokenLoginObservable(refreshToken);
 
     try {
       const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
 
       if (tokenResponse) {
-        localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-        localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
+        AuthTokenStore.accessToken = tokenResponse.token.accessToken;
         this.authService.setAuthenticated();
       }
 
@@ -73,11 +72,26 @@ export class UserAuthService {
     }
   }
 
-  refreshTokenLoginObservable(refreshToken: string): Observable<any> {
+  refreshTokenLoginObservable(refreshToken?: string): Observable<any> {
     return this.httpClientService.post({
       action: "refreshtokenlogin",
       controller: "auth"
-    }, { refreshToken: refreshToken });
+    }, { refreshToken: refreshToken || "" });
+  }
+
+  async logout(): Promise<void> {
+    try {
+      const observable = this.httpClientService.post({
+        controller: "auth",
+        action: "logout"
+      }, {});
+      await firstValueFrom(observable);
+    } catch (err) {
+      console.error("Logout request failed:", err);
+    } finally {
+      AuthTokenStore.accessToken = null;
+      this.authService.clearAuthentication();
+    }
   }
 
   setAuthenticated() {
@@ -93,8 +107,7 @@ export class UserAuthService {
     const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
 
     if (tokenResponse) {
-      localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-      localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
+      AuthTokenStore.accessToken = tokenResponse.token.accessToken;
 
       // Merge guest basket with user basket
       const guestBasketId = localStorage.getItem("guest_basket_id");
@@ -134,8 +147,7 @@ export class UserAuthService {
     const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
 
     if (tokenResponse) {
-      localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-      localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
+      AuthTokenStore.accessToken = tokenResponse.token.accessToken;
 
       // Merge guest basket with user basket
       const guestBasketId = localStorage.getItem("guest_basket_id");

@@ -22,6 +22,8 @@ import { BasketInterceptorService } from './services/common/basket-interceptor.s
 import { HttpErrorInterceptor } from './services/common/http-error.interceptor';
 import { DynamicLoadComponentDirective } from './directives/common/dynamic-load-component.directive';
 import { environment } from '../environments/environment';
+import { AuthTokenStore } from './services/common/auth-token-store';
+import { CredentialsInterceptor } from './services/common/credentials.interceptor';
 
 @NgModule({
   declarations: [
@@ -51,7 +53,7 @@ import { environment } from '../environments/environment';
     HttpClientModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: () => localStorage.getItem("accessToken"),
+        tokenGetter: () => AuthTokenStore.accessToken,
         allowedDomains: ["localhost:5025", "127.0.0.1:5025", "localhost:7131", "localhost:5131", "localhost:4200", "kadir.tryasp.net", /.*\.trycloudflare\.com/]
       }
     }),
@@ -79,7 +81,8 @@ import { environment } from '../environments/environment';
     },
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorHandlerInterceptorService, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: BasketInterceptorService, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: CredentialsInterceptor, multi: true }
   ],
   bootstrap: [AppComponent],
   schemas: [
