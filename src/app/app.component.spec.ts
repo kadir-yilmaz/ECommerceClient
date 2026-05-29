@@ -7,11 +7,13 @@ import { CustomToastrService } from './services/ui/custom-toastr.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of } from 'rxjs';
+import { UserAuthService } from './services/common/models/user-auth.service';
 
 describe('AppComponent', () => {
   let authServiceSpy: jasmine.SpyObj<AuthService>;
   let basketServiceSpy: jasmine.SpyObj<BasketService>;
   let toastrServiceSpy: jasmine.SpyObj<CustomToastrService>;
+  let userAuthServiceSpy: jasmine.SpyObj<UserAuthService>;
 
   beforeEach(async () => {
     authServiceSpy = jasmine.createSpyObj('AuthService', ['identityCheck', 'clearAuthentication'], {
@@ -22,6 +24,8 @@ describe('AppComponent', () => {
     });
     basketServiceSpy = jasmine.createSpyObj('BasketService', ['get', 'clear']);
     toastrServiceSpy = jasmine.createSpyObj('CustomToastrService', ['message']);
+    userAuthServiceSpy = jasmine.createSpyObj('UserAuthService', ['refreshTokenLogin', 'logout']);
+    userAuthServiceSpy.logout.and.returnValue(Promise.resolve());
 
     await TestBed.configureTestingModule({
       imports: [
@@ -35,6 +39,7 @@ describe('AppComponent', () => {
         { provide: AuthService, useValue: authServiceSpy },
         { provide: BasketService, useValue: basketServiceSpy },
         { provide: CustomToastrService, useValue: toastrServiceSpy },
+        { provide: UserAuthService, useValue: userAuthServiceSpy },
         JwtHelperService
       ]
     }).compileComponents();
@@ -53,51 +58,50 @@ describe('AppComponent', () => {
   });
 
   describe('signOut', () => {
-    it('should remove tokens from localStorage', () => {
+    it('should call userAuthService.logout()', async () => {
+      const fixture = TestBed.createComponent(AppComponent);
+      const app = fixture.componentInstance;
+      
+      await app.signOut();
+      
+      expect(userAuthServiceSpy.logout).toHaveBeenCalled();
+    });
+
+    it('should remove guest_basket_id from localStorage', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const app = fixture.componentInstance;
       
       spyOn(localStorage, 'removeItem');
-      app.signOut();
+      await app.signOut();
       
-      expect(localStorage.removeItem).toHaveBeenCalledWith('accessToken');
-      expect(localStorage.removeItem).toHaveBeenCalledWith('refreshToken');
       expect(localStorage.removeItem).toHaveBeenCalledWith('guest_basket_id');
+      expect(localStorage.removeItem).not.toHaveBeenCalledWith('accessToken');
     });
 
-    it('should call clearAuthentication', () => {
+    it('should clear basket state', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const app = fixture.componentInstance;
       
-      app.signOut();
-      
-      expect(authServiceSpy.clearAuthentication).toHaveBeenCalled();
-    });
-
-    it('should clear basket state', () => {
-      const fixture = TestBed.createComponent(AppComponent);
-      const app = fixture.componentInstance;
-      
-      app.signOut();
+      await app.signOut();
       
       expect(basketServiceSpy.clear).toHaveBeenCalled();
     });
 
-    it('should refresh basket for guest session', () => {
+    it('should refresh basket for guest session', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const app = fixture.componentInstance;
       
       basketServiceSpy.get.calls.reset();
-      app.signOut();
+      await app.signOut();
       
       expect(basketServiceSpy.get).toHaveBeenCalled();
     });
 
-    it('should show confirmation message', () => {
+    it('should show confirmation message', async () => {
       const fixture = TestBed.createComponent(AppComponent);
       const app = fixture.componentInstance;
       
-      app.signOut();
+      await app.signOut();
       
       expect(toastrServiceSpy.message).toHaveBeenCalled();
     });
