@@ -40,6 +40,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.showSpinner(SpinnerType.BallAtom);
     try {
       this.baseUrl = await this.fileService.getBaseStorageUrl();
       
@@ -55,6 +56,8 @@ export class HomeComponent extends BaseComponent implements OnInit {
     } catch {
       this.featuredProducts = [];
       this.campaignSlides = [];
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
     }
   }
 

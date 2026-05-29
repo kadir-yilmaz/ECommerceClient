@@ -81,49 +81,54 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   async loadProducts() {
-    const data: { totalProductCount: number, products: List_Product[] } = await this.productService.read(
-      this.currentPageNo - 1,
-      this.pageSize,
-      this.selectedCategoryId || undefined,
-      this.selectedSortType || undefined,
-      this.searchTerm || undefined,
-      () => { },
-      () => { }
-    );
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      const data: { totalProductCount: number, products: List_Product[] } = await this.productService.read(
+        this.currentPageNo - 1,
+        this.pageSize,
+        this.selectedCategoryId || undefined,
+        this.selectedSortType || undefined,
+        this.searchTerm || undefined,
+        () => { },
+        () => { }
+      );
 
-    this.products = data.products.map<List_Product>(p => {
-      const showcaseImage = p.productImageFiles?.find(img => img.showcase);
-      const path = showcaseImage ? showcaseImage.path : (p.productImageFiles?.length ? p.productImageFiles[0].path : '');
+      this.products = data.products.map<List_Product>(p => {
+        const showcaseImage = p.productImageFiles?.find(img => img.showcase);
+        const path = showcaseImage ? showcaseImage.path : (p.productImageFiles?.length ? p.productImageFiles[0].path : '');
 
-      return {
-        id: p.id,
-        createdDate: p.createdDate,
-        imagePath: path,
-        name: p.name,
-        price: p.price,
-        stock: p.stock,
-        updatedDate: p.updatedDate,
-        productImageFiles: p.productImageFiles,
-        categoryId: p.categoryId
-      };
-    });
+        return {
+          id: p.id,
+          createdDate: p.createdDate,
+          imagePath: path,
+          name: p.name,
+          price: p.price,
+          stock: p.stock,
+          updatedDate: p.updatedDate,
+          productImageFiles: p.productImageFiles,
+          categoryId: p.categoryId
+        };
+      });
 
-    this.totalProductCount = data.totalProductCount;
-    this.totalPageCount = Math.ceil(this.totalProductCount / this.pageSize);
+      this.totalProductCount = data.totalProductCount;
+      this.totalPageCount = Math.ceil(this.totalProductCount / this.pageSize);
 
-    this.pageList = [];
-    if (this.currentPageNo - 3 <= 0) {
-      for (let i = 1; i <= Math.min(7, this.totalPageCount); i++) {
-        this.pageList.push(i);
+      this.pageList = [];
+      if (this.currentPageNo - 3 <= 0) {
+        for (let i = 1; i <= Math.min(7, this.totalPageCount); i++) {
+          this.pageList.push(i);
+        }
+      } else if (this.currentPageNo + 3 >= this.totalPageCount) {
+        for (let i = Math.max(1, this.totalPageCount - 6); i <= this.totalPageCount; i++) {
+          this.pageList.push(i);
+        }
+      } else {
+        for (let i = this.currentPageNo - 3; i <= this.currentPageNo + 3; i++) {
+          this.pageList.push(i);
+        }
       }
-    } else if (this.currentPageNo + 3 >= this.totalPageCount) {
-      for (let i = Math.max(1, this.totalPageCount - 6); i <= this.totalPageCount; i++) {
-        this.pageList.push(i);
-      }
-    } else {
-      for (let i = this.currentPageNo - 3; i <= this.currentPageNo + 3; i++) {
-        this.pageList.push(i);
-      }
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
     }
   }
 
