@@ -1,62 +1,82 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { take, map, catchError } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt'
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../services/ui/custom-toastr.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { SpinnerType } from '../../base/base.component';
 import { AuthService } from '../../services/common/auth.service';
+import { UserAuthService } from '../../services/common/models/user-auth.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
 
-  constructor(private jwtHelper: JwtHelperService, private router: Router, private toastrService: CustomToastrService, private spinner: NgxSpinnerService, private authService: AuthService) {
+  constructor(
+    private jwtHelper: JwtHelperService,
+    private router: Router,
+    private toastrService: CustomToastrService,
+    private spinner: NgxSpinnerService,
+    private authService: AuthService,
+    private userAuthService: UserAuthService
+  ) {
 
   }
 
-  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
+  async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
     this.spinner.show(SpinnerType.BallAtom);
 
-    return this.authService.isAuthenticated$.pipe(
-      take(1),
-      map(isAuthenticated => {
-        if (!isAuthenticated) {
-          this.router.navigate(["login"], { queryParams: { returnUrl: state.url } });
-          this.toastrService.message("Oturum açmanız gerekiyor!", "Yetkisiz Erişim!", {
-            messageType: ToastrMessageType.Warning,
-            position: ToastrPosition.BottomRight
-          });
-          this.spinner.hide(SpinnerType.BallAtom);
-          return false;
-        }
+    const token: string = localStorage.getItem("accessToken");
 
-        // Admin panel için yönetim yetkisi kontrolü
-        if (state.url.startsWith('/admin')) {
-          const hasAdminAccess = this.authService.hasAdminAccess;
-          if (!hasAdminAccess) {
-            this.router.navigate([""]);
-            this.toastrService.message("Bu sayfaya erişim yetkiniz yok!", "Yetkisiz Erişim!", {
-              messageType: ToastrMessageType.Error,
-              position: ToastrPosition.BottomRight
-            });
-            this.spinner.hide(SpinnerType.BallAtom);
-            return false;
-          }
-        }
+    let expired: boolean;
+    try {
+      expired = this.jwtHelper.isTokenExpired(token);
+    } catch {
+      expired = true;
+    }
 
+    let isAuthenticated = token != null && !expired;
+
+    if (!isAuthenticated) {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        try {
+          await this.userAuthService.refreshTokenLogin(refreshToken);
+          isAuthenticated = this.authService.isAuthenticated;
+        } catch (error) {
+          console.error("AuthGuard silent refresh failed:", error);
+          isAuthenticated = false;
+        }
+      }
+    }
+
+    if (!isAuthenticated) {
+      this.router.navigate(["login"], { queryParams: { returnUrl: state.url } });
+      this.toastrService.message("Oturum açmanız gerekiyor!", "Yetkisiz Erişim!", {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+      this.spinner.hide(SpinnerType.BallAtom);
+      return false;
+    }
+
+    // Admin panel için yönetim yetkisi kontrolü
+    if (state.url.startsWith('/admin')) {
+      const hasAdminAccess = this.authService.hasAdminAccess;
+      if (!hasAdminAccess) {
+        this.router.navigate([""]);
+        this.toastrService.message("Bu sayfaya erişim yetkiniz yok!", "Yetkisiz Erişim!", {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
         this.spinner.hide(SpinnerType.BallAtom);
-        return true;
-      }),
-      catchError(error => {
-        console.error("AuthGuard error:", error);
-        this.router.navigate(["login"], { queryParams: { returnUrl: state.url } });
-        this.spinner.hide(SpinnerType.BallAtom);
-        return of(false);
-      })
-    );
+        return false;
+      }
+    }
+
+    this.spinner.hide(SpinnerType.BallAtom);
+    return true;
   }
 
 }

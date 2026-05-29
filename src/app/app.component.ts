@@ -8,6 +8,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from './servic
 import { CategoryService } from './services/common/models/category.service';
 import { Category } from './contracts/category';
 import { ProductService } from './services/common/models/product.service';
+import { UserAuthService } from './services/common/models/user-auth.service';
 
 @Component({
   selector: 'app-root',
@@ -38,7 +39,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public basketService: BasketService,
     public favoriteService: FavoriteService,
     private categoryService: CategoryService,
-    private productService: ProductService
+    private productService: ProductService,
+    private userAuthService: UserAuthService
   ) {
     authService.identityCheck();
     basketService.get();
@@ -52,6 +54,18 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
+    // Session restoration
+    if (!this.authService.isAuthenticated) {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        try {
+          await this.userAuthService.refreshTokenLogin(refreshToken);
+        } catch (e) {
+          console.error("Silent refresh on app load failed", e);
+        }
+      }
+    }
+
     // Categories loading
     await this.loadCategories();
 
