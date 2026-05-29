@@ -104,7 +104,7 @@
           <div class="field-grid">
             <label class="field" [class.field-error]="hasControlError('cardHolderName')">
               <span>Kart Uzerindeki Isim</span>
-              <input type="text" formControlName="cardHolderName" placeholder="AD SOYAD" autocomplete="cc-name">
+              <input type="text" formControlName="cardHolderName" id="cardHolderName" name="cardHolderName" placeholder="AD SOYAD" autocomplete="cc-name">
               <small class="error-text" *ngIf="getFieldError('cardHolderName')">{{ getFieldError('cardHolderName') }}</small>
             </label>
           </div>
@@ -112,7 +112,7 @@
           <div class="field-grid">
             <label class="field" [class.field-error]="hasControlError('cardNumber')">
               <span>Kart Numarasi</span>
-              <input type="text" formControlName="cardNumber" inputmode="numeric" maxlength="16" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()" autocomplete="cc-number">
+              <input type="text" formControlName="cardNumber" id="cardNumber" name="cardNumber" inputmode="numeric" maxlength="19" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()" autocomplete="cc-number">
               <small class="error-text" *ngIf="getFieldError('cardNumber')">{{ getFieldError('cardNumber') }}</small>
             </label>
           </div>
@@ -120,13 +120,13 @@
           <div class="field-grid two-col payment-row">
             <label class="field" [class.field-error]="hasControlError('expireDate')">
               <span>Son Kullanma</span>
-              <input type="text" formControlName="expireDate" inputmode="numeric" maxlength="5" placeholder="AA/YY" (input)="onExpireDateInput()" autocomplete="cc-exp">
+              <input type="text" formControlName="expireDate" id="expireDate" name="expireDate" inputmode="numeric" maxlength="7" placeholder="AA/YY" (input)="onExpireDateInput()" autocomplete="cc-exp">
               <small class="error-text" *ngIf="getFieldError('expireDate')">{{ getFieldError('expireDate') }}</small>
             </label>
 
             <label class="field" [class.field-error]="hasControlError('cvv')">
               <span>CVV</span>
-              <input type="password" formControlName="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" (focus)="isCvvFocused = true" (blur)="isCvvFocused = false" autocomplete="cc-csc">
+              <input type="password" formControlName="cvv" id="cvv" name="cvv" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" (focus)="isCvvFocused = true" (blur)="isCvvFocused = false" autocomplete="cc-csc">
               <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
             </label>
           </div>

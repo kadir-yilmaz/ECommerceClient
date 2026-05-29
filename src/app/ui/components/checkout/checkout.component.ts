@@ -113,7 +113,17 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   }
 
   onExpireDateInput(): void {
-    const digits = (this.f['expireDate'].value ?? '').replace(/\D/g, '').slice(0, 4);
+    let digits = (this.f['expireDate'].value ?? '').replace(/\D/g, '');
+    
+    if (digits.length === 6) {
+      // MMYYYY (e.g., 122028 -> 1228)
+      const month = digits.slice(0, 2);
+      const year = digits.slice(4, 6);
+      digits = month + year;
+    } else if (digits.length > 4) {
+      digits = digits.slice(0, 4);
+    }
+
     const value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
     this.f['expireDate'].setValue(value, { emitEvent: false });
   }
