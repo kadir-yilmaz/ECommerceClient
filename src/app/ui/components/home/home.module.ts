@@ -6,6 +6,8 @@ import { SharedUiModule } from '../shared/shared-ui.module';
 
 
 
+import { MatIconModule } from '@angular/material/icon';
+
 @NgModule({
   declarations: [
     HomeComponent
@@ -13,6 +15,7 @@ import { SharedUiModule } from '../shared/shared-ui.module';
   imports: [
     CommonModule,
     SharedUiModule,
+    MatIconModule,
     RouterModule.forChild([
       { path: "", component: HomeComponent }
     ])

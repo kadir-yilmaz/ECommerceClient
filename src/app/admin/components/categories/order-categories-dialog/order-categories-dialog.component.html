@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>Kategori Vitrin Sıralaması</h2>
+<div mat-dialog-content>
+  <p style="margin-bottom: 15px; color: #64748b; font-size: 14px;">Kategorileri sürükleyip bırakarak ana sayfadaki gösterim sıralarını değiştirebilirsiniz.</p>
+  
+  <div cdkDropList class="category-list" (cdkDropListDropped)="drop($event)">
+    <div class="category-box" *ngFor="let category of categories" cdkDrag>
+      <div class="category-custom-placeholder" *cdkDragPlaceholder></div>
+      <mat-icon class="drag-handle" cdkDragHandle>drag_indicator</mat-icon>
+      <span class="category-name">{{ category.name }}</span>
+    </div>
+  </div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">İptal</button>
+  <button mat-raised-button color="primary" (click)="save()">Sıralamayı Kaydet</button>
+</div>

@@ -133,6 +133,23 @@
   padding-right: 3rem;
 }
 
+.validation-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e74c3c;
+  background-color: #fdedec;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 16px;
+  margin-top: -8px;
+}
+
+.validation-error i {
+  font-size: 16px;
+}
+
 .input-icon-right {
   position: absolute;
   right: 1.25rem;

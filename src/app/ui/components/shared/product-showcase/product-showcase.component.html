@@ -1,0 +1,44 @@
+<section class="featured-products">
+  <div class="section-title">
+    <div>
+      <p *ngIf="subtitle">{{ subtitle }}</p>
+      <h2>{{ title }}</h2>
+    </div>
+    <a [routerLink]="viewAllRoute" [queryParams]="viewAllParams" class="view-all-top-link">Tümünü Gör</a>
+  </div>
+
+  <div class="slider-container" *ngIf="products?.length; else noProducts">
+    <button type="button" class="slider-btn prev" (click)="scroll('left')">
+      <i class="fa-solid fa-chevron-left"></i>
+    </button>
+    
+    <div class="product-slider" #productsScroll>
+      <app-product-card
+        *ngFor="let product of products"
+        [product]="product"
+        [baseUrl]="baseUrl"
+        variant="compact"
+        [showAddToCart]="true"
+        [isFavorite]="isProductFavorite(product.id)"
+        (addToCart)="onAddToCart($event)"
+        (toggleFavorite)="onToggleFavorite($event)">
+      </app-product-card>
+
+      <!-- Tüm Ürünleri İncele Card at the end of the slider list -->
+      <a class="view-all-slider-card" [routerLink]="viewAllRoute" [queryParams]="viewAllParams">
+        <div class="view-all-circle">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <span class="view-all-text">Tüm Ürünleri İncele</span>
+      </a>
+    </div>
+
+    <button type="button" class="slider-btn next" (click)="scroll('right')">
+      <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <ng-template #noProducts>
+    <p class="empty-state">Bu kategoride henüz ürün bulunmuyor.</p>
+  </ng-template>
+</section>

@@ -1,65 +1,79 @@
 <section class="home-page">
   <section class="featured-products">
     <div class="section-title">
-      <div>
-        <p>SEZONUN SEÇİMİ</p>
-        <h2>Öne Çıkan Ürünler</h2>
-      </div>
+      <h2>Sizin İçin Seçtiklerimiz</h2>
       <a routerLink="/products">Tümünü Gör</a>
     </div>
 
-    <div class="slider-container" *ngIf="featuredProducts.length; else noProducts">
-      <button class="slider-btn prev" (click)="scrollProducts('left')">
-        <i class="fa-solid fa-chevron-left"></i>
-      </button>
-      
-      <div class="product-slider" #productsScroll>
-        <app-product-card
-          *ngFor="let product of featuredProducts"
-          [product]="product"
-          [baseUrl]="baseUrl?.url"
-          variant="compact"
-          [showAddToCart]="true"
-          [isFavorite]="isProductFavorite(product.id)"
-          (addToCart)="addToBasket($event)"
-          (toggleFavorite)="onToggleFavorite($event)">
-        </app-product-card>
-      </div>
-
-      <button class="slider-btn next" (click)="scrollProducts('right')">
-        <i class="fa-solid fa-chevron-right"></i>
-      </button>
+    <div class="product-grid" *ngIf="featuredProducts.length; else noProducts">
+      <app-product-card
+        *ngFor="let product of featuredProducts"
+        [product]="product"
+        [baseUrl]="baseUrl?.url"
+        variant="compact"
+        [showAddToCart]="true"
+        [isFavorite]="isProductFavorite(product.id)"
+        (addToCart)="addToBasket($event)"
+        (toggleFavorite)="onToggleFavorite($event)">
+      </app-product-card>
     </div>
 
     <ng-template #noProducts>
-      <p class="empty-state">Henuz urun bulunamadi.</p>
+      <p class="empty-state">Henüz ürün bulunamadı.</p>
     </ng-template>
   </section>
 
-  <section class="campaign-grid-section" *ngIf="campaignSlides && campaignSlides.length > 0">
-    <div class="campaign-grid">
-      <div class="campaign-card" *ngFor="let slide of campaignSlides">
-        <img [src]="slide.path" [alt]="slide.fileName">
-        <div class="campaign-title-overlay" *ngIf="slide.title">
-          <h2>{{ slide.title }}</h2>
-          <button class="cta-btn">Hemen İncele</button>
-        </div>
+  <!-- Campaigns Slider -->
+  <section class="campaign-slider-section" *ngIf="activeCampaigns && activeCampaigns.length > 0">
+    <div class="section-title">
+      <h2>Sana Özel Kampanyalar</h2>
+    </div>
+    
+    <div class="slider-container">
+      <button class="slider-btn prev" (click)="scrollCampaigns('left')">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      
+      <div class="campaign-slider" #campaignsScroll>
+        <article *ngFor="let campaign of activeCampaigns; let cIndex = index" 
+                 class="colored-campaign-card" 
+                 [ngClass]="'color-variant-' + (cIndex % 3)"
+                 [routerLink]="['/campaigns', campaign.id]">
+          
+          <div class="card-icon">
+             <i class="fa-solid" [ngClass]="campaign.ruleType === 'FreeShipping' ? 'fa-truck-fast' : 'fa-tags'"></i>
+          </div>
+          
+          <div class="card-content">
+            <h2>{{ campaign.name }}</h2>
+            <p>{{ campaign.description }}</p>
+            <span class="cta-text">Hemen İncele <i class="fa-solid fa-arrow-right"></i></span>
+          </div>
+        </article>
       </div>
+
+      <button class="slider-btn next" (click)="scrollCampaigns('right')">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
     </div>
   </section>
 
-  <section class="quick-highlights">
-    <article>
-      <h3>Ayni Gun Kargo</h3>
-      <p>16:00 oncesi siparislerde hizli hazirlama sureci.</p>
-    </article>
-    <article>
-      <h3>Guvenli Odeme</h3>
-      <p>3D secure ve taksit secenekleri ile guvenli alisveris.</p>
-    </article>
-    <article>
-      <h3>Canli Stok Takibi</h3>
-      <p>Stok ve fiyat degisimleri anlik olarak guncellenir.</p>
-    </article>
-  </section>
+  <!-- Showcase Categories (Lazy-loaded, Admin-controlled, Horizontal Sliders) -->
+  <ng-container *ngFor="let group of loadedShowcaseGroups">
+    <app-product-showcase
+      [title]="group.category.name"
+      [products]="group.products"
+      [baseUrl]="baseUrl?.url"
+      viewAllRoute="/products"
+      [viewAllParams]="{ categoryId: group.category.id }"
+      (addToCart)="addToBasket($event)"
+      (toggleFavorite)="onToggleFavorite($event)">
+    </app-product-showcase>
+  </ng-container>
+
+  <!-- Spinner for Loading Next Categories -->
+  <div class="showcase-loading-spinner" *ngIf="isLoadingShowcase" style="display: flex; justify-content: center; padding: 20px 0;">
+    <div style="width: 32px; height: 32px; border: 3px dashed #f27a1a; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+  </div>
 </section>
+

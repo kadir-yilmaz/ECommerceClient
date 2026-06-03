@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedUiModule } from '../shared/shared-ui.module';
 
+import { FormsModule } from '@angular/forms';
+
 @NgModule({
   declarations: [
     BasketsComponent
@@ -13,6 +15,7 @@ import { SharedUiModule } from '../shared/shared-ui.module';
     CommonModule,
     MatIconModule,
     SharedUiModule,
+    FormsModule,
     RouterModule.forChild([
       { path: "", component: BasketsComponent }
     ])

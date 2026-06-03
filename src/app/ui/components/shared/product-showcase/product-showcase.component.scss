@@ -1,0 +1,196 @@
+.featured-products {
+  background-color: transparent;
+  border-radius: 0;
+  border: none;
+  padding: 0;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+
+  p {
+    display: none; /* Hide subtitle for a cleaner look */
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #484848;
+  }
+
+  .view-all-top-link {
+    color: #f27a1a;
+    text-decoration: none;
+    font-weight: 600;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &::after {
+      content: ' >';
+    }
+
+    &:hover {
+      background: transparent;
+      border-color: transparent;
+      text-decoration: underline;
+    }
+  }
+}
+
+.slider-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.product-slider {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  padding: 10px 0;
+  width: 100%;
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari and Opera */
+  }
+
+  app-product-card {
+    flex: 0 0 calc((100% - 4rem) / 5); /* Exactly 5 cards per view */
+    min-width: 200px;
+    scroll-snap-align: start;
+  }
+}
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f8fafc;
+    color: #2563eb;
+  }
+
+  &.prev {
+    left: -20px;
+  }
+  
+  &.next {
+    right: -20px;
+  }
+}
+
+/* "TÜM ÜRÜNLERİ İNCELE" SLIDER CARD */
+.view-all-slider-card {
+  flex: 0 0 calc((100% - 4rem) / 5);
+  min-width: 200px;
+  scroll-snap-align: start;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 380px; // matches product card minimum height
+
+  .view-all-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    color: #f27a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+  }
+
+  .view-all-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-top: 16px;
+    transition: color 0.3s ease;
+  }
+
+  &:hover {
+    background: #fff;
+    border-color: #f27a1a;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.08);
+
+    .view-all-circle {
+      background: #ffefe5;
+      border-color: #ffefe5;
+      color: #f27a1a;
+      transform: scale(1.1);
+    }
+
+    .view-all-text {
+      color: #f27a1a;
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .product-slider {
+    app-product-card, .view-all-slider-card {
+      flex: 0 0 calc((100% - 3rem) / 4); /* 4 cards */
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .product-slider {
+    app-product-card, .view-all-slider-card {
+      flex: 0 0 calc((100% - 2rem) / 3); /* 3 cards */
+    }
+  }
+}
+
+@media (max-width: 680px) {
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+
+    h2 {
+      font-size: 1.45rem;
+    }
+  }
+
+  .product-slider {
+    app-product-card, .view-all-slider-card {
+      flex: 0 0 calc(50% - 0.5rem); /* 2 cards */
+    }
+  }
+}

@@ -1,6 +1,6 @@
 <div class="page-header d-flex justify-content-between align-items-center mb-4">
   <h2 class="text-dark m-0" style="font-weight: 700;">Edit Product</h2>
-  <button mat-flat-button routerLink="/admin/products">
+  <button mat-flat-button routerLink="/admin/products" queryParamsHandling="preserve">
     <mat-icon>arrow_back</mat-icon> Back to List
   </button>
 </div>
@@ -81,7 +81,7 @@
     </div>
 
     <div class="d-flex justify-content-end mt-4 gap-2">
-      <button mat-flat-button routerLink="/admin/products">Cancel</button>
+      <button mat-flat-button routerLink="/admin/products" queryParamsHandling="preserve">Cancel</button>
       <button mat-flat-button color="primary" (click)="update(txtName, txtStock, txtPrice)">
         <mat-icon>save</mat-icon> Update Product
       </button>

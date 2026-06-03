@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ProductsComponent } from './products.component';
 import { RouterModule } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -17,6 +18,7 @@ import { DeleteDirectiveModule } from '../../../directives/admin/delete.directiv
 
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { UpdateComponent } from './update/update.component';
 
 @NgModule({
@@ -39,10 +41,11 @@ import { UpdateComponent } from './update/update.component';
       }
     ]),
 
-    MatSidenavModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatDialogModule, MatSelectModule,
+    MatSidenavModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatPaginatorModule, MatDialogModule, MatSelectModule, MatSlideToggleModule,
     DialogModule,
     FileUploadModule,
-    DeleteDirectiveModule
+    DeleteDirectiveModule,
+    FormsModule
   ]
 })
 export class ProductsModule { }

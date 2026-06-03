@@ -5,10 +5,16 @@
       <h2>Kategori Yönetimi</h2>
       <p class="subtitle">Kategorileri hiyerarşik olarak yönetebilirsiniz.</p>
     </div>
-    <button class="btn-add" (click)="openAddForm()">
-      <mat-icon>add</mat-icon>
-      Yeni Kategori
-    </button>
+    <div class="header-actions" style="display: flex; gap: 10px;">
+      <button class="btn-secondary" style="padding: 10px 16px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; color: #475569; transition: all 0.2s;" onmouseover="this.style.background='#f1f5f9'" onmouseout="this.style.background='white'" (click)="openOrderDialog()">
+        <mat-icon style="font-size: 20px; width: 20px; height: 20px;">sort</mat-icon>
+        Sıralamayı Değiştir
+      </button>
+      <button class="btn-add" (click)="openAddForm()">
+        <mat-icon>add</mat-icon>
+        Yeni Kategori
+      </button>
+    </div>
   </div>
 
   <!-- Add/Edit Form Modal -->
@@ -33,6 +39,16 @@
               {{ cat.name }}
             </option>
           </select>
+        </div>
+        <div class="form-group-row" style="display: flex; gap: 20px; align-items: center; margin-top: 15px; margin-bottom: 15px;" *ngIf="formParentCategoryId">
+          <div class="form-checkbox-group" style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="showOnHomepage" [(ngModel)]="formShowOnHomepage" style="width: 18px; height: 18px; cursor: pointer;">
+            <label for="showOnHomepage" style="margin: 0; cursor: pointer; font-weight: 500; color: #475569;">Ana Sayfada Göster</label>
+          </div>
+          <div class="form-group" style="margin: 0; flex: 1;" *ngIf="formShowOnHomepage">
+            <label style="display: block; font-size: 13px; font-weight: 500; color: #475569; margin-bottom: 4px;">Görüntüleme Sırası</label>
+            <input type="number" class="form-input" [(ngModel)]="formHomepageOrder" placeholder="0" style="padding: 6px 12px; border-radius: 6px; border: 1px solid #cbd5e1; width: 100%;">
+          </div>
         </div>
       </div>
       <div class="form-actions">
@@ -74,7 +90,10 @@
       </mat-icon>
 
       <span class="category-name">{{ node.name }}</span>
+      <mat-icon *ngIf="node.showOnHomepage" style="font-size: 16px; width: 16px; height: 16px; color: #f27a1a; margin-left: 8px; vertical-align: middle;" matTooltip="Ana sayfada gösteriliyor (Sıra: {{ node.homepageOrder }})">home</mat-icon>
       <span class="children-count" *ngIf="node.children?.length > 0">({{ node.children.length }})</span>
+      
+      <mat-slide-toggle *ngIf="node.parentCategoryId" [checked]="node.showOnHomepage" (change)="toggleShowcase(node.id, $event.checked)" color="primary" style="margin-left: 15px; transform: scale(0.8);" matTooltip="Vitrin Durumu"></mat-slide-toggle>
     </div>
 
     <div class="tree-item-actions">

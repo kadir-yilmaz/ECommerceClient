@@ -89,6 +89,7 @@ export class ListComponent extends BaseComponent implements OnInit {
         this.selectedCategoryId || undefined,
         this.selectedSortType || undefined,
         this.searchTerm || undefined,
+        undefined,
         () => { },
         () => { }
       );
@@ -145,6 +146,24 @@ export class ListComponent extends BaseComponent implements OnInit {
   onCategorySelect(categoryId: string) {
     this.selectedCategoryId = categoryId;
     this.navigateWithFilters();
+  }
+
+  isParentOfSelected(node: any): boolean {
+    if (!this.selectedCategoryId || !node || !node.children) return false;
+    
+    // Check if any direct child is selected
+    if (node.children.some((c: any) => c.id === this.selectedCategoryId)) {
+      return true;
+    }
+    
+    // Check recursively
+    for (const child of node.children) {
+      if (this.isParentOfSelected(child)) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 
   onSortChange(sortType: string) {

@@ -53,6 +53,11 @@ const routes: Routes = [
         path: "categories", 
         loadChildren: () => import("./admin/components/categories/categories.module").then(module => module.CategoriesModule), 
         canActivate: [AuthGuard] 
+      },
+      {
+        path: "discount-coupons",
+        loadChildren: () => import("./admin/components/discount-coupons/discount-coupons.module").then(module => module.DiscountCouponsModule),
+        canActivate: [AuthGuard]
       }
     ]
   },
@@ -103,6 +108,10 @@ const routes: Routes = [
     path: "profile", 
     loadChildren: () => import("./ui/components/profile/profile.module").then(module => module.ProfileModule),
     canActivate: [AuthGuard]
+  },
+  { 
+    path: "campaigns/:id", 
+    loadChildren: () => import("./ui/components/campaign-detail/campaign-detail.module").then(module => module.CampaignDetailModule) 
   },
   { 
     path: "", 

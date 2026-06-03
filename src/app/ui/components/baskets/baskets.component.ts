@@ -10,6 +10,8 @@ import { BasketItemDeleteState, BasketItemRemoveDialogComponent } from '../../..
 import { DialogService } from '../../../services/common/dialog.service';
 import { BasketService } from '../../../services/common/models/basket.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../../services/ui/custom-toastr.service';
+import { CalculateDiscountRequest, CalculateDiscountItem } from '../../../contracts/discount/calculate_discount_request';
+import { CalculateDiscountResponse } from '../../../contracts/discount/calculate_discount_response';
 
 @Component({
   selector: 'app-baskets',
@@ -30,6 +32,8 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   basketItems: List_Basket_Item[] = [];
+  discountResponse: CalculateDiscountResponse | null = null;
+  couponCodeInput: string = '';
   private basketSubscription?: Subscription;
   private routerSubscription?: Subscription;
   private authSubscription?: Subscription;
@@ -39,15 +43,20 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   get totalPrice(): number {
-    return this.basketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return this.discountResponse ? this.discountResponse.originalTotal : this.basketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   }
 
   get shippingFee(): number {
+    if (this.discountResponse) return this.discountResponse.isShippingFree ? 0 : 59.99;
     return this.totalPrice >= 500 ? 0 : 59.99;
   }
 
   get grandTotal(): number {
-    return this.totalPrice + this.shippingFee;
+    return this.discountResponse ? this.discountResponse.finalTotal + this.shippingFee : this.totalPrice + this.shippingFee;
+  }
+
+  get hasCouponApplied(): boolean {
+    return !!this.discountResponse?.appliedDiscounts?.find(d => d.discountType === 'Coupon');
   }
 
   async incrementQuantity(basketItem: List_Basket_Item) {
@@ -61,8 +70,10 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   async ngOnInit(): Promise<void> {
-    this.basketSubscription = this.basketService.basketItems$.subscribe(items => {
+    this.couponCodeInput = localStorage.getItem('appliedCoupon') || '';
+    this.basketSubscription = this.basketService.basketItems$.subscribe(async items => {
       this.basketItems = items;
+      await this.calculateDiscounts();
     });
     
     // Listen to route changes and reload basket
@@ -155,5 +166,77 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     }
 
     this.router.navigate(["/checkout"]);
+  }
+
+  async calculateDiscounts(): Promise<void> {
+    if (!this.basketItems || this.basketItems.length === 0) {
+      this.discountResponse = null;
+      return;
+    }
+
+    const request = new CalculateDiscountRequest();
+    request.couponCode = this.couponCodeInput;
+    request.items = this.basketItems.map(item => {
+      const p = new CalculateDiscountItem();
+      p.productId = item.productId || "";
+      p.productName = item.name;
+      p.categoryId = item.categoryId || "";
+      p.quantity = item.quantity;
+      p.unitPrice = item.price;
+      return p;
+    });
+
+    try {
+      this.discountResponse = await this.basketService.calculateDiscount(request);
+    } catch (error) {
+      console.error("Discount calculation error", error);
+    }
+  }
+
+  async applyCoupon(): Promise<void> {
+    if (!this.couponCodeInput) {
+      this.toastrService.message("Lütfen geçerli bir kupon kodu giriniz.", "Hata", {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+      return;
+    }
+
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.calculateDiscounts();
+      const hasCoupon = this.discountResponse?.appliedDiscounts.find(d => d.discountType === "Coupon");
+      if (hasCoupon) {
+        localStorage.setItem('appliedCoupon', this.couponCodeInput);
+        this.toastrService.message("Kupon başarıyla uygulandı.", "Başarılı", {
+          messageType: ToastrMessageType.Success,
+          position: ToastrPosition.BottomRight
+        });
+      } else {
+        this.toastrService.message("Geçersiz veya şartları sağlamayan kupon kodu.", "Hata", {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
+        this.couponCodeInput = ''; // clear invalid coupon
+        localStorage.removeItem('appliedCoupon');
+      }
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
+  }
+
+  async removeCoupon(): Promise<void> {
+    this.couponCodeInput = '';
+    localStorage.removeItem('appliedCoupon');
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.calculateDiscounts();
+      this.toastrService.message("Kupon kaldırıldı.", "Bilgi", {
+        messageType: ToastrMessageType.Info,
+        position: ToastrPosition.BottomRight
+      });
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
   }
 }

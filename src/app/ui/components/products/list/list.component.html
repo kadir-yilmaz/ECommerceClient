@@ -25,7 +25,6 @@
       <i class="fa-solid fa-xmark"></i>
     </span>
     <span class="active-filter-chip" *ngIf="selectedSortType" (click)="onSortChange('')">
-      {{ (sortOptions | keyvalue)?.length ? '' : '' }}
       <ng-container *ngFor="let opt of sortOptions">
         <ng-container *ngIf="opt.value === selectedSortType">{{ opt.label }}</ng-container>
       </ng-container>
@@ -47,25 +46,65 @@
         </button>
       </div>
 
-      <!-- Categories -->
-      <div class="filter-section">
-        <h4 class="filter-title">Kategoriler</h4>
-        <ul class="category-list">
-          <li class="category-item" [class.active]="selectedCategoryId === ''" (click)="onCategorySelect('')">
-            Tüm Kategoriler
+      <!-- Categories in Sidebar (New DefenceDB Mockup Style) -->
+      <div class="filter-section ddb-category-sidebar">
+        <h3 class="sidebar-cat-title">
+          <i class="fa-solid fa-table-cells-large"></i> Tüm Kategoriler
+        </h3>
+
+        <ul class="ddb-sidebar-list">
+          <li class="ddb-sidebar-item" [class.active]="selectedCategoryId === ''">
+            <a (click)="onCategorySelect('')">
+              <i class="fa-solid fa-list-ul"></i> Tüm Ürünler
+            </a>
+            <!-- <span class="badge" *ngIf="totalProductCount">{{ totalProductCount }}</span> -->
           </li>
-          <ng-container *ngFor="let node of categoryTree">
-            <ng-container *ngTemplateOutlet="catItem; context: { $implicit: node, depth: 0 }"></ng-container>
+
+          <ng-container *ngFor="let root of categoryTree">
+            <li class="ddb-sidebar-item root-item" [class.active]="selectedCategoryId === root.id || isParentOfSelected(root)">
+              <a (click)="onCategorySelect(root.id)">
+                {{ root.name }}
+              </a>
+
+              <!-- Subcategories (only show if selected or parent of selected) -->
+              <ul class="ddb-sidebar-sublist" *ngIf="root.children?.length && (selectedCategoryId === root.id || isParentOfSelected(root))">
+                <li class="ddb-sidebar-subitem" *ngFor="let child of root.children" [class.active]="selectedCategoryId === child.id || isParentOfSelected(child)">
+                  <a (click)="onCategorySelect(child.id)">
+                    {{ child.name }}
+                  </a>
+
+                  <!-- Third level -->
+                  <ul class="ddb-sidebar-sublist level-3" *ngIf="child.children?.length && (selectedCategoryId === child.id || isParentOfSelected(child))">
+                    <li class="ddb-sidebar-subitem" *ngFor="let subchild of child.children" [class.active]="selectedCategoryId === subchild.id">
+                      <a (click)="onCategorySelect(subchild.id)">
+                        {{ subchild.name }}
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </li>
           </ng-container>
         </ul>
+      </div>
+
+      <!-- Other Filters Placeholders (Altta filter kısmı olmalı dediği için) -->
+      <div class="filter-section">
+        <h4 class="filter-title">Fiyat Aralığı</h4>
+        <div class="filter-placeholder">
+          <input type="number" placeholder="En Az" class="price-input">
+          <span>-</span>
+          <input type="number" placeholder="En Çok" class="price-input">
+          <button class="price-search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
       </div>
 
       <!-- Sort (mobile only) -->
       <div class="filter-section mobile-sort-section">
         <h4 class="filter-title">Sıralama</h4>
-        <ul class="category-list">
+        <ul class="sort-list">
           <li *ngFor="let opt of sortOptions"
-            class="category-item"
+            class="sort-item"
             [class.active]="selectedSortType === opt.value"
             (click)="onSortChange(opt.value); toggleSidebar();">
             {{ opt.label }}
@@ -117,18 +156,3 @@
   </div>
 </section>
 
-<!-- Recursive category template -->
-<ng-template #catItem let-node let-depth="depth">
-  <li class="category-item"
-    [class.active]="selectedCategoryId === node.id"
-    [style.padding-left.px]="depth * 16 + 12"
-    (click)="onCategorySelect(node.id)">
-    <span class="cat-name">{{ node.name }}</span>
-    <span class="cat-count" *ngIf="node.children?.length">({{ node.children.length }})</span>
-  </li>
-  <ng-container *ngIf="node.children?.length">
-    <ng-container *ngFor="let child of node.children">
-      <ng-container *ngTemplateOutlet="catItem; context: { $implicit: child, depth: depth + 1 }"></ng-container>
-    </ng-container>
-  </ng-container>
-</ng-template>

@@ -4,6 +4,8 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base.component';
 import { Category } from 'src/app/contracts/category';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { MatDialog } from '@angular/material/dialog';
+import { OrderCategoriesDialogComponent } from './order-categories-dialog/order-categories-dialog.component';
 
 @Component({
   selector: 'app-categories',
@@ -21,11 +23,14 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
   formCategoryId: string = '';
   formCategoryName: string = '';
   formParentCategoryId: string = '';
+  formShowOnHomepage: boolean = false;
+  formHomepageOrder: number = 0;
 
   constructor(
     spinner: NgxSpinnerService,
     private categoryService: CategoryService,
-    private toastr: CustomToastrService
+    private toastr: CustomToastrService,
+    private dialog: MatDialog
   ) {
     super(spinner);
   }
@@ -70,6 +75,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formCategoryId = '';
     this.formCategoryName = '';
     this.formParentCategoryId = parentId || '';
+    this.formShowOnHomepage = false;
+    this.formHomepageOrder = 0;
   }
 
   openEditForm(category: Category) {
@@ -78,6 +85,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formCategoryId = category.id;
     this.formCategoryName = category.name;
     this.formParentCategoryId = category.parentCategoryId || '';
+    this.formShowOnHomepage = !!category.showOnHomepage;
+    this.formHomepageOrder = category.homepageOrder || 0;
   }
 
   cancelForm() {
@@ -85,6 +94,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formCategoryId = '';
     this.formCategoryName = '';
     this.formParentCategoryId = '';
+    this.formShowOnHomepage = false;
+    this.formHomepageOrder = 0;
   }
 
   async saveCategory() {
@@ -102,7 +113,9 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
         await this.categoryService.update({
           id: this.formCategoryId,
           name: this.formCategoryName.trim(),
-          parentCategoryId: this.formParentCategoryId || undefined
+          parentCategoryId: this.formParentCategoryId || undefined,
+          showOnHomepage: this.formShowOnHomepage,
+          homepageOrder: this.formHomepageOrder
         });
         this.toastr.message('Kategori güncellendi.', 'Başarılı', {
           messageType: ToastrMessageType.Success,
@@ -111,7 +124,9 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
       } else {
         await this.categoryService.create({
           name: this.formCategoryName.trim(),
-          parentCategoryId: this.formParentCategoryId || undefined
+          parentCategoryId: this.formParentCategoryId || undefined,
+          showOnHomepage: this.formShowOnHomepage,
+          homepageOrder: this.formHomepageOrder
         });
         this.toastr.message('Kategori oluşturuldu.', 'Başarılı', {
           messageType: ToastrMessageType.Success,
@@ -154,5 +169,53 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
 
   toggleExpand(node: any) {
     node.expanded = !node.expanded;
+  }
+
+  async toggleShowcase(categoryId: string, showOnHomepage: boolean) {
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.categoryService.changeShowcaseStatus(categoryId, showOnHomepage);
+      this.toastr.message(showOnHomepage ? "Kategori vitrine eklendi." : "Kategori vitrinden kaldırıldı.", 'Başarılı', {
+        messageType: ToastrMessageType.Success,
+        position: ToastrPosition.BottomRight
+      });
+      await this.loadCategories();
+    } catch {
+      this.toastr.message("Vitrin durumu güncellenemedi.", 'Hata', {
+        messageType: ToastrMessageType.Error,
+        position: ToastrPosition.BottomRight
+      });
+      await this.loadCategories();
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
+  }
+
+  openOrderDialog() {
+    const dialogRef = this.dialog.open(OrderCategoriesDialogComponent, {
+      width: '500px',
+      data: this.categories.filter(c => c.showOnHomepage).sort((a, b) => (a.homepageOrder || 0) - (b.homepageOrder || 0))
+    });
+
+    dialogRef.afterClosed().subscribe(async (result: { id: string, order: number }[]) => {
+      if (result && result.length > 0) {
+        this.showSpinner(SpinnerType.BallAtom);
+        try {
+          await this.categoryService.updateShowcaseOrder(result);
+          this.toastr.message("Kategori sırası güncellendi.", 'Başarılı', {
+            messageType: ToastrMessageType.Success,
+            position: ToastrPosition.BottomRight
+          });
+          await this.loadCategories();
+        } catch {
+          this.toastr.message("Sıralama güncellenemedi.", 'Hata', {
+            messageType: ToastrMessageType.Error,
+            position: ToastrPosition.BottomRight
+          });
+        } finally {
+          this.hideSpinner(SpinnerType.BallAtom);
+        }
+      }
+    });
   }
 }

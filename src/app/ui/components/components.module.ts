@@ -11,6 +11,7 @@ import { PasswordResetComponent } from './password-reset/password-reset.componen
 import { UpdatePasswordComponent } from './update-password/update-password.component';
 import { PasswordResetModule } from './password-reset/password-reset.module';
 import { UpdatePasswordModule } from './update-password/update-password.module';
+import { CampaignDetailComponent } from './campaign-detail/campaign-detail.component';
 
 
 @NgModule({

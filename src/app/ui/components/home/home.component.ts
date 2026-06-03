@@ -1,17 +1,19 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild, HostListener } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base.component';
 import { BaseUrl } from 'src/app/contracts/base_url';
 import { Create_Basket_Item } from 'src/app/contracts/basket/create_basket_item';
 import { List_Product } from 'src/app/contracts/list_product';
+import { Category } from 'src/app/contracts/category';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { BasketService } from 'src/app/services/common/models/basket.service';
 import { FavoriteService } from 'src/app/services/common/models/favorite.service';
 import { FileService } from 'src/app/services/common/models/file.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
+import { CategoryService } from 'src/app/services/common/models/category.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
-import { CampaignImage, CampaignService } from 'src/app/services/common/models/campaign.service';
+import { CampaignService } from 'src/app/services/common/models/campaign.service';
 
 @Component({
   selector: 'app-home',
@@ -19,11 +21,17 @@ import { CampaignImage, CampaignService } from 'src/app/services/common/models/c
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent extends BaseComponent implements OnInit {
-  campaignSlides: CampaignImage[] = [];
+  activeCampaigns: import('src/app/contracts/campaign/campaign').Campaign[] = [];
   featuredProducts: List_Product[] = [];
   baseUrl: BaseUrl;
 
+  showcaseCategories: Category[] = [];
+  loadedShowcaseGroups: Array<{ category: Category, products: List_Product[] }> = [];
+  currentLoadingIndex: number = 0;
+  isLoadingShowcase: boolean = false;
+
   @ViewChild('productsScroll', { static: false }) productsScroll: ElementRef;
+  @ViewChild('campaignsScroll', { static: false }) campaignsScroll: ElementRef;
 
   constructor(
     spinner: NgxSpinnerService,
@@ -34,9 +42,19 @@ export class HomeComponent extends BaseComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private customToastrService: CustomToastrService,
-    private campaignService: CampaignService
+    private campaignService: CampaignService,
+    private categoryService: CategoryService
   ) {
     super(spinner);
+  }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    const pos = (document.documentElement.scrollTop || document.body.scrollTop) + document.documentElement.clientHeight;
+    const max = document.documentElement.scrollHeight;
+    if (pos >= max - 800) {
+      this.loadNextShowcaseGroup();
+    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -44,7 +62,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
     try {
       this.baseUrl = await this.fileService.getBaseStorageUrl();
       
-      const productData = await this.productService.read(0, 8, undefined, undefined, undefined, () => { }, () => { });
+      const productData = await this.productService.read(0, 20, undefined, undefined, undefined, true, () => { }, () => { });
       this.featuredProducts = productData.products.map<List_Product>((product) => ({
         ...product,
         imagePath: product.productImageFiles?.length
@@ -52,12 +70,63 @@ export class HomeComponent extends BaseComponent implements OnInit {
           : ''
       }));
 
-      this.campaignSlides = await this.campaignService.getCampaignImages();
+      const allActive = await this.campaignService.getActiveCampaigns();
+      this.activeCampaigns = allActive.filter(c => c.ruleType !== 'FreeShipping');
+
+      // Load homepage showcased categories
+      const categoryData = await this.categoryService.getAll();
+      this.showcaseCategories = (categoryData?.categories || [])
+        .filter(c => c.showOnHomepage)
+        .sort((a, b) => (a.homepageOrder || 0) - (b.homepageOrder || 0));
+
+      // Initially load first 2 showcases
+      await this.loadNextShowcaseGroup();
+      await this.loadNextShowcaseGroup();
     } catch {
       this.featuredProducts = [];
-      this.campaignSlides = [];
+      this.activeCampaigns = [];
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
+    }
+  }
+
+  async loadNextShowcaseGroup(): Promise<void> {
+    if (this.currentLoadingIndex >= this.showcaseCategories.length || this.isLoadingShowcase) {
+      return;
+    }
+
+    this.isLoadingShowcase = true;
+    const category = this.showcaseCategories[this.currentLoadingIndex];
+    try {
+      const response = await this.productService.read(0, 10, category.id, undefined, undefined, false, () => {}, () => {});
+      const products = response.products.map<List_Product>((p) => ({
+        ...p,
+        imagePath: p.productImageFiles?.length
+          ? (p.productImageFiles.find((img) => img.showcase)?.path ?? p.productImageFiles[0].path)
+          : ''
+      }));
+
+      this.loadedShowcaseGroups.push({
+        category,
+        products
+      });
+      this.currentLoadingIndex++;
+    } catch (e) {
+      console.error('Error loading showcase category:', e);
+    } finally {
+      this.isLoadingShowcase = false;
+    }
+  }
+
+  scrollCampaigns(direction: 'left' | 'right') {
+    if (this.campaignsScroll) {
+      const container = this.campaignsScroll.nativeElement;
+      const scrollAmount = 400;
+      if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
     }
   }
 

@@ -20,6 +20,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../..
 export class LoginComponent extends BaseComponent implements OnInit {
 
   hidePassword = true;
+  inlineError: string | null = null;
 
   constructor(
     private userAuthService: UserAuthService, 
@@ -60,11 +61,10 @@ export class LoginComponent extends BaseComponent implements OnInit {
   }
 
   async login(email: string, password: string) {
+    this.inlineError = null;
+
     if (!email || !password) {
-      this.toastrService.message('Email ve şifre alanları zorunludur', 'Eksik Bilgi', {
-        messageType: ToastrMessageType.Warning,
-        position: ToastrPosition.BottomRight
-      });
+      this.inlineError = 'Email ve şifre alanları zorunludur.';
       return;
     }
 
@@ -81,20 +81,15 @@ export class LoginComponent extends BaseComponent implements OnInit {
     } catch (error: any) {
       console.error("Login error:", error);
       
-      let errorMessage = 'Giriş yapılırken bir hata oluştu';
-      
-      if (error.error?.message) {
-        errorMessage = error.error.message;
-      } else if (error.status === 401) {
-        errorMessage = 'Email veya şifre hatalı';
+      if (error.error?.message || error.error?.Message) {
+        this.inlineError = error.error.message || error.error.Message;
+      } else if (error.status === 401 || error.status === 404) {
+        this.inlineError = 'E-posta adresi veya şifre hatalı. Lütfen kontrol edip tekrar deneyin.';
       } else if (error.status === 400) {
-        errorMessage = 'Geçersiz giriş bilgileri';
+        this.inlineError = 'Geçersiz giriş bilgileri.';
+      } else {
+        this.inlineError = 'Giriş yapılırken beklenmedik bir hata oluştu.';
       }
-      
-      this.toastrService.message(errorMessage, 'Giriş Başarısız', {
-        messageType: ToastrMessageType.Error,
-        position: ToastrPosition.BottomRight
-      });
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }

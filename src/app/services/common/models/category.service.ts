@@ -33,7 +33,7 @@ export class CategoryService {
     return await promiseData;
   }
 
-  async create(category: { name: string, parentCategoryId?: string }, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+  async create(category: { name: string, parentCategoryId?: string, showOnHomepage?: boolean, homepageOrder?: number }, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
     this.httpClientService.post({
       controller: "categories"
     }, category)
@@ -47,7 +47,7 @@ export class CategoryService {
       });
   }
 
-  async update(category: { id: string, name: string, parentCategoryId?: string }, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+  async update(category: { id: string, name: string, parentCategoryId?: string, showOnHomepage?: boolean, homepageOrder?: number }, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
     this.httpClientService.put({
       controller: "categories"
     }, category)
@@ -59,6 +59,32 @@ export class CategoryService {
           if (errorCallBack) errorCallBack(errorResponse.message);
         }
       });
+  }
+
+  async changeShowcaseStatus(categoryId: string, showOnHomepage: boolean, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+    const observable = this.httpClientService.put({
+      controller: "categories",
+      action: "change-showcase"
+    }, { id: categoryId, showOnHomepage });
+    
+    await firstValueFrom(observable).then(() => {
+      if (successCallBack) successCallBack();
+    }).catch(error => {
+      if (errorCallBack) errorCallBack(error.message);
+    });
+  }
+
+  async updateShowcaseOrder(orders: { id: string, order: number }[], successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+    const observable = this.httpClientService.put({
+      controller: "categories",
+      action: "update-order"
+    }, { orders });
+    
+    await firstValueFrom(observable).then(() => {
+      if (successCallBack) successCallBack();
+    }).catch(error => {
+      if (errorCallBack) errorCallBack(error.message);
+    });
   }
 
   async delete(id: string, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {

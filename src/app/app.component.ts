@@ -19,6 +19,7 @@ import { UserAuthService } from './services/common/models/user-auth.service';
 export class AppComponent implements OnInit, OnDestroy {
   isAdminPage: boolean = false;
   isAuthPage: boolean = false;
+  isProductPage: boolean = false;
   private authSubscription?: Subscription;
 
   // Mega Menu State
@@ -49,6 +50,7 @@ export class AppComponent implements OnInit, OnDestroy {
       if (event instanceof NavigationEnd) {
         this.isAdminPage = event.urlAfterRedirects.startsWith('/admin');
         this.isAuthPage = event.urlAfterRedirects.startsWith('/login') || event.urlAfterRedirects.startsWith('/register');
+        this.isProductPage = event.urlAfterRedirects.startsWith('/products');
       }
     });
   }

@@ -1,0 +1,78 @@
+<div class="container mt-5" *ngIf="campaign">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0" style="border-radius: 12px; overflow: hidden;">
+        <div class="card-header bg-primary text-white text-center py-4" style="background: linear-gradient(135deg, #e74c3c, #c0392b) !important;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 15px;">
+            {{ campaign.ruleType === 'FreeShipping' ? 'local_shipping' : 'local_offer' }}
+          </mat-icon>
+          <h2 class="mb-0" style="font-weight: 700;">{{ campaign.name }}</h2>
+        </div>
+        <div class="card-body p-5 text-center">
+          <h4 class="text-muted mb-4">Kampanya Detayları</h4>
+          <p class="lead" style="font-size: 18px; line-height: 1.6;">
+            {{ campaign.description }}
+          </p>
+          
+          <div class="campaign-rules mt-4 p-4 bg-light rounded text-start">
+            <h5 class="mb-3">Kural Özeti</h5>
+            <ul class="list-unstyled mb-0">
+              <li *ngIf="campaign.minAmount">
+                <mat-icon class="align-middle me-2 text-success">check_circle</mat-icon> 
+                Minimum Sepet Tutarı: <strong>{{ campaign.minAmount }} TL</strong>
+              </li>
+              <li *ngIf="campaign.discountRate">
+                <mat-icon class="align-middle me-2 text-success">check_circle</mat-icon> 
+                İndirim Oranı: <strong>%{{ campaign.discountRate }}</strong>
+              </li>
+              <li *ngIf="campaign.minQuantity">
+                <mat-icon class="align-middle me-2 text-success">check_circle</mat-icon> 
+                Alınması Gereken Adet: <strong>{{ campaign.minQuantity }} Adet</strong>
+              </li>
+              <li *ngIf="campaign.freeQuantity">
+                <mat-icon class="align-middle me-2 text-success">check_circle</mat-icon> 
+                Bedava Verilecek Adet: <strong>{{ campaign.freeQuantity }} Adet</strong>
+              </li>
+            </ul>
+          </div>
+
+          <div class="mt-5" *ngIf="product">
+            <h5 class="mb-4 text-start">Kampanyaya Dahil Olan Ürün</h5>
+            <div class="card shadow-sm border-0 mb-4 text-start" style="border-radius: 12px; cursor: pointer; transition: transform 0.2s;" (click)="goToProduct()" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+              <div class="row g-0 align-items-center">
+                <div class="col-md-3 p-3 text-center">
+                  <img *ngIf="product.imagePath" [src]="baseUrl?.url + '/' + product.imagePath" class="img-fluid rounded" alt="{{product.name}}" style="max-height: 120px; object-fit: contain;">
+                  <mat-icon *ngIf="!product.imagePath" style="font-size: 80px; width: 80px; height: 80px; color: #ccc;">image</mat-icon>
+                </div>
+                <div class="col-md-6">
+                  <div class="card-body py-2">
+                    <h5 class="card-title mb-1" style="font-weight: 600;">{{product.name}}</h5>
+                    <p class="card-text text-muted mb-0"><small>Stok: {{product.stock}}</small></p>
+                  </div>
+                </div>
+                <div class="col-md-3 text-end pe-4">
+                  <h4 class="text-primary mb-0" style="font-weight: 700;">{{product.price}} TL</h4>
+                </div>
+              </div>
+            </div>
+            <button class="btn btn-lg btn-danger w-100 py-3" style="border-radius: 12px; font-weight: 600;" (click)="goToProduct()">
+              <mat-icon class="align-middle me-2">shopping_basket</mat-icon> Ürünü İncele ve Sepete Ekle
+            </button>
+          </div>
+          
+          <div class="mt-5" *ngIf="!product && campaign.productId">
+            <button class="btn btn-lg btn-danger px-5 py-3" style="border-radius: 30px; font-weight: 600;" (click)="goToProduct()">
+              <mat-icon class="align-middle me-2">shopping_basket</mat-icon> İlgili Ürüne Git
+            </button>
+          </div>
+          
+          <div class="mt-5" *ngIf="!campaign.productId">
+            <button class="btn btn-lg btn-danger px-5 py-3" style="border-radius: 30px; font-weight: 600;" routerLink="/products">
+              <mat-icon class="align-middle me-2">storefront</mat-icon> Alışverişe Başla
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

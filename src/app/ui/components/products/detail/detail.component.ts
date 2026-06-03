@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from '../../../../base/base.component';
@@ -23,6 +23,22 @@ export class DetailComponent extends BaseComponent implements OnInit {
   product: List_Product;
   selectedImagePath: string;
   isLightboxOpen: boolean = false;
+  activeTab: string = 'description';
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'ArrowRight') {
+      this.nextImage();
+    } else if (event.key === 'ArrowLeft') {
+      this.prevImage();
+    } else if (event.key === 'Escape' && this.isLightboxOpen) {
+      this.closeLightbox();
+    }
+  }
+
+  setActiveTab(tabName: string): void {
+    this.activeTab = tabName;
+  }
 
   constructor(
     private activatedRoute: ActivatedRoute,

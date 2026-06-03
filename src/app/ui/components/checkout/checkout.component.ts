@@ -8,6 +8,7 @@ import { Create_Order } from 'src/app/contracts/order/create_order';
 import { BasketService } from 'src/app/services/common/models/basket.service';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { CalculateDiscountRequest, CalculateDiscountItem } from 'src/app/contracts/discount/calculate_discount_request';
 
 @Component({
   selector: 'app-checkout',
@@ -19,6 +20,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
   checkoutForm: UntypedFormGroup;
   basketItems: List_Basket_Item[] = [];
+  discountResponse: import('src/app/contracts/discount/calculate_discount_response').CalculateDiscountResponse | null = null;
+  couponCodeInput: string = '';
   submitted = false;
   isSubmitting = false;
   isCvvFocused = false;
@@ -35,8 +38,17 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  get totalPrice(): number {
+  get basePrice(): number {
     return this.basketItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  }
+
+  get totalPrice(): number {
+    return this.discountResponse ? this.discountResponse.finalTotal + this.shippingFee : this.basePrice + this.shippingFee;
+  }
+
+  get shippingFee(): number {
+    if (this.discountResponse) return this.discountResponse.isShippingFree ? 0 : 59.99;
+    return this.basePrice >= 500 ? 0 : 59.99;
   }
 
   get itemCount(): number {
@@ -66,6 +78,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.couponCodeInput = localStorage.getItem('appliedCoupon') || '';
     this.buildForm();
     await this.loadBasket();
   }
@@ -101,10 +114,47 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
           position: ToastrPosition.BottomRight
         });
         this.router.navigate(['/basket']);
+      } else {
+        await this.calculateDiscounts();
       }
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }
+  }
+
+  async calculateDiscounts(): Promise<void> {
+    if (!this.basketItems || this.basketItems.length === 0) {
+      this.discountResponse = null;
+      return;
+    }
+
+    const request = new CalculateDiscountRequest();
+    request.couponCode = this.couponCodeInput;
+    request.items = this.basketItems.map(item => {
+      const p = new CalculateDiscountItem();
+      p.productId = item.productId || "";
+      p.productName = item.name;
+      p.categoryId = item.categoryId || "";
+      p.quantity = item.quantity;
+      p.unitPrice = item.price;
+      return p;
+    });
+
+    try {
+      this.discountResponse = await this.basketService.calculateDiscount(request);
+      const hasCoupon = this.discountResponse?.appliedDiscounts.find(d => d.discountType === "Coupon");
+      if (this.couponCodeInput && !hasCoupon) {
+         this.couponCodeInput = '';
+         localStorage.removeItem('appliedCoupon');
+      }
+    } catch (error) {
+      console.error("Discount calculation error", error);
+    }
+  }
+
+  onCardHolderNameInput(): void {
+    const value = (this.f['cardHolderName'].value ?? '').toLocaleUpperCase('tr-TR');
+    this.f['cardHolderName'].setValue(value, { emitEvent: false });
   }
 
   onCardNumberInput(): void {
@@ -115,13 +165,31 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   onExpireDateInput(): void {
     let digits = (this.f['expireDate'].value ?? '').replace(/\D/g, '');
     
-    if (digits.length === 6) {
-      // MMYYYY (e.g., 122028 -> 1228)
-      const month = digits.slice(0, 2);
-      const year = digits.slice(4, 6);
-      digits = month + year;
-    } else if (digits.length > 4) {
-      digits = digits.slice(0, 4);
+    if (digits.length > 0) {
+      // e.g. User types '2', '3', etc. as first digit -> auto-pad to '02', '03'
+      if (digits.length === 1 && parseInt(digits[0], 10) > 1) {
+        digits = '0' + digits;
+      }
+      
+      // If month is completely entered (2 or more digits)
+      if (digits.length >= 2) {
+        let month = parseInt(digits.slice(0, 2), 10);
+        // Clamp month to 01-12
+        if (month > 12) month = 12;
+        if (month === 0) month = 1;
+        
+        const monthStr = month < 10 ? '0' + month : month.toString();
+        
+        // Handling paste or long input (MMYYYY -> MMYY)
+        if (digits.length === 6) {
+          const year = digits.slice(4, 6);
+          digits = monthStr + year;
+        } else if (digits.length > 4) {
+          digits = monthStr + digits.slice(2, 4);
+        } else {
+          digits = monthStr + digits.slice(2);
+        }
+      }
     }
 
     const value = digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
@@ -183,11 +251,13 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
         cardNumber: formValue.cardNumber.replace(/\D/g, ''),
         expireMonth,
         expireYear,
-        cvv: formValue.cvv
+        cvv: formValue.cvv,
+        couponCode: this.couponCodeInput ? this.couponCodeInput : undefined
       };
 
       await this.orderService.create(order);
       this.basketService.clear();
+      localStorage.removeItem('appliedCoupon');
 
       this.toastrService.message('Siparisiniz alindi. Hazirlaniyor.', 'Siparis Basarili', {
         messageType: ToastrMessageType.Success,

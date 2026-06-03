@@ -9,6 +9,7 @@
   text-decoration: none;
   cursor: pointer;
   transition: box-shadow 0.2s ease-in-out;
+  height: 100%;
 
   &:hover {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -30,6 +31,8 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
+        padding: 15px;
+        box-sizing: border-box;
       }
     }
 
@@ -141,7 +144,9 @@
     .ty-title-link {
       text-decoration: none;
       color: #333;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      min-height: 36px;
+      display: block;
 
       .ty-title-wrapper {
         font-size: 13px;
@@ -246,53 +251,110 @@
       }
     }
 
-    .ty-price-container {
-      margin-top: auto;
-      margin-bottom: 12px;
-
-      .ty-new-price {
-        display: flex;
-        align-items: baseline;
-        gap: 6px;
-
-        .ty-price-value {
-          font-size: 18px;
-          font-weight: 700;
-          color: #d32f2f;
-        }
-        .ty-old-price {
-          font-size: 12px;
-          color: #94a3b8;
-          text-decoration: line-through;
-        }
-      }
+    .ty-campaign-box, .ty-campaign-box-placeholder {
+      min-height: 24px;
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
     }
-    .ty-cart-btn {
-      width: 100%;
-      background-color: #fff;
-      color: #f27a1a;
-      border: 1px solid #f27a1a;
-      padding: 10px 0;
-      font-size: 14px;
-      font-weight: 600;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      margin-top: 10px;
 
-      &:hover {
-        background-color: #f27a1a;
-        color: #fff;
+    .ty-card-footer {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+
+      &.compact-footer {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 4px;
+
+        .ty-price-container {
+          margin-bottom: 0;
+        }
       }
 
-      &.in-cart {
-        background-color: #0bc15c;
-        border-color: #0bc15c;
-        color: #fff;
-        
+      .ty-price-container {
+        margin-bottom: 8px;
+
+        .ty-new-price {
+          display: flex;
+          align-items: baseline;
+          gap: 6px;
+
+          .ty-price-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #d32f2f;
+          }
+          .ty-old-price {
+            font-size: 11px;
+            color: #94a3b8;
+            text-decoration: line-through;
+          }
+        }
+      }
+
+      .ty-cart-btn {
+        width: 100%;
+        background-color: #fff;
+        color: #f27a1a;
+        border: 1px solid #f27a1a;
+        padding: 10px 0;
+        font-size: 14px;
+        font-weight: 600;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        margin-top: 6px;
+
         &:hover {
-          background-color: #09a24d;
-          border-color: #09a24d;
+          background-color: #f27a1a;
+          color: #fff;
+        }
+
+        &.in-cart {
+          background-color: #0bc15c;
+          border-color: #0bc15c;
+          color: #fff;
+          
+          &:hover {
+            background-color: #09a24d;
+            border-color: #09a24d;
+          }
+        }
+      }
+
+      .ty-cart-btn-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 6px;
+        border: 1px solid #e2e8f0;
+        background-color: #f8fafc;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        font-size: 16px;
+
+        &:hover {
+          background-color: #ffefe5;
+          border-color: #f27a1a;
+          color: #f27a1a;
+        }
+
+        &.in-cart {
+          background-color: #0bc15c;
+          border-color: #0bc15c;
+          color: #fff;
+          
+          &:hover {
+            background-color: #09a24d;
+            border-color: #09a24d;
+          }
         }
       }
     }
@@ -377,24 +439,42 @@
         margin-bottom: 3px;
       }
 
-      .ty-price-container {
-        margin-bottom: 6px;
+      .ty-campaign-box, .ty-campaign-box-placeholder {
+        height: 22px;
+        margin-top: 2px;
+        margin-bottom: 4px;
         
-        .ty-new-price {
-          .ty-price-value {
-            font-size: 13px;
-          }
-          .ty-old-price {
-            font-size: 10px;
-          }
+        .campaign-tag {
+          font-size: 0.65rem !important;
+          padding: 2px 5px !important;
         }
       }
 
-      .ty-cart-btn {
-        padding: 6px 0;
-        font-size: 10.5px;
-        margin-top: 6px;
-        border-radius: 4px;
+      .ty-card-footer {
+        margin-top: auto;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+
+        .ty-price-container {
+          margin-bottom: 4px;
+          
+          .ty-new-price {
+            .ty-price-value {
+              font-size: 13px;
+            }
+            .ty-old-price {
+              font-size: 10px;
+            }
+          }
+        }
+
+        .ty-cart-btn {
+          padding: 6px 0;
+          font-size: 10.5px;
+          margin-top: 4px;
+          border-radius: 4px;
+        }
       }
     }
   }

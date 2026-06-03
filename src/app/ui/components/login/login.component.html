@@ -24,6 +24,11 @@
             </span>
           </div>
 
+          <div class="validation-error" *ngIf="inlineError">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <span>{{ inlineError }}</span>
+          </div>
+
           <div class="form-footer">
             <a routerLink="/password-reset" class="forgot-link">Şifremi Unuttum?</a>
           </div>

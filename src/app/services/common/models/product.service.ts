@@ -72,11 +72,12 @@ export class ProductService {
       });
   }
 
-  async read(page: number = 0, size: number = 5, categoryId?: string, sortType?: string, searchTerm?: string, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalProductCount: number; products: List_Product[] }> {
+  async read(page: number = 0, size: number = 5, categoryId?: string, sortType?: string, searchTerm?: string, isShowcase?: boolean, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalProductCount: number; products: List_Product[] }> {
     let queryString = `page=${page}&size=${size}`;
     if (categoryId) queryString += `&categoryId=${categoryId}`;
     if (sortType) queryString += `&sortType=${sortType}`;
     if (searchTerm) queryString += `&search=${encodeURIComponent(searchTerm)}`;
+    if (isShowcase) queryString += `&isShowcase=true`;
 
     const promiseData: Promise<{ totalProductCount: number; products: List_Product[] }> = this.httpClientService.get<{ totalProductCount: number; products: List_Product[] }>({
       controller: "products",
@@ -137,6 +138,19 @@ export class ProductService {
     });
     await firstValueFrom(changeShowcaseImageObservable);
     successCallBack();
+  }
+
+  async changeShowcaseStatus(productId: string, showOnHomepage: boolean, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+    const observable = this.httpClientService.put({
+      controller: "products",
+      action: "change-showcase"
+    }, { id: productId, showOnHomepage });
+    
+    await firstValueFrom(observable).then(() => {
+      if (successCallBack) successCallBack();
+    }).catch(error => {
+      if (errorCallBack) errorCallBack(error.message);
+    });
   }
 
   async updateStockQrCodeToProduct(productId: string, stock: number, successCallBack?: () => void) {

@@ -1,0 +1,148 @@
+<div class="coupons-admin-container">
+  <div class="header">
+    <h2>İndirim Kuponları Yönetimi</h2>
+    <p>Özel promosyon kodlarını, tutar veya yüzdelik indirimleri buradan oluşturabilirsiniz.</p>
+    <button mat-raised-button color="primary" (click)="openAddForm()" *ngIf="!showForm">
+      <mat-icon>add</mat-icon> Yeni Kupon Ekle
+    </button>
+  </div>
+
+  <!-- CREATE / EDIT FORM -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Kupon Düzenle' : 'Yeni Kupon Oluştur' }}</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="couponForm" class="coupon-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kupon Kodu</mat-label>
+            <input matInput formControlName="code" placeholder="Örn: SEPETTE50">
+            <mat-error *ngIf="couponForm.get('code')?.hasError('required')">Kupon kodu zorunludur</mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>İndirim Tipi</mat-label>
+            <mat-select formControlName="discountType">
+              <mat-option *ngFor="let type of discountTypes" [value]="type.value">
+                {{ type.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>İndirim Değeri</mat-label>
+            <input matInput type="number" formControlName="discountValue" placeholder="Örn: 50">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Olması İçin Min Sepet Tutarı (TL)</mat-label>
+            <input matInput type="number" formControlName="minCartAmount" placeholder="Örn: 400">
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Son Kullanma Tarihi</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="expirationDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kullanım Limiti (Opsiyonel)</mat-label>
+            <input matInput type="number" formControlName="usageLimit" placeholder="Boş bırakılırsa sınırsız">
+          </mat-form-field>
+        </div>
+
+        <div class="toggle-container">
+          <mat-slide-toggle formControlName="isActive" color="primary">Kupon Aktif mi?</mat-slide-toggle>
+        </div>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancelForm()">İptal</button>
+      <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="couponForm.invalid">Kaydet</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- TABLE -->
+  <mat-card class="table-card" *ngIf="!showForm">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+      
+      <!-- Code Column -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef> Kupon Kodu </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="code-badge">{{element.code}}</span> 
+        </td>
+      </ng-container>
+
+      <!-- DiscountType Column -->
+      <ng-container matColumnDef="discountType">
+        <th mat-header-cell *matHeaderCellDef> İndirim Türü </th>
+        <td mat-cell *matCellDef="let element"> 
+          {{ element.discountType === 'Amount' ? 'Tutar (TL)' : 'Yüzde (%)' }}
+        </td>
+      </ng-container>
+
+      <!-- DiscountValue Column -->
+      <ng-container matColumnDef="discountValue">
+        <th mat-header-cell *matHeaderCellDef> İndirim Değeri </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="value-text">{{ element.discountType === 'Amount' ? element.discountValue + ' TL' : '%' + element.discountValue }}</span>
+        </td>
+      </ng-container>
+
+      <!-- MinCartAmount Column -->
+      <ng-container matColumnDef="minCartAmount">
+        <th mat-header-cell *matHeaderCellDef> Min Sepet </th>
+        <td mat-cell *matCellDef="let element"> {{element.minCartAmount}} TL </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef> Durum </th>
+        <td mat-cell *matCellDef="let element">
+          <span class="status-badge" [class.badge-active]="element.isActive" [class.badge-passive]="!element.isActive">
+            {{element.isActive ? 'Aktif' : 'Pasif'}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> İşlemler </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" (click)="openEditForm(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteCoupon(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <!-- EMPTY STATE -->
+      <tr class="mat-row empty-state-row" *matNoDataRow>
+        <td class="mat-cell empty-state-cell" colspan="6">
+          <div class="empty-state-content">
+            <mat-icon>local_activity</mat-icon>
+            <h3>Hiç İndirim Kuponu Yok</h3>
+            <p>Müşterileriniz için indirim kuponları oluşturmaya hemen başlayın.</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+
+</div>

@@ -31,6 +31,24 @@
             <div class="cart-item-details">
               <h2>{{ basketItem.name }}</h2>
               <p class="unit-price">Birim Fiyat: <strong>{{ basketItem.price | turkishCurrency }}</strong></p>
+
+              <!-- Sepette Getir tarzı kampanya ve miktar uyarıları -->
+              <div class="basket-item-campaign-container" *ngIf="basketItem.campaigns && basketItem.campaigns.length > 0">
+                <div class="basket-campaign-badge">
+                  <i class="fa-solid fa-gift"></i>
+                  <span>{{ basketItem.campaigns[0].name }}</span>
+                </div>
+                <!-- Getir tarzı aktif uyarı: E.g., 3 al 1 bedava için miktar kontrolü -->
+                <div class="basket-campaign-alert" *ngIf="basketItem.campaigns[0].ruleType === 'FreeItem' && basketItem.quantity < 3">
+                  <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
+                  <span class="alert-text">Bu üründen <strong>{{ 3 - basketItem.quantity }} adet daha</strong> ekleyin, 1 tanesini hediye kazanın!</span>
+                </div>
+                <div class="basket-campaign-success" *ngIf="basketItem.campaigns[0].ruleType === 'FreeItem' && basketItem.quantity >= 3">
+                  <span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>
+                  <span class="success-text">Kampanya uygulandı! 1 adet hediye kazandınız.</span>
+                </div>
+              </div>
+
               <p class="delivery-tag">
                 <mat-icon>local_shipping</mat-icon> Tahmini Kargoya Teslim: 3 iş günü içinde
               </p>
@@ -95,10 +113,20 @@
               <span>Ara Toplam</span>
               <strong>{{ totalPrice | turkishCurrency }}</strong>
             </div>
+
+            <!-- Uygulanan Indirimleri Listeleme -->
+            <ng-container *ngIf="discountResponse?.appliedDiscounts?.length">
+              <div class="summary-row discount-row" *ngFor="let discount of discountResponse.appliedDiscounts">
+                <span>{{ discount.discountName }}</span>
+                <strong *ngIf="discount.discountAmount > 0; else freeShippingTxt">-{{ discount.discountAmount | turkishCurrency }}</strong>
+                <ng-template #freeShippingTxt><strong>Bedava</strong></ng-template>
+              </div>
+            </ng-container>
+
             <div class="summary-row">
               <span>Kargo Ücreti</span>
-              <strong [class.free-shipping]="totalPrice >= 500">
-                {{ totalPrice >= 500 ? 'Bedava' : (shippingFee | turkishCurrency) }}
+              <strong [class.free-shipping]="discountResponse?.isShippingFree || totalPrice >= 500">
+                {{ (discountResponse?.isShippingFree || totalPrice >= 500) ? 'Bedava' : (59.99 | turkishCurrency) }}
               </strong>
             </div>
           </div>
@@ -111,9 +139,20 @@
           </div>
 
           <div class="coupon-code-container">
-            <button type="button" class="coupon-btn">
-              <mat-icon>add</mat-icon> İndirim Kodu Gir
-            </button>
+            <div class="coupon-input-group" *ngIf="!hasCouponApplied; else appliedCouponTpl">
+              <input type="text" [(ngModel)]="couponCodeInput" class="coupon-input" placeholder="İndirim Kodu Gir">
+              <button type="button" class="coupon-btn" (click)="applyCoupon()">
+                Uygula
+              </button>
+            </div>
+            <ng-template #appliedCouponTpl>
+              <div class="applied-coupon-box">
+                <span class="coupon-code-label">Kupon: {{ couponCodeInput }}</span>
+                <button type="button" class="coupon-remove-btn" (click)="removeCoupon()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </ng-template>
           </div>
 
           <button type="button" class="btn-primary-checkout" (click)="proceedToCheckout()">

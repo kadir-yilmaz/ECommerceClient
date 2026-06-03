@@ -17,7 +17,7 @@
           <i class="fa-solid fa-chevron-left"></i>
         </button>
         
-        <div class="ty-main-image" (click)="openLightbox()" style="cursor: pointer;">
+        <div class="ty-main-image" (click)="openLightbox()" style="cursor: zoom-in;">
           <img
             *ngIf="selectedImagePath; else defaultImage"
             [src]="getProductImage(selectedImagePath)"
@@ -25,9 +25,6 @@
           <ng-template #defaultImage>
             <img src="../../../../../assets/default-product.png" [alt]="product.name">
           </ng-template>
-          <div class="ty-image-zoom-overlay">
-            <i class="fa-solid fa-magnifying-glass-plus"></i>
-          </div>
         </div>
         
         <button type="button" class="ty-slider-btn next" (click)="nextImage()" *ngIf="product.productImageFiles?.length > 1">
@@ -37,11 +34,6 @@
 
       </div>
       
-      <!-- Kampanya Bant (Yeşil) -->
-      <div class="ty-bottom-campaign-bar green-bar">
-        <span><i class="fa-solid fa-tags"></i> Kampanyalı Fiyat</span>
-        <span>Sepette Uygulanacak!</span>
-      </div>
 
       <!-- Küçük Resimler (Thumbnails) -->
       <div class="ty-thumbs-container" *ngIf="product.productImageFiles?.length">
@@ -76,11 +68,6 @@
           <a href="javascript:void(0)" class="ty-qa-count">827 Soru-Cevap</a>
         </div>
         
-        <div class="ty-coupon-pill">
-          <span class="pill-title"><i class="fa-solid fa-ticket"></i> Kupon Fırsatı!</span>
-          <button class="pill-btn">Kazan</button>
-        </div>
-        
         <div class="ty-sales-count">
           <i class="fa-solid fa-rocket"></i> 3 günde <strong>{{ soldCount }} ürün</strong> satıldı!
         </div>
@@ -90,6 +77,22 @@
         <p class="ty-price-label"><i class="fa-solid fa-cart-shopping"></i> Kampanyalı Fiyat</p>
         <div class="ty-new-price">Sepette <span>{{ product.price | turkishCurrency }}</span></div>
         <div class="ty-old-price">{{ originalPrice | turkishCurrency }}</div>
+      </div>
+
+      <!-- Kampanyalar (Göze Batan - Doğrudan Ürün Detayında ve Satın Alma Butonlarının Hemen Üstünde) -->
+      <div class="ty-campaign-highlight-inline-card" *ngIf="product.campaigns && product.campaigns.length > 0">
+        <div class="inline-card-header">
+          <i class="fa-solid fa-gift"></i> ÜRÜNÜN KAMPANYALARI
+        </div>
+        <div class="inline-campaign-items">
+          <div class="inline-campaign-item" *ngFor="let campaign of product.campaigns">
+            <i class="fa-solid fa-bolt-lightning"></i>
+            <div class="campaign-info">
+              <span class="campaign-name">{{ campaign.name }}</span>
+              <p class="campaign-desc">{{ campaign.description }}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Stok Bilgisi -->
@@ -110,104 +113,223 @@
           <i class="fa-heart" [ngClass]="isFavorite ? 'fa-solid' : 'fa-regular'" [style.color]="isFavorite ? '#f27a1a' : ''"></i>
         </button>
       </div>
-
-      <div class="ty-delivery-info">
-        <div class="delivery-header">
-          <i class="fa-solid fa-box"></i> Tahmini Kargoya Teslim: <strong>2 gün içinde kargoda</strong>
-        </div>
-        <div class="delivery-body">
-          <div class="location-icon"><i class="fa-solid fa-location-dot"></i></div>
-          <div class="location-text">
-            <strong>Tahmini Teslim:</strong>
-            <p>Adresini seç ne zaman teslim edileceğini öğren!</p>
-          </div>
-          <button class="location-btn">Konum Seç <i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-      </div>
-
-      <div class="ty-payment-options">
-        <h4>Ödeme Seçenekleri</h4>
-        <div class="payment-box">
-          <i class="fa-solid fa-credit-card"></i>
-          <div class="payment-text">
-            <strong>12 Aya Varan Taksit Fırsatı</strong>
-            <span>Aylık {{(product.price / 12) | turkishCurrency}}'den başlayan 12 aya varan taksit fırsatı</span>
-          </div>
-        </div>
-      </div>
     </article>
 
-    <!-- Sağ Taraf: Satıcı ve Promosyonlar -->
-    <aside class="ty-info-sidebar">
-      <div class="ty-sidebar-card">
-        <div class="ty-sidebar-header">ÜRÜNÜN KAMPANYALARI</div>
-        <div class="ty-campaign-item">
-          <div class="icon-text"><i class="fa-solid fa-tag" style="color: #f27a1a;"></i> Sepette %80 İndirim</div>
-          <i class="fa-solid fa-chevron-right"></i>
+    <!-- Sağ Taraf: Kargo, Kupon ve Diğer Detaylar -->
+    <aside class="ty-right-sidebar">
+      <div class="ty-premium-info-panel">
+        
+        <!-- Satıcı Bilgisi -->
+        <div class="info-section seller-section">
+          <div class="seller-header">
+            <span class="seller-label">Satıcı:</span>
+            <a href="javascript:void(0)" class="seller-name">Trendyol <i class="fa-solid fa-circle-check" style="color: #1a73e8;"></i></a>
+            <span class="seller-score">9.8</span>
+          </div>
+          <div class="seller-link">
+            <a href="javascript:void(0)">Mağazaya Git <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
         </div>
-        <div class="ty-campaign-item">
-          <div class="icon-text"><i class="fa-solid fa-tag" style="color: #f27a1a;"></i> 150 TL'ye %20 İndirim</div>
-          <i class="fa-solid fa-chevron-right"></i>
-        </div>
-      </div>
 
-      <div class="ty-sidebar-card ty-seller-card">
-        <div class="seller-header">
-          <div class="seller-name">{{ brandName }} <span class="badge-blue"><i class="fa-solid fa-check"></i></span></div>
-          <div class="seller-score">8.9 <i class="fa-solid fa-circle-info"></i></div>
+        <hr class="panel-divider">
+
+        <!-- Kargo -->
+        <div class="info-section">
+          <div class="icon-box green"><i class="fa-solid fa-truck-fast"></i></div>
+          <div class="info-content">
+            <span class="info-title">Kargo Bedava</span>
+            <span class="info-desc">Tahmini <strong>2 gün</strong> içinde kargoda</span>
+          </div>
         </div>
-        <p class="seller-followers">2,5M Takipçi</p>
-        
-        <div class="seller-links">
-          <a href="javascript:void(0)"><i class="fa-solid fa-store"></i> Takip Et</a>
-          <a href="javascript:void(0)"><i class="fa-regular fa-comment"></i> Satıcı Soruları (827) <i class="fa-solid fa-chevron-right"></i></a>
+
+        <!-- Teslimat Noktası -->
+        <div class="info-section">
+          <div class="icon-box location-icon"><i class="fa-solid fa-location-dot"></i></div>
+          <div class="info-content">
+            <span class="info-title">Teslimat Adresi</span>
+            <a href="javascript:void(0)" class="info-link">Konum Seç <i class="fa-solid fa-chevron-right"></i></a>
+          </div>
+        </div>
+
+        <hr class="panel-divider">
+
+        <!-- Kupon -->
+        <div class="info-section coupon-section">
+          <div class="icon-box pink"><i class="fa-solid fa-ticket"></i></div>
+          <div class="info-content">
+            <span class="info-title pink-text">Kupon Fırsatı</span>
+            <span class="info-desc">Sepette anında indirim kazan</span>
+          </div>
+          <button class="coupon-btn">Kazan</button>
+        </div>
+
+        <hr class="panel-divider">
+
+        <!-- Güvenceler -->
+        <div class="info-section">
+          <div class="icon-box orange"><i class="fa-solid fa-rotate-left"></i></div>
+          <div class="info-content">
+            <span class="info-title">14 Gün Kolay İade</span>
+            <span class="info-desc">Koşulsuz iade imkanı</span>
+          </div>
+        </div>
+
+        <div class="info-section">
+          <div class="icon-box blue"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="info-content">
+            <span class="info-title">Orijinal Ürün Garantisi</span>
+            <span class="info-desc">%100 Marka güvencesi</span>
+          </div>
         </div>
         
-        <button class="store-btn">MAĞAZAYA GİT <i class="fa-solid fa-chevron-right"></i></button>
       </div>
       
-      <div class="ty-sidebar-card ty-collection-card">
-        <div class="collection-inner">
-          <div class="icon-square"><i class="fa-solid fa-bookmark"></i></div>
-          <span>Koleksiyona Ekle</span>
+      <!-- Taksit Tablosu Mini -->
+      <div class="ty-premium-info-panel mt-3">
+        <div class="info-section">
+          <div class="icon-box gray"><i class="fa-solid fa-credit-card"></i></div>
+          <div class="info-content">
+            <span class="info-title">Taksit Seçenekleri</span>
+            <span class="info-desc">Peşin fiyatına 3 taksit, 12 aya varan vade</span>
+          </div>
         </div>
-        <i class="fa-solid fa-plus"></i>
       </div>
     </aside>
   </div>
+
+  <!-- Hepsiburada Style Tab Section -->
+  <div class="hb-tab-section mt-5">
+    <div class="hb-tab-headers">
+      <button class="hb-tab-header-btn" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
+        Ürün Açıklaması
+      </button>
+      <button class="hb-tab-header-btn" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
+        Değerlendirmeler <span class="badge-orange">{{ reviewCount }}</span>
+      </button>
+      <button class="hb-tab-header-btn" [class.active]="activeTab === 'qa'" (click)="setActiveTab('qa')">
+        Soru Cevap
+      </button>
+      <button class="hb-tab-header-btn" [class.active]="activeTab === 'installments'" (click)="setActiveTab('installments')">
+        Taksitler
+      </button>
+      <button class="hb-tab-header-btn" [class.active]="activeTab === 'returns'" (click)="setActiveTab('returns')">
+        İptal ve İade Koşulları
+      </button>
+    </div>
+
+    <div class="hb-tab-content">
+      <div class="hb-tab-panel" *ngIf="activeTab === 'description'">
+        <h3>{{ product.name }} Hakkında</h3>
+        <p class="description-text">
+          Bu ürün yüksek kalitede üretilmiş olup günlük kullanım standartlarına tam uyum sağlamaktadır. {{ brandName }} güvencesiyle sunulan bu ürün şıklığı ve fonksiyonelliği bir araya getirmektedir. Detaylı teknik özellikler için ürün ambalajını inceleyebilirsiniz.
+        </p>
+      </div>
+
+      <div class="hb-tab-panel" *ngIf="activeTab === 'reviews'">
+        <h3>Kullanıcı Değerlendirmeleri</h3>
+        <div class="rating-summary-box">
+          <div class="rating-big">{{ rating | number:'1.1-1' }}</div>
+          <div class="rating-details-col">
+            <div class="stars">
+               <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+            </div>
+            <p>{{ reviewCount }} değerlendirme ve kullanıcı yorumu</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="hb-tab-panel" *ngIf="activeTab === 'qa'">
+        <h3>Soru & Cevap</h3>
+        <p>Ürün hakkında merak ettiğiniz soruları satıcıya sorabilirsiniz.</p>
+        <button class="btn-ask-question"><i class="fa-regular fa-comment"></i> Satıcıya Soru Sor</button>
+      </div>
+
+      <div class="hb-tab-panel" *ngIf="activeTab === 'installments'">
+        <h3>Taksit Seçenekleri</h3>
+        <table class="installments-table">
+          <thead>
+            <tr>
+              <th>Banka</th>
+              <th>Taksit Sayısı</th>
+              <th>Aylık Ödeme</th>
+              <th>Toplam Tutar</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Maximum (İş Bankası)</td>
+              <td>3 Taksit</td>
+              <td>{{ (product.price / 3) | turkishCurrency }}</td>
+              <td>{{ product.price | turkishCurrency }}</td>
+            </tr>
+            <tr>
+              <td>Bonus (Garanti BBVA)</td>
+              <td>6 Taksit</td>
+              <td>{{ (product.price * 1.05 / 6) | turkishCurrency }}</td>
+              <td>{{ (product.price * 1.05) | turkishCurrency }}</td>
+            </tr>
+            <tr>
+              <td>World (Yapı Kredi)</td>
+              <td>9 Taksit</td>
+              <td>{{ (product.price * 1.08 / 9) | turkishCurrency }}</td>
+              <td>{{ (product.price * 1.08) | turkishCurrency }}</td>
+            </tr>
+            <tr>
+              <td>Axess (Akbank)</td>
+              <td>12 Taksit</td>
+              <td>{{ (product.price * 1.12 / 12) | turkishCurrency }}</td>
+              <td>{{ (product.price * 1.12) | turkishCurrency }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="hb-tab-panel" *ngIf="activeTab === 'returns'">
+        <h3>İptal ve İade Koşulları</h3>
+        <p>
+          Almış olduğunuz ürünleri, ambalajı açılmamış, kullanılmamış ve satılabilirlik özelliğini yitirmemiş olması kaydıyla teslim tarihinden itibaren 14 gün içerisinde ücretsiz iade edebilirsiniz. İade sürecini başlatmak için Siparişlerim sayfasından kolay iade talebi oluşturabilirsiniz.
+        </p>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- Lightbox Pop-up -->
+<!-- Lightbox Pop-up (Hepsiburada Style) -->
 <div class="ty-lightbox-overlay" *ngIf="isLightboxOpen" (click)="closeLightbox()">
-  <button type="button" class="ty-lightbox-close" (click)="closeLightbox()">
-    <i class="fa-solid fa-xmark"></i>
-  </button>
-  
   <div class="ty-lightbox-content" (click)="$event.stopPropagation()">
-    <div class="ty-lightbox-main-img">
+    <!-- Left: Main Image Display -->
+    <div class="ty-lightbox-left">
       <button type="button" class="ty-lightbox-btn prev" (click)="prevImage()" *ngIf="product.productImageFiles?.length > 1">
         <i class="fa-solid fa-chevron-left"></i>
       </button>
       
-      <img
-        *ngIf="selectedImagePath; else defaultLightboxImage"
-        [src]="getProductImage(selectedImagePath)"
-        [alt]="product.name">
-      <ng-template #defaultLightboxImage>
-        <img src="../../../../../assets/default-product.png" [alt]="product.name">
-      </ng-template>
+      <div class="ty-lightbox-image-wrapper">
+        <img
+          *ngIf="selectedImagePath; else defaultLightboxImage"
+          [src]="getProductImage(selectedImagePath)"
+          [alt]="product.name">
+        <ng-template #defaultLightboxImage>
+          <img src="../../../../../assets/default-product.png" [alt]="product.name">
+        </ng-template>
+      </div>
       
       <button type="button" class="ty-lightbox-btn next" (click)="nextImage()" *ngIf="product.productImageFiles?.length > 1">
         <i class="fa-solid fa-chevron-right"></i>
       </button>
     </div>
 
-    <!-- Küçük Resimler (Thumbnails) for Lightbox -->
-    <div class="ty-thumbs-container" *ngIf="product.productImageFiles?.length">
-      <div class="ty-thumbs">
+    <!-- Right: Thumbnails Sidebar & Close Button -->
+    <div class="ty-lightbox-right">
+      <button type="button" class="ty-lightbox-close-btn" (click)="closeLightbox()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      
+      <div class="ty-lightbox-sidebar-title">Görseller ({{ product.productImageFiles?.length }})</div>
+      
+      <div class="ty-lightbox-thumbs-container" *ngIf="product.productImageFiles?.length">
         <button
           type="button"
-          class="ty-thumb-btn"
+          class="ty-lightbox-thumb-btn"
           *ngFor="let image of product.productImageFiles"
           [class.active]="image.path === selectedImagePath"
           (click)="selectImage(image.path)">

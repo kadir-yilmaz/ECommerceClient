@@ -12,4 +12,5 @@ export class Create_Order {
   expireMonth: string;
   expireYear: string;
   cvv: string;
+  couponCode?: string;
 }

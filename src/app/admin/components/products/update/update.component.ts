@@ -142,7 +142,7 @@ export class UpdateComponent extends BaseComponent implements OnInit {
         position: Position.BottomRight
       });
 
-      this.router.navigate(['/admin/products']);
+      this.router.navigate(['/admin/products'], { queryParamsHandling: 'preserve' });
     }, errorMessage => {
       this.hideSpinner(SpinnerType.BallAtom);
       this.alertify.message(errorMessage, {

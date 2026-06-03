@@ -1,0 +1,171 @@
+.coupons-admin-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 24px;
+
+    h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      color: #2c3e50;
+      font-weight: 600;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin: 0 0 16px 0;
+    }
+
+    button {
+      align-self: flex-start;
+      margin-top: 8px;
+    }
+  }
+
+  .form-card {
+    margin-bottom: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    .coupon-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+
+      .form-row {
+        display: flex;
+        gap: 16px;
+        
+        .full-width {
+          flex: 1;
+        }
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 0;
+        }
+      }
+
+      .full-width {
+        width: 100%;
+      }
+
+      .toggle-container {
+        margin-top: 16px;
+        margin-bottom: 16px;
+      }
+    }
+  }
+
+  .table-card {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 0;
+
+    table {
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+
+      th.mat-header-cell {
+        font-weight: 600;
+        color: #34495e;
+        background-color: #f8f9fa;
+        font-size: 14px;
+        padding: 16px;
+      }
+
+      td.mat-cell {
+        padding: 16px;
+        vertical-align: middle;
+        border-bottom-color: #f1f2f6;
+      }
+
+      tr.mat-row:hover {
+        background-color: #fbfcfc;
+      }
+
+      .code-badge {
+        background-color: #ffeaa7;
+        color: #d35400;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        border: 1px dashed #e67e22;
+      }
+
+      .value-text {
+        font-weight: bold;
+        color: #27ae60;
+      }
+
+      .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        display: inline-block;
+
+        &.badge-active {
+          background-color: #e8f8f5;
+          color: #1abc9c;
+          border: 1px solid #a3e4d7;
+        }
+
+        &.badge-passive {
+          background-color: #fdedec;
+          color: #e74c3c;
+          border: 1px solid #f5b7b1;
+        }
+      }
+
+      /* EMPTY STATE STYLING */
+      .empty-state-row {
+        height: 300px;
+        background-color: #fcfcfc;
+        border: 2px dashed #ecf0f1;
+      }
+
+      .empty-state-cell {
+        border-bottom: none;
+        text-align: center;
+      }
+
+      .empty-state-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+
+        mat-icon {
+          font-size: 64px;
+          height: 64px;
+          width: 64px;
+          color: #bdc3c7;
+          margin-bottom: 16px;
+        }
+
+        h3 {
+          margin: 0 0 8px 0;
+          color: #2c3e50;
+          font-size: 20px;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0;
+          color: #7f8c8d;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}

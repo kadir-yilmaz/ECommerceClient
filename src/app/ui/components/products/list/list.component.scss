@@ -128,11 +128,14 @@
   padding-top: 16px;
 }
 
-// ─── Filter Sidebar ───
+// ─── Filter Sidebar (Desktop & Mobile) ───
 .filter-sidebar {
-  width: 240px;
-  min-width: 240px;
+  display: block;
+  width: 260px;
   flex-shrink: 0;
+  background: #fff;
+  border-right: 1px solid #f1f5f9;
+  padding-right: 16px;
 }
 
 .sidebar-header-mobile {
@@ -140,50 +143,131 @@
 }
 
 .filter-section {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .filter-title {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #1a1a2e;
-  margin: 0 0 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 16px;
   padding-bottom: 8px;
-  border-bottom: 2px solid #f0f0f5;
+  border-bottom: 2px solid #f1f5f9;
 }
 
-.category-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+// ─── DefenceDB Style Sidebar Categories ───
+.ddb-category-sidebar {
+  .sidebar-cat-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+
+    i {
+      color: #facc15; /* Sarı/Turuncu ikonu (mockup'taki gibi) */
+    }
+  }
+
+  .ddb-sidebar-list, .ddb-sidebar-sublist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 2. Seviye için girinti ve sol çizgi */
+  .ddb-sidebar-sublist {
+    margin-top: 4px;
+    padding-left: 20px;
+    border-left: 2px solid #f1f5f9;
+    margin-left: 12px;
+  }
+
+  /* 3. Seviye için ekstra girinti */
+  .level-3 {
+    padding-left: 16px;
+    border-left: none;
+  }
+
+  .ddb-sidebar-item, .ddb-sidebar-subitem {
+    margin-bottom: 4px;
+    
+    > a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      color: #475569;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: #f27a1a;
+        background: #f8fafc;
+      }
+    }
+
+    &.active > a {
+      color: #f27a1a;
+      background: #f8fafc;
+      font-weight: 700;
+    }
+  }
+
+  /* Kök Eleman (Root Item) Seçiliyken Mockup'taki Görünüm */
+  .root-item.active > a {
+    background: #f1f5f9; /* Hafif gri arka plan */
+    border-radius: 8px;
+  }
+
+  /* Badge (Opsiyonel) */
+  .badge {
+    margin-left: auto;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+  }
 }
 
-.category-item {
-  padding: 8px 12px;
-  font-size: 0.88rem;
-  color: #555;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.15s ease;
+// ─── Filter Placeholders ───
+.filter-placeholder {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 
-  &:hover {
-    background: #f8f7ff;
-    color: #6366f1;
+  .price-input {
+    width: 45%;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    outline: none;
+
+    &:focus {
+      border-color: #f27a1a;
+    }
   }
 
-  &.active {
-    background: #eff6ff;
-    color: #2563eb;
-    font-weight: 600;
+  .price-search-btn {
+    padding: 8px 12px;
+    background: #f27a1a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
   }
-}
-
-.cat-count {
-  font-size: 0.78rem;
-  color: #aaa;
 }
 
 .mobile-sort-section {
@@ -303,6 +387,7 @@
   }
 
   .filter-sidebar {
+    display: block;
     position: fixed;
     top: 0;
     left: -280px;
@@ -333,6 +418,17 @@
       margin: 0;
       font-size: 1.1rem;
       font-weight: 600;
+    }
+  }
+
+  .category-top-nav {
+    overflow-x: auto;
+    padding: 0 8px;
+    -webkit-overflow-scrolling: touch;
+    
+    .nav-list {
+      width: max-content;
+      padding-bottom: 4px;
     }
   }
 

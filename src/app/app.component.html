@@ -93,78 +93,36 @@
       </nav>
     </div>
 
-    <!-- Bottom Bar (Kategoriler & Mega Menü) -->
-    <div class="ty-header-bottom-wrapper">
-      <div class="ty-header-bottom container-xl">
-        <!-- Kategoriler Sekmesi (Mega Menü Tetikleyicisi) -->
-        <div class="all-categories-container" (mouseenter)="onMegaMenuHover(true)" (mouseleave)="onMegaMenuHover(false)">
-          <a href="javascript:void(0)" class="all-categories" [class.active]="megaMenuOpen" (click)="toggleMegaMenu()">
-            <i class="fa-solid fa-bars"></i>
-            <span>Kategoriler</span>
-          </a>
-
-          <!-- TRENDYOL TARZI DİNAMİK MEGA MENÜ -->
-          <div class="ty-mega-menu" *ngIf="megaMenuOpen" [class.open]="megaMenuOpen">
-            <!-- Mobil Pop-up Header (Telefonda Kapatma Butonlu Başlık) -->
-            <div class="mobile-mega-header">
-              <h3>Kategoriler</h3>
-              <button class="close-btn" (click)="closeMegaMenu($event)">
-                <i class="fa-solid fa-xmark"></i>
-              </button>
-            </div>
-
-            <div class="mega-menu-inner">
-              <!-- Sol Kısım (Ana Kategoriler) -->
-              <div class="mega-sidebar">
-                <div *ngFor="let cat of categoryTree" 
-                     class="sidebar-item" 
-                     [class.active]="hoveredCategory?.id === cat.id"
-                     (mouseenter)="onHoverCategory(cat)"
-                     (click)="onCategoryClick(cat, $event)">
-                  <span class="sidebar-item-text">{{cat.name}}</span>
-                  <i class="fa-solid fa-chevron-right icon"></i>
-                </div>
-              </div>
-
-              <!-- Sağ Kısım (Hover Edilen Ana Kategorinin Alt Kategorileri) -->
-              <div class="mega-content" *ngIf="hoveredCategory">
-                <!-- Alt Kategoriler Hiyerarşisi Grid -->
-                <div class="mega-grid" *ngIf="hoveredCategory.children?.length > 0">
-                  <div class="mega-column" *ngFor="let sub of hoveredCategory.children">
-                    <h4 class="column-title" (click)="navigateToCategory(sub.id)">
-                      {{sub.name}}
-                    </h4>
-                    
-                    <!-- Üçüncü Derece Alt Kategoriler -->
-                    <ul class="sub-list" *ngIf="sub.children?.length > 0">
-                      <li *ngFor="let child of sub.children">
-                        <a (click)="navigateToCategory(child.id)" class="sub-link">{{child.name}}</a>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <!-- Boş Alt Kategori Durumu -->
-                <div class="empty-content" *ngIf="!hoveredCategory.children || hoveredCategory.children.length === 0">
-                  <div class="empty-content-box">
-                    <i class="fa-solid fa-bag-shopping empty-icon"></i>
-                    <p>Bu kategori için alt kategori bulunmamaktadır.</p>
-                    <button class="view-all-btn" (click)="navigateToCategory(hoveredCategory.id)">
-                      Tüm {{hoveredCategory.name}} Ürünlerini Gör
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+    <!-- DefenceDB Stili İki Kademeli Kategori Menüsü -->
+    <div class="ddb-nav-wrapper" (mouseleave)="onHoverCategory(null)" *ngIf="!isAdminPage && !isProductPage">
+      <!-- 1. Seviye: Ana Kategoriler -->
+      <div class="ddb-root-bar">
+        <div class="container-xl">
+          <ul class="ddb-nav-list">
+            <li class="ddb-nav-item" *ngFor="let cat of categoryTree"
+                [class.active]="hoveredCategory?.id === cat.id"
+                (mouseenter)="onHoverCategory(cat)">
+              <a [routerLink]="['/products']" [queryParams]="{category: cat.id}" class="ddb-nav-link">
+                {{ cat.name }}
+              </a>
+              <!-- Açık olduğunu gösteren yukarı ok (triangle) -->
+              <div class="ddb-arrow" *ngIf="hoveredCategory?.id === cat.id && cat.children?.length > 0"></div>
+            </li>
+          </ul>
         </div>
-        
-        <!-- Dinamik Diğer Kategoriler (Tıklayınca Direkt Gider, Hover ile Dropdown Açmaz) -->
-        <ng-container *ngFor="let cat of categoryTree.slice(0, 9)">
-          <a (click)="navigateToCategory(cat.id)" class="bottom-category-link">
-            {{cat.name}}
-          </a>
-        </ng-container>
+      </div>
+
+      <!-- 2. Seviye: Alt Kategoriler -->
+      <div class="ddb-sub-bar" [class.open]="hoveredCategory && hoveredCategory.children?.length > 0">
+        <div class="container-xl">
+          <ul class="ddb-sub-nav-list" *ngIf="hoveredCategory">
+            <li class="ddb-sub-nav-item" *ngFor="let sub of hoveredCategory.children">
+              <a (click)="navigateToCategory(sub.id)" class="ddb-sub-nav-link">
+                {{ sub.name }}
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </header>

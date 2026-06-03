@@ -107,4 +107,13 @@ export class BasketService {
       return v.toString(16);
     });
   }
+
+  async calculateDiscount(request: import('../../../contracts/discount/calculate_discount_request').CalculateDiscountRequest): Promise<import('../../../contracts/discount/calculate_discount_response').CalculateDiscountResponse> {
+    const observable: Observable<import('../../../contracts/discount/calculate_discount_response').CalculateDiscountResponse> = this.httpClientService.post<import('../../../contracts/discount/calculate_discount_response').CalculateDiscountResponse>({
+      controller: "cartdiscount",
+      action: "calculate"
+    }, request as any);
+
+    return await firstValueFrom(observable);
+  }
 }

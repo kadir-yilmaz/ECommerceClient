@@ -13,15 +13,15 @@ import { SignalRService } from '../../../services/common/signalr.service';
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent extends BaseComponent implements OnInit {
-
-  constructor(private alertify: AlertifyService, spinner: NgxSpinnerService, private signalRService: SignalRService) {
+  constructor(
+    private alertify: AlertifyService,
+    spinner: NgxSpinnerService,
+    private signalRService: SignalRService
+  ) {
     super(spinner)
-    //signalRService.start(HubUrls.OrderHub)
-    //signalRService.start(HubUrls.ProductHub)
-
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.signalRService.on(HubUrls.ProductHub, ReceiveFunctions.ProductAddedMessageReceiveFunction, message => {
       this.alertify.message(message, {
         messageType: MessageType.Notify,
@@ -34,10 +34,10 @@ export class DashboardComponent extends BaseComponent implements OnInit {
         position: Position.TopCenter
       })
     });
+
   }
 
   m() {
-
     this.alertify.message("Merhaba", {
       messageType: MessageType.Success,
       delay: 5,
@@ -48,5 +48,4 @@ export class DashboardComponent extends BaseComponent implements OnInit {
   d() {
     this.alertify.dismiss();
   }
-
 }
