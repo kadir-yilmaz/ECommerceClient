@@ -85,7 +85,19 @@ export class AppComponent implements OnInit, OnDestroy {
       const res = await this.categoryService.getAll();
       if (res && res.categories && res.categories.length > 0) {
         this.categories = res.categories;
-        this.categoryTree = this.buildTree(this.categories);
+        
+        // Root kategoriler sadece anasayfada gösterilmesi istenenler olmalı,
+        // ve homepageOrder değerine göre sıralanmalı.
+        const rootCategories = this.categories
+          .filter(c => c.showOnHomepage)
+          .sort((a, b) => (a.homepageOrder || 0) - (b.homepageOrder || 0));
+
+        this.categoryTree = rootCategories.map(c => ({
+          ...c,
+          children: this.buildTree(this.categories, c.id),
+          expanded: false
+        }));
+
         this.categoryLoadRetries = 0; // Reset retries on success
       } else {
         this.retryLoadCategories();
