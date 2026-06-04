@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -14,16 +15,49 @@ import { ProductService } from '../../../../services/common/models/product.servi
 })
 export class CreateComponent extends BaseComponent implements OnInit {
 
-  categories: Category[] = [];
-  selectedCategoryId: string = '';
+  allCategories: Category[] = [];
+  mainCategories: Category[] = [];
+  subCategories: Category[] = [];
+  selectedMainCategoryId: string = '';
+  selectedSubCategoryId: string = '';
 
-  constructor(spinner: NgxSpinnerService, private productService: ProductService, private categoryService: CategoryService, private alertify: AlertifyService, private router: Router) {
+  brands: string[] = [];
+  filteredBrands: string[] = [];
+  brandText: string = '';
+
+  constructor(spinner: NgxSpinnerService, private productService: ProductService, private categoryService: CategoryService, private alertify: AlertifyService, private router: Router, private http: HttpClient) {
     super(spinner)
   }
 
   async ngOnInit() {
     const result = await this.categoryService.getAll();
-    this.categories = result.categories;
+    this.allCategories = result.categories || [];
+    this.mainCategories = this.allCategories.filter(c => !c.parentCategoryId);
+    
+    this.http.get<string[]>('assets/brands.json').subscribe(data => {
+      this.brands = data;
+      this.filteredBrands = data;
+    });
+  }
+
+  onMainCategoryChange(categoryId: string) {
+    this.selectedMainCategoryId = categoryId;
+    this.selectedSubCategoryId = '';
+    
+    if (categoryId) {
+      this.subCategories = this.allCategories.filter(c => c.parentCategoryId === categoryId);
+    } else {
+      this.subCategories = [];
+    }
+  }
+
+  filterBrands(val: string) {
+    const search = val?.toLowerCase() || '';
+    this.filteredBrands = this.brands.filter(b => b.toLowerCase().includes(search));
+  }
+
+  onBrandSelected(event: any) {
+    this.brandText = event.option.value;
   }
 
   selectedFiles: File[] = [];
@@ -55,10 +89,13 @@ export class CreateComponent extends BaseComponent implements OnInit {
     const createModel: any = {
       name: name.value,
       stock: parseInt(stock.value) || 0,
-      price: parseFloat(price.value) || 0
+      price: parseFloat(price.value) || 0,
+      brand: this.brandText
     };
-    if (this.selectedCategoryId) {
-      createModel.categoryId = this.selectedCategoryId;
+    if (this.selectedSubCategoryId) {
+      createModel.categoryId = this.selectedSubCategoryId;
+    } else if (this.selectedMainCategoryId) {
+      createModel.categoryId = this.selectedMainCategoryId;
     }
 
     this.productService.create_json(createModel, async (productId: string) => {

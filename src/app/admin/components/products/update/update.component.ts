@@ -11,6 +11,8 @@ import { CategoryService } from '../../../../services/common/models/category.ser
 import { ProductService } from '../../../../services/common/models/product.service';
 import { FileService } from '../../../../services/common/models/file.service';
 
+import { HttpClient } from '@angular/common/http';
+
 @Component({
   selector: 'app-update',
   templateUrl: './update.component.html',
@@ -24,8 +26,15 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   baseUrl: BaseUrl;
   selectedFiles: File[] = [];
   newImagePreviews: string[] = [];
-  categories: Category[] = [];
-  selectedCategoryId: string = '';
+  allCategories: Category[] = [];
+  mainCategories: Category[] = [];
+  subCategories: Category[] = [];
+  selectedMainCategoryId: string = '';
+  selectedSubCategoryId: string = '';
+
+  brands: string[] = [];
+  filteredBrands: string[] = [];
+  brandText: string = '';
 
   constructor(
     spinner: NgxSpinnerService,
@@ -34,7 +43,8 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     private productService: ProductService,
     private categoryService: CategoryService,
     private alertify: AlertifyService,
-    private fileService: FileService
+    private fileService: FileService,
+    private http: HttpClient
   ) {
     super(spinner);
   }
@@ -43,8 +53,14 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     this.showSpinner(SpinnerType.BallAtom);
     this.baseUrl = await this.fileService.getBaseStorageUrl();
 
+    this.http.get<string[]>('assets/brands.json').subscribe(data => {
+      this.brands = data;
+      this.filteredBrands = data;
+    });
+
     const catResult = await this.categoryService.getAll();
-    this.categories = catResult.categories;
+    this.allCategories = catResult.categories || [];
+    this.mainCategories = this.allCategories.filter(c => !c.parentCategoryId);
 
     this.productId = this.route.snapshot.paramMap.get('id');
     if (this.productId) {
@@ -58,7 +74,20 @@ export class UpdateComponent extends BaseComponent implements OnInit {
         );
 
         if (this.product?.categoryId) {
-          this.selectedCategoryId = this.product.categoryId;
+          const category = this.allCategories.find(c => c.id === this.product.categoryId);
+          if (category) {
+            if (category.parentCategoryId) {
+              this.selectedMainCategoryId = category.parentCategoryId;
+              this.subCategories = this.allCategories.filter(c => c.parentCategoryId === this.selectedMainCategoryId);
+              this.selectedSubCategoryId = category.id;
+            } else {
+              this.selectedMainCategoryId = category.id;
+              this.subCategories = this.allCategories.filter(c => c.parentCategoryId === this.selectedMainCategoryId);
+            }
+          }
+        }
+        if (this.product?.brand) {
+          this.brandText = this.product.brand;
         }
 
         this.existingImages = await this.productService.readImages(this.productId, () => { });
@@ -67,6 +96,26 @@ export class UpdateComponent extends BaseComponent implements OnInit {
       }
     }
     this.hideSpinner(SpinnerType.BallAtom);
+  }
+
+  onMainCategoryChange(categoryId: string) {
+    this.selectedMainCategoryId = categoryId;
+    this.selectedSubCategoryId = '';
+    
+    if (categoryId) {
+      this.subCategories = this.allCategories.filter(c => c.parentCategoryId === categoryId);
+    } else {
+      this.subCategories = [];
+    }
+  }
+
+  filterBrands(val: string) {
+    const search = val?.toLowerCase() || '';
+    this.filteredBrands = this.brands.filter(b => b.toLowerCase().includes(search));
+  }
+
+  onBrandSelected(event: any) {
+    this.brandText = event.option.value;
   }
 
   getImageUrl(path: string): string {
@@ -139,10 +188,13 @@ export class UpdateComponent extends BaseComponent implements OnInit {
       id: this.productId,
       name: name.value,
       stock: parseInt(stock.value),
-      price: parseFloat(price.value)
+      price: parseFloat(price.value),
+      brand: this.brandText
     };
-    if (this.selectedCategoryId) {
-      updateModel.categoryId = this.selectedCategoryId;
+    if (this.selectedSubCategoryId) {
+      updateModel.categoryId = this.selectedSubCategoryId;
+    } else if (this.selectedMainCategoryId) {
+      updateModel.categoryId = this.selectedMainCategoryId;
     }
 
     this.productService.update_json(updateModel, async () => {

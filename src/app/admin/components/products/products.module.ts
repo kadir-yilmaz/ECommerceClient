@@ -19,6 +19,7 @@ import { DeleteDirectiveModule } from '../../../directives/admin/delete.directiv
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { UpdateComponent } from './update/update.component';
 
 @NgModule({
@@ -45,7 +46,8 @@ import { UpdateComponent } from './update/update.component';
     DialogModule,
     FileUploadModule,
     DeleteDirectiveModule,
-    FormsModule
+    FormsModule,
+    MatAutocompleteModule
   ]
 })
 export class ProductsModule { }

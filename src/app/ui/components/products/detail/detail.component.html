@@ -1,6 +1,6 @@
 <section class="ty-detail-page container-xl" *ngIf="product">
   <nav class="ty-breadcrumb">
-    <a routerLink="/">Trendyol</a>
+    <a routerLink="/">E-Commerce</a>
     <span><i class="fa-solid fa-chevron-right"></i></span>
     <a routerLink="/products">Ürünler</a>
     <span><i class="fa-solid fa-chevron-right"></i></span>
@@ -54,18 +54,18 @@
     <article class="ty-content-card">
       <div class="ty-title-area">
         <h1>
-          <span class="ty-brand-name">{{ brandName }}</span> 
+          <span class="ty-brand-name" *ngIf="brandName">{{ brandName }}</span> 
           <span class="ty-product-name">{{ product.name }}</span>
         </h1>
         
-        <div class="ty-rating-bar">
-          <span class="ty-rating-score">{{ rating | number:'1.1-1' }}</span>
-          <span class="ty-stars">
-             <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
-          </span>
+        <div class="ty-rating-bar" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span class="ty-rating-score">{{ rating | number:'1.1-1' }}</span>
+            <span class="ty-stars">
+               <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+            </span>
+          </div>
           <a href="javascript:void(0)" class="ty-review-count">{{ reviewCount }} Değerlendirme</a>
-          <span class="ty-dot">•</span>
-          <a href="javascript:void(0)" class="ty-qa-count">827 Soru-Cevap</a>
         </div>
         
         <div class="ty-sales-count">
@@ -74,9 +74,7 @@
       </div>
 
       <div class="ty-price-area">
-        <p class="ty-price-label"><i class="fa-solid fa-cart-shopping"></i> Kampanyalı Fiyat</p>
-        <div class="ty-new-price">Sepette <span>{{ product.price | turkishCurrency }}</span></div>
-        <div class="ty-old-price">{{ originalPrice | turkishCurrency }}</div>
+        <div class="ty-new-price">{{ product.price | turkishCurrency }}</div>
       </div>
 
       <!-- Kampanyalar (Göze Batan - Doğrudan Ürün Detayında ve Satın Alma Butonlarının Hemen Üstünde) -->
@@ -119,20 +117,6 @@
     <aside class="ty-right-sidebar">
       <div class="ty-premium-info-panel">
         
-        <!-- Satıcı Bilgisi -->
-        <div class="info-section seller-section">
-          <div class="seller-header">
-            <span class="seller-label">Satıcı:</span>
-            <a href="javascript:void(0)" class="seller-name">Trendyol <i class="fa-solid fa-circle-check" style="color: #1a73e8;"></i></a>
-            <span class="seller-score">9.8</span>
-          </div>
-          <div class="seller-link">
-            <a href="javascript:void(0)">Mağazaya Git <i class="fa-solid fa-chevron-right"></i></a>
-          </div>
-        </div>
-
-        <hr class="panel-divider">
-
         <!-- Kargo -->
         <div class="info-section">
           <div class="icon-box green"><i class="fa-solid fa-truck-fast"></i></div>
@@ -246,42 +230,44 @@
 
       <div class="hb-tab-panel" *ngIf="activeTab === 'installments'">
         <h3>Taksit Seçenekleri</h3>
-        <table class="installments-table">
-          <thead>
-            <tr>
-              <th>Banka</th>
-              <th>Taksit Sayısı</th>
-              <th>Aylık Ödeme</th>
-              <th>Toplam Tutar</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Maximum (İş Bankası)</td>
-              <td>3 Taksit</td>
-              <td>{{ (product.price / 3) | turkishCurrency }}</td>
-              <td>{{ product.price | turkishCurrency }}</td>
-            </tr>
-            <tr>
-              <td>Bonus (Garanti BBVA)</td>
-              <td>6 Taksit</td>
-              <td>{{ (product.price * 1.05 / 6) | turkishCurrency }}</td>
-              <td>{{ (product.price * 1.05) | turkishCurrency }}</td>
-            </tr>
-            <tr>
-              <td>World (Yapı Kredi)</td>
-              <td>9 Taksit</td>
-              <td>{{ (product.price * 1.08 / 9) | turkishCurrency }}</td>
-              <td>{{ (product.price * 1.08) | turkishCurrency }}</td>
-            </tr>
-            <tr>
-              <td>Axess (Akbank)</td>
-              <td>12 Taksit</td>
-              <td>{{ (product.price * 1.12 / 12) | turkishCurrency }}</td>
-              <td>{{ (product.price * 1.12) | turkishCurrency }}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-responsive-container">
+          <table class="installments-table">
+            <thead>
+              <tr>
+                <th>Banka</th>
+                <th>Taksit Sayısı</th>
+                <th>Aylık Ödeme</th>
+                <th>Toplam Tutar</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Maximum (İş Bankası)</td>
+                <td>3 Taksit</td>
+                <td>{{ (product.price / 3) | turkishCurrency }}</td>
+                <td>{{ product.price | turkishCurrency }}</td>
+              </tr>
+              <tr>
+                <td>Bonus (Garanti BBVA)</td>
+                <td>6 Taksit</td>
+                <td>{{ (product.price * 1.05 / 6) | turkishCurrency }}</td>
+                <td>{{ (product.price * 1.05) | turkishCurrency }}</td>
+              </tr>
+              <tr>
+                <td>World (Yapı Kredi)</td>
+                <td>9 Taksit</td>
+                <td>{{ (product.price * 1.08 / 9) | turkishCurrency }}</td>
+                <td>{{ (product.price * 1.08) | turkishCurrency }}</td>
+              </tr>
+              <tr>
+                <td>Axess (Akbank)</td>
+                <td>12 Taksit</td>
+                <td>{{ (product.price * 1.12 / 12) | turkishCurrency }}</td>
+                <td>{{ (product.price * 1.12) | turkishCurrency }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div class="hb-tab-panel" *ngIf="activeTab === 'returns'">

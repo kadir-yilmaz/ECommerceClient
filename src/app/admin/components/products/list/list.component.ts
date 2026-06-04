@@ -74,7 +74,8 @@ export class ListComponent extends BaseComponent implements OnInit {
         stock: p.stock,
         updatedDate: p.updatedDate,
         productImageFiles: p.productImageFiles,
-        showOnHomepage: p.showOnHomepage
+        showOnHomepage: p.showOnHomepage,
+        brand: p.brand
       };
 
       return listProduct;

@@ -7,10 +7,25 @@
 
 <div class="card shadow-sm">
   <div class="card-body p-4">
-    <mat-form-field appearance="outline" class="w-100 mb-3">
-      <mat-label>Name</mat-label>
-      <input matInput #txtName>
-    </mat-form-field>
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Brand</mat-label>
+          <input type="text" matInput [matAutocomplete]="auto" [(ngModel)]="brandText" (ngModelChange)="filterBrands($event)">
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
+            <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+              {{brand}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Name</mat-label>
+          <input matInput #txtName>
+        </mat-form-field>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col-md-6">
@@ -27,13 +42,27 @@
       </div>
     </div>
 
-    <mat-form-field appearance="outline" class="w-100 mb-3">
-      <mat-label>Category</mat-label>
-      <mat-select [(value)]="selectedCategoryId">
-        <mat-option value="">-- Kategori Seçiniz --</mat-option>
-        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Ana Kategori</mat-label>
+          <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
+            <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
+            <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Alt Kategori</mat-label>
+          <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
+            <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
+            <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
+            <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
 
     <div class="mb-3">
       <label class="form-label fw-bold">Images</label>
@@ -47,8 +76,8 @@
         style="width: 120px; height: 120px;">
         <img [src]="preview" class="img-thumbnail"
           style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
-          style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%);"
+        <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
+          style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
           (click)="removeImage(i)">
           &times;
         </button>

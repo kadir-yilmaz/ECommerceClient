@@ -7,10 +7,25 @@
 
 <div class="card shadow-sm" *ngIf="product">
   <div class="card-body p-4">
-    <mat-form-field appearance="outline" class="w-100 mb-3">
-      <mat-label>Name</mat-label>
-      <input matInput #txtName [value]="product.name">
-    </mat-form-field>
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Brand</mat-label>
+          <input type="text" matInput [matAutocomplete]="auto" [(ngModel)]="brandText" (ngModelChange)="filterBrands($event)">
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
+            <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+              {{brand}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Name</mat-label>
+          <input matInput #txtName [value]="product.name">
+        </mat-form-field>
+      </div>
+    </div>
 
     <div class="row">
       <div class="col-md-6">
@@ -27,35 +42,49 @@
       </div>
     </div>
 
-    <mat-form-field appearance="outline" class="w-100 mb-3">
-      <mat-label>Category</mat-label>
-      <mat-select [(value)]="selectedCategoryId">
-        <mat-option value="">-- Kategori Seçiniz --</mat-option>
-        <mat-option *ngFor="let cat of categories" [value]="cat.id">{{ cat.name }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <div class="row">
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Ana Kategori</mat-label>
+          <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
+            <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
+            <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="col-md-6">
+        <mat-form-field appearance="outline" class="w-100 mb-3">
+          <mat-label>Alt Kategori</mat-label>
+          <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
+            <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
+            <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
+            <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
 
     <!-- Existing Images -->
     <div class="mb-4" *ngIf="existingImages && existingImages.length > 0">
       <label class="form-label fw-bold mb-2">Current Images</label>
       <div class="d-flex flex-wrap gap-3">
         <div *ngFor="let img of existingImages; let i = index" class="position-relative shadow-sm"
-          style="width: 140px; height: 160px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; overflow: hidden; display: flex; flex-direction: column;">
+          style="width: 140px; height: 160px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; overflow: visible; display: flex; flex-direction: column;">
           
           <!-- Image -->
           <img [src]="getImageUrl(img.path)" class="w-100"
-            style="height: 120px; object-fit: cover; border-bottom: 1px solid #eee;"
+            style="height: 120px; object-fit: cover; border-bottom: 1px solid #eee; border-top-left-radius: 8px; border-top-right-radius: 8px;"
             [class.border-primary]="img.showcase" [style.border-bottom-width]="img.showcase ? '3px' : '1px'">
             
           <!-- Delete Button -->
-          <button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
-            style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%); box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
+          <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
+            style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
             (click)="deleteExistingImage(img.id, i)">
             &times;
           </button>
 
           <!-- Showcase Selection Area -->
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
             <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-weight: 500; color: #475569;">
               <input type="radio" name="updateShowcase" [checked]="img.showcase" (change)="setAsShowcase(img.id)" style="width: 14px; height: 14px; cursor: pointer;">
               Vitrin Yap
@@ -81,13 +110,13 @@
         style="width: 120px; height: 120px;">
         <img [src]="preview" class="img-thumbnail"
           style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-        <button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
-          style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%);"
+        <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
+          style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
           (click)="removeNewImage(i)">
           &times;
         </button>
       </div>
-    </div>
+    </div>>
 
     <div class="d-flex justify-content-end mt-4 gap-2">
       <button mat-flat-button routerLink="/admin/products" queryParamsHandling="preserve">Cancel</button>

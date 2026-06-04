@@ -142,8 +142,8 @@ export class DetailComponent extends BaseComponent implements OnInit {
   }
 
   get brandName(): string {
-    if(!this.product || !this.product.name) return '';
-    return this.product.name.split(' ')[0].toUpperCase();
+    if(!this.product) return '';
+    return this.product.brand || '';
   }
 
   get soldCount(): string {

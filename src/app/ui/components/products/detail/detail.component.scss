@@ -3,6 +3,10 @@
   max-width: 1360px;
   margin: 0 auto;
   color: #333;
+
+  @media (max-width: 768px) {
+    padding: 15px 5px; /* Reduced for mobile */
+  }
 }
 
 .ty-breadcrumb {
@@ -391,10 +395,12 @@
 
       .ty-brand-name {
         font-weight: 700;
+        margin-right: 8px;
+        color: #f27a1a;
       }
       .ty-product-name {
-        color: #333;
-        font-weight: 400;
+        color: #1e293b;
+        font-weight: 600;
       }
     }
 
@@ -462,34 +468,16 @@
     }
   }
 
-  .ty-price-area {
-    margin-bottom: 24px;
-    
-    .ty-price-label {
-      color: #0bc15c;
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
+    .ty-price-area {
+      margin-bottom: 24px;
 
-    .ty-new-price {
-      color: #0bc15c;
-      font-size: 16px;
-      font-weight: 700;
-      
-      span {
+      .ty-new-price {
+        color: #333;
         font-size: 28px;
-        margin-left: 4px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
       }
     }
-
-    .ty-old-price {
-      color: #94a3b8;
-      font-size: 14px;
-      text-decoration: line-through;
-      margin-top: 4px;
-    }
-  }
 
   .ty-stock-indicator {
     display: inline-flex;
@@ -1137,6 +1125,13 @@
     overflow-x: auto;
     width: 100%;
     
+    /* Hide scrollbar for a cleaner look */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    
     .hb-tab-header-btn {
       flex: 1;
       justify-content: center;
@@ -1148,6 +1143,7 @@
       color: #64748b;
       cursor: pointer;
       border-right: 1px solid #e2e8f0;
+      border-bottom: 3px solid transparent; /* To prevent jumping */
       transition: all 0.2s;
       outline: none;
       white-space: nowrap;
@@ -1163,6 +1159,7 @@
       &.active {
         color: #f27a1a;
         background: #fff;
+        border-top: none;
         border-bottom: 3px solid #f27a1a;
         font-weight: 700;
       }
@@ -1180,6 +1177,10 @@
 
   .hb-tab-content {
     padding: 30px;
+
+    @media (max-width: 768px) {
+      padding: 12px;
+    }
 
     .hb-tab-panel {
       animation: fadeIn 0.3s ease-in-out;
@@ -1219,10 +1220,28 @@
       }
 
       /* Taksitler Tablosu */
+      .table-responsive-container {
+        width: 100%;
+        overflow-x: auto;
+        
+        &::-webkit-scrollbar {
+          height: 6px;
+        }
+        &::-webkit-scrollbar-track {
+          background: #f1f5f9;
+          border-radius: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 4px;
+        }
+      }
+      
       .installments-table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 15px;
+        min-width: 450px; /* Ensure table gets a scrollbar on tiny screens */
 
         th, td {
           padding: 12px 16px;

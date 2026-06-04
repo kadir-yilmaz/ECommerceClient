@@ -122,18 +122,13 @@ export class ProductCardComponent implements OnChanges, OnInit, OnDestroy {
   }
 
   get brandName(): string {
-    if(!this.product || !this.product.name) return '';
-    return this.product.name.split(' ')[0].toUpperCase();
+    if(!this.product) return '';
+    return this.product.brand || '';
   }
 
   get formattedProductName(): string {
     if(!this.product || !this.product.name) return '';
-    const name = this.product.name;
-    const brand = this.brandName;
-    if (name.toUpperCase().startsWith(brand)) {
-      return name.substring(brand.length).trim();
-    }
-    return name;
+    return this.product.name;
   }
   onImageError(): void {
     this.imageFailed = true;

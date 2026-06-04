@@ -48,8 +48,8 @@
 
     <a [routerLink]="['/products/detail', product?.id]" class="ty-title-link">
       <div class="ty-title-wrapper">
-        <span class="ty-brand">{{ brandName }} <i class="fa-solid fa-circle-check brand-tick"></i></span>
-        <span class="ty-name">{{ formattedProductName }}</span>
+        <span class="ty-brand" *ngIf="product?.brand">{{ product?.brand }} <i class="fa-solid fa-circle-check brand-tick"></i></span>
+        <span class="ty-name" [style.font-weight]="product?.brand ? '400' : '500'" [style.font-size]="product?.brand ? '0.85rem' : '0.95rem'" style="line-height: 1.4;">{{ product?.name }}</span>
       </div>
     </a>
     

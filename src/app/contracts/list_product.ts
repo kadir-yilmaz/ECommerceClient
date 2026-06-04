@@ -12,6 +12,7 @@ export class List_Product {
   productImageFiles?: List_Product_Image[];
   imagePath: string;
   categoryId?: string;
+  brand?: string;
   campaigns?: ProductCampaign[];
   showOnHomepage?: boolean;
 }
