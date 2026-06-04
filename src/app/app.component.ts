@@ -51,6 +51,10 @@ export class AppComponent implements OnInit, OnDestroy {
         this.isAdminPage = event.urlAfterRedirects.startsWith('/admin');
         this.isAuthPage = event.urlAfterRedirects.startsWith('/login') || event.urlAfterRedirects.startsWith('/register');
         this.isProductPage = event.urlAfterRedirects.startsWith('/products');
+        
+        // Reset category menu state on navigation
+        this.hoveredCategory = null;
+        this.megaMenuOpen = false;
       }
     });
   }

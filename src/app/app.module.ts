@@ -16,7 +16,7 @@ import { FileUploadModule } from './services/common/file-upload/file-upload.modu
 import { FileUploadDialogComponent } from './dialogs/file-upload-dialog/file-upload-dialog.component';
 import { JwtModule } from '@auth0/angular-jwt'
 import { LoginComponent } from './ui/components/login/login.component';
-import { FacebookLoginProvider, GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
+import { GoogleLoginProvider, SocialAuthServiceConfig, SocialLoginModule } from '@abacritt/angularx-social-login';
 import { HttpErrorHandlerInterceptorService } from './services/common/http-error-handler-interceptor.service';
 import { BasketInterceptorService } from './services/common/basket-interceptor.service';
 import { HttpErrorInterceptor } from './services/common/http-error.interceptor';
@@ -71,10 +71,6 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
           {
             id: GoogleLoginProvider.PROVIDER_ID,
             provider: new GoogleLoginProvider("957600947173-p70lrqqhr09h965tdg3590122k70q04c.apps.googleusercontent.com")
-          },
-          {
-            id: FacebookLoginProvider.PROVIDER_ID,
-            provider: new FacebookLoginProvider("546631843676576")
           }
         ],
         onError: err => console.log(err)

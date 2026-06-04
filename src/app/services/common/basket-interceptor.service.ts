@@ -3,6 +3,8 @@ import { Injectable } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable } from 'rxjs';
 
+import { AuthTokenStore } from './auth-token-store';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -11,13 +13,10 @@ export class BasketInterceptorService implements HttpInterceptor {
   constructor(private jwtHelper: JwtHelperService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = AuthTokenStore.accessToken;
     const isAuthenticated = !!accessToken && !this.jwtHelper.isTokenExpired(accessToken);
     
     if (!isAuthenticated) {
-      if (accessToken) {
-        localStorage.removeItem('accessToken');
-      }
 
       let basketId = localStorage.getItem('guest_basket_id');
       

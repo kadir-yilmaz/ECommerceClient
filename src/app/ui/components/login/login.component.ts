@@ -1,4 +1,4 @@
-import { FacebookLoginProvider, SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
+import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -40,11 +40,6 @@ export class LoginComponent extends BaseComponent implements OnInit {
         switch (user.provider) {
           case "GOOGLE":
             await userAuthService.googleLogin(user, () => {
-              this.router.navigate([""]);
-            });
-            break;
-          case "FACEBOOK":
-            await userAuthService.facebookLogin(user, () => {
               this.router.navigate([""]);
             });
             break;
@@ -93,9 +88,5 @@ export class LoginComponent extends BaseComponent implements OnInit {
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }
-  }
-
-  facebookLogin() {
-    this.socialAuthService.signIn(FacebookLoginProvider.PROVIDER_ID);
   }
 }

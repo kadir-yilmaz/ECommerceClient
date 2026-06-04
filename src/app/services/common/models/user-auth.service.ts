@@ -15,6 +15,24 @@ import { AuthTokenStore } from '../auth-token-store';
 export class UserAuthService {
   constructor(private httpClientService: HttpClientService, private toastrService: CustomToastrService, private basketService: BasketService, private authService: AuthService) { }
 
+  private async mergeGuestBasket(): Promise<void> {
+    const guestBasketId = localStorage.getItem("guest_basket_id");
+    if (guestBasketId) {
+      try {
+        await firstValueFrom(this.httpClientService.post({ 
+          controller: "baskets", 
+          action: "merge"
+        }, { guestBasketId }));
+        localStorage.removeItem("guest_basket_id");
+        
+        // Refresh basket to show merged items
+        await this.basketService.get();
+      } catch (err) { 
+        console.error("Basket merge error:", err); 
+      }
+    }
+  }
+
   async login(email: string, password: string, callBackFunction?: () => void): Promise<any> {
     const observable: Observable<any | TokenResponse> = this.httpClientService.post<any | TokenResponse>({
       controller: "auth",
@@ -27,21 +45,7 @@ export class UserAuthService {
       AuthTokenStore.accessToken = tokenResponse.token.accessToken;
 
       // Merge guest basket with user basket
-      const guestBasketId = localStorage.getItem("guest_basket_id");
-      if (guestBasketId) {
-        try {
-          await firstValueFrom(this.httpClientService.post({ 
-            controller: "baskets", 
-            action: "merge"
-          }, { guestBasketId }));
-          localStorage.removeItem("guest_basket_id");
-          
-          // Refresh basket to show merged items
-          await this.basketService.get();
-        } catch (err) { 
-          console.error("Basket merge error:", err); 
-        }
-      }
+      await this.mergeGuestBasket();
 
       // Update auth state before callback
       this.authService.setAuthenticated();
@@ -63,6 +67,10 @@ export class UserAuthService {
 
       if (tokenResponse) {
         AuthTokenStore.accessToken = tokenResponse.token.accessToken;
+        
+        // Merge guest basket with user basket (covers refresh logins)
+        await this.mergeGuestBasket();
+        
         this.authService.setAuthenticated();
       }
 
@@ -110,21 +118,7 @@ export class UserAuthService {
       AuthTokenStore.accessToken = tokenResponse.token.accessToken;
 
       // Merge guest basket with user basket
-      const guestBasketId = localStorage.getItem("guest_basket_id");
-      if (guestBasketId) {
-        try {
-          await firstValueFrom(this.httpClientService.post({ 
-            controller: "baskets", 
-            action: "merge"
-          }, { guestBasketId }));
-          localStorage.removeItem("guest_basket_id");
-          
-          // Refresh basket to show merged items
-          await this.basketService.get();
-        } catch (err) { 
-          console.error("Basket merge error:", err); 
-        }
-      }
+      await this.mergeGuestBasket();
 
       // Update auth state before callback
       this.authService.setAuthenticated();
@@ -133,46 +127,6 @@ export class UserAuthService {
         messageType: ToastrMessageType.Success,
         position: ToastrPosition.BottomRight
       });
-    }
-
-    callBackFunction?.();
-  }
-
-  async facebookLogin(user: SocialUser, callBackFunction?: () => void): Promise<any> {
-    const observable: Observable<SocialUser | TokenResponse> = this.httpClientService.post<SocialUser | TokenResponse>({
-      controller: "auth",
-      action: "facebook-login"
-    }, user);
-
-    const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
-
-    if (tokenResponse) {
-      AuthTokenStore.accessToken = tokenResponse.token.accessToken;
-
-      // Merge guest basket with user basket
-      const guestBasketId = localStorage.getItem("guest_basket_id");
-      if (guestBasketId) {
-        try {
-          await firstValueFrom(this.httpClientService.post({ 
-            controller: "baskets", 
-            action: "merge"
-          }, { guestBasketId }));
-          localStorage.removeItem("guest_basket_id");
-          
-          // Refresh basket to show merged items
-          await this.basketService.get();
-        } catch (err) { 
-          console.error("Basket merge error:", err); 
-        }
-      }
-
-      // Update auth state before callback
-      this.authService.setAuthenticated();
-
-      this.toastrService.message("Facebook üzerinden giriş başarıyla sağlanmıştır.", "Giriş Başarılı", {
-        messageType: ToastrMessageType.Success,
-        position: ToastrPosition.BottomRight
-      })
     }
 
     callBackFunction?.();
