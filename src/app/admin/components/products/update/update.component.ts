@@ -112,6 +112,26 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     }
   }
 
+  async setAsShowcase(imageId: string) {
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.productService.changeShowcaseImage(imageId, this.productId, () => {
+        this.existingImages.forEach(img => img.showcase = false);
+        const selected = this.existingImages.find(img => img.id === imageId);
+        if (selected) selected.showcase = true;
+        
+        this.hideSpinner(SpinnerType.BallAtom);
+        this.alertify.message("Vitrin resmi güncellendi.", {
+          dismissOthers: true,
+          messageType: MessageType.Success,
+          position: Position.BottomRight
+        });
+      });
+    } catch (error) {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
+  }
+
   async update(name: HTMLInputElement, stock: HTMLInputElement, price: HTMLInputElement) {
     this.showSpinner(SpinnerType.BallAtom);
 

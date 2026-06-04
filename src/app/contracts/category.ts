@@ -4,4 +4,6 @@ export class Category {
     parentCategoryId?: string;
     showOnHomepage?: boolean;
     homepageOrder?: number;
+    productCount?: number;
+    totalProductCount?: number;
 }

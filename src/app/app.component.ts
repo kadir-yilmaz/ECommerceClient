@@ -116,11 +116,16 @@ export class AppComponent implements OnInit, OnDestroy {
     
     return categories
       .filter(c => normalizeId(c.parentCategoryId || null) === normalizedParentId)
-      .map(c => ({
-        ...c,
-        children: this.buildTree(categories, c.id),
-        expanded: false
-      }));
+      .map(c => {
+        const children = this.buildTree(categories, c.id);
+        const childrenProductCount = children.reduce((sum, child) => sum + (child.totalProductCount || 0), 0);
+        return {
+          ...c,
+          children: children,
+          totalProductCount: (c.productCount || 0) + childrenProductCount,
+          expanded: false
+        };
+      });
   }
 
   private hoverTimeout: any;

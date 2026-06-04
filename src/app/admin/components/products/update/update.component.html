@@ -39,19 +39,28 @@
     <div class="mb-4" *ngIf="existingImages && existingImages.length > 0">
       <label class="form-label fw-bold mb-2">Current Images</label>
       <div class="d-flex flex-wrap gap-3">
-        <div *ngFor="let img of existingImages; let i = index" class="position-relative"
-          style="width: 120px; height: 120px;">
-          <img [src]="getImageUrl(img.path)" class="img-thumbnail"
-            style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;"
-            [class.border-primary]="img.showcase" [style.border-width]="img.showcase ? '3px' : '1px'">
+        <div *ngFor="let img of existingImages; let i = index" class="position-relative shadow-sm"
+          style="width: 140px; height: 160px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; overflow: hidden; display: flex; flex-direction: column;">
+          
+          <!-- Image -->
+          <img [src]="getImageUrl(img.path)" class="w-100"
+            style="height: 120px; object-fit: cover; border-bottom: 1px solid #eee;"
+            [class.border-primary]="img.showcase" [style.border-bottom-width]="img.showcase ? '3px' : '1px'">
+            
+          <!-- Delete Button -->
           <button class="btn btn-sm btn-danger position-absolute top-0 end-0 rounded-circle p-0"
-            style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%);"
+            style="width: 24px; height: 24px; line-height: 1; transform: translate(30%, -30%); box-shadow: 0 2px 4px rgba(0,0,0,0.2);"
             (click)="deleteExistingImage(img.id, i)">
             &times;
           </button>
-          <span *ngIf="img.showcase"
-            class="badge bg-primary position-absolute bottom-0 start-50 translate-middle-x mb-1"
-            style="font-size: 10px;">Showcase</span>
+
+          <!-- Showcase Selection Area -->
+          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f8fafc;">
+            <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-weight: 500; color: #475569;">
+              <input type="radio" name="updateShowcase" [checked]="img.showcase" (change)="setAsShowcase(img.id)" style="width: 14px; height: 14px; cursor: pointer;">
+              Vitrin Yap
+            </label>
+          </div>
         </div>
       </div>
     </div>

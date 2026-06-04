@@ -74,7 +74,7 @@ export class LoginComponent extends BaseComponent implements OnInit {
         // Use snapshot instead of subscribe for faster and synchronous redirect
         const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
         if (returnUrl)
-          this.router.navigate([returnUrl]);
+          this.router.navigateByUrl(returnUrl);
         else
           this.router.navigate([""]);
       });

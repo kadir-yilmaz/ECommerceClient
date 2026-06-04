@@ -4,7 +4,7 @@
       <p *ngIf="subtitle">{{ subtitle }}</p>
       <h2>{{ title }}</h2>
     </div>
-    <a [routerLink]="viewAllRoute" [queryParams]="viewAllParams" class="view-all-top-link">Tümünü Gör</a>
+    <a [routerLink]="viewAllRoute" [queryParams]="viewAllParams" class="view-all-top-link">Tüm {{ title }} Ürünlerini Gör</a>
   </div>
 
   <div class="slider-container" *ngIf="products?.length; else noProducts">
@@ -29,7 +29,7 @@
         <div class="view-all-circle">
           <i class="fa-solid fa-arrow-right"></i>
         </div>
-        <span class="view-all-text">Tüm Ürünleri İncele</span>
+        <span class="view-all-text" style="text-align: center;">Tüm {{ title }} Ürünlerini İncele</span>
       </a>
     </div>
 

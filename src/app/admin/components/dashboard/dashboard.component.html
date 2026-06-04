@@ -14,8 +14,7 @@
         </div>
         <div class="stat-details">
             <span class="stat-label">Total Sales</span>
-            <h3 class="stat-value">$124,560</h3>
-            <span class="stat-trend trend-up"><mat-icon>trending_up</mat-icon> +12.5%</span>
+            <h3 class="stat-value">{{ overview.totalSales | currency:'TRY':'symbol':'1.2-2' }}</h3>
         </div>
     </div>
 
@@ -25,8 +24,7 @@
         </div>
         <div class="stat-details">
             <span class="stat-label">Total Orders</span>
-            <h3 class="stat-value">1,240</h3>
-            <span class="stat-trend trend-up"><mat-icon>trending_up</mat-icon> +8.2%</span>
+            <h3 class="stat-value">{{ overview.totalOrders }}</h3>
         </div>
     </div>
 
@@ -36,7 +34,7 @@
         </div>
         <div class="stat-details">
             <span class="stat-label">Total Products</span>
-            <h3 class="stat-value">458</h3>
+            <h3 class="stat-value">{{ overview.totalProducts }}</h3>
             <span class="stat-trend">In Stock</span>
         </div>
     </div>
@@ -46,19 +44,39 @@
             <mat-icon>group</mat-icon>
         </div>
         <div class="stat-details">
-            <span class="stat-label">New Customers</span>
-            <h3 class="stat-value">84</h3>
-            <span class="stat-trend trend-down"><mat-icon>trending_down</mat-icon> -2.4%</span>
+            <span class="stat-label">Total Users</span>
+            <h3 class="stat-value">{{ overview.totalUsers }}</h3>
         </div>
     </div>
 </div>
 
-<div class="recent-activity-section">
+<div class="category-stats-section">
     <div class="section-header">
-        <h2>Recent Activity</h2>
-        <a href="#" class="view-all">View All</a>
+        <h2>Category Statistics</h2>
     </div>
-    <div class="activity-card">
-        <p class="activity-placeholder">System integration with SignalR is active. Waiting for real-time updates...</p>
+    
+    <div class="stats-grid">
+        <ng-container *ngFor="let cat of categoryStats">
+            <div class="category-card">
+                <div class="card-header">
+                    <div class="icon-wrapper">
+                        <mat-icon>category</mat-icon>
+                    </div>
+                    <div class="title-wrapper">
+                        <span class="category-name">{{ cat.name }}</span>
+                        <h3 class="category-total">{{ cat.totalProductCount }} Products</h3>
+                    </div>
+                </div>
+                
+                <div class="card-body" *ngIf="cat.children && cat.children.length > 0">
+                    <div class="sub-category-list">
+                        <div class="sub-item" *ngFor="let child of cat.children">
+                            <span class="sub-name">{{ child.name }}</span>
+                            <span class="sub-count">{{ child.totalProductCount }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ng-container>
     </div>
 </div>

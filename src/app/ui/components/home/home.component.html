@@ -65,7 +65,7 @@
       [products]="group.products"
       [baseUrl]="baseUrl?.url"
       viewAllRoute="/products"
-      [viewAllParams]="{ categoryId: group.category.id }"
+      [viewAllParams]="{ category: group.category.id }"
       (addToCart)="addToBasket($event)"
       (toggleFavorite)="onToggleFavorite($event)">
     </app-product-showcase>

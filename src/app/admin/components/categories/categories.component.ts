@@ -58,11 +58,16 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
   buildTree(categories: Category[], parentId: string = null): any[] {
     return categories
       .filter(c => (c.parentCategoryId || null) === parentId)
-      .map(c => ({
-        ...c,
-        children: this.buildTree(categories, c.id),
-        expanded: true
-      }));
+      .map(c => {
+        const children = this.buildTree(categories, c.id);
+        const childrenProductCount = children.reduce((sum, child) => sum + (child.totalProductCount || 0), 0);
+        return {
+          ...c,
+          children: children,
+          totalProductCount: (c.productCount || 0) + childrenProductCount,
+          expanded: true
+        };
+      });
   }
 
   getParentCategories(): Category[] {
