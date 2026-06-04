@@ -5,192 +5,261 @@
         <section class="panel">
           <div class="panel-header">
             <h2>Teslimat Bilgileri</h2>
-            <p>Paketinizin sorunsuz ulasmasi icin adresi detayli girin.</p>
           </div>
+
+          <!-- Invisible inputs to capture browser autofill for İl / İlçe -->
+          <input type="text" autocomplete="address-level1" style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none; z-index: -1;" (input)="onAutofillCity($event)">
+          <input type="text" autocomplete="address-level2" style="position: absolute; opacity: 0; width: 1px; height: 1px; overflow: hidden; pointer-events: none; z-index: -1;" (input)="onAutofillDistrict($event)">
 
           <div class="field-grid two-col">
             <label class="field" [class.field-error]="hasControlError('contactName')">
               <span>Ad Soyad</span>
-              <input type="text" formControlName="contactName" placeholder="Teslim alacak kisi">
+              <input type="text" formControlName="contactName" placeholder="Teslim alacak kişi" autocomplete="name">
               <small class="error-text" *ngIf="getFieldError('contactName')">{{ getFieldError('contactName') }}</small>
             </label>
 
             <label class="field" [class.field-error]="hasControlError('phoneNumber')">
               <span>Telefon</span>
-              <input type="tel" formControlName="phoneNumber" inputmode="numeric" maxlength="11" placeholder="05xxxxxxxxx" (input)="onPhoneNumberInput()">
+              <input type="tel" formControlName="phoneNumber" inputmode="numeric" maxlength="11" placeholder="05xxxxxxxxx" (input)="onPhoneNumberInput()" autocomplete="tel">
               <small class="error-text" *ngIf="getFieldError('phoneNumber')">{{ getFieldError('phoneNumber') }}</small>
             </label>
           </div>
 
-          <div class="field-grid three-col">
+          <div class="field-grid four-col">
             <label class="field" [class.field-error]="hasControlError('city')">
-              <span>Il</span>
-              <input type="text" formControlName="city" placeholder="Istanbul">
+              <span>İl</span>
+              <select formControlName="city" autocomplete="address-level1">
+                <option value="">İl Seçiniz</option>
+                <option *ngFor="let p of provinces" [value]="p">{{ p }}</option>
+              </select>
               <small class="error-text" *ngIf="getFieldError('city')">{{ getFieldError('city') }}</small>
             </label>
 
             <label class="field" [class.field-error]="hasControlError('district')">
-              <span>Ilce</span>
-              <input type="text" formControlName="district" placeholder="Kadikoy">
+              <span>İlçe</span>
+              <select formControlName="district" autocomplete="address-level2">
+                <option value="">{{ f['city']?.value ? 'İlçe Seçiniz' : 'Önce İl Seçiniz' }}</option>
+                <option *ngFor="let d of districts" [value]="d">{{ d }}</option>
+              </select>
               <small class="error-text" *ngIf="getFieldError('district')">{{ getFieldError('district') }}</small>
+            </label>
+
+            <label class="field" [class.field-error]="hasControlError('neighborhood')">
+              <span>Mahalle / Semt</span>
+              <select formControlName="neighborhood" autocomplete="address-level3">
+                <option value="">{{ f['district']?.value ? 'Mahalle Seçiniz' : 'Önce İlçe Seçiniz' }}</option>
+                <option *ngFor="let n of neighborhoods" [value]="n">{{ n }}</option>
+              </select>
+              <small class="error-text" *ngIf="getFieldError('neighborhood')">{{ getFieldError('neighborhood') }}</small>
             </label>
 
             <label class="field" [class.field-error]="hasControlError('postalCode')">
               <span>Posta Kodu</span>
-              <input type="text" formControlName="postalCode" inputmode="numeric" maxlength="5" placeholder="34000" (input)="onPostalCodeInput()">
+              <input type="text" formControlName="postalCode" inputmode="numeric" maxlength="5" placeholder="34000" (input)="onPostalCodeInput()" autocomplete="postal-code">
               <small class="error-text" *ngIf="getFieldError('postalCode')">{{ getFieldError('postalCode') }}</small>
             </label>
           </div>
 
           <div class="field-grid">
-            <label class="field" [class.field-error]="hasControlError('neighborhood')">
-              <span>Mahalle / Semt</span>
-              <input type="text" formControlName="neighborhood" placeholder="Fenerbahce Mahallesi">
-              <small class="error-text" *ngIf="getFieldError('neighborhood')">{{ getFieldError('neighborhood') }}</small>
-            </label>
-          </div>
-
-          <div class="field-grid">
             <label class="field" [class.field-error]="hasControlError('addressLine')">
-              <span>Acik Adres</span>
-              <textarea rows="4" formControlName="addressLine" placeholder="Sokak, bina no, daire, kat, teslimat notu dahil detayli adres"></textarea>
+              <span>Açık Adres</span>
+              <textarea rows="4" formControlName="addressLine" placeholder="Sokak, bina no, daire, kat, teslimat notu dahil detaylı adres" autocomplete="street-address"></textarea>
               <small class="error-text" *ngIf="getFieldError('addressLine')">{{ getFieldError('addressLine') }}</small>
             </label>
           </div>
 
-          <div class="field-grid">
-            <label class="field">
-              <span>Siparis Notu <em>Istege bagli</em></span>
-              <textarea rows="3" formControlName="description" placeholder="Kurye icin ek notunuz varsa yazin"></textarea>
-              <small class="helper-text">En fazla 300 karakter.</small>
-            </label>
-          </div>
+
         </section>
 
         <section class="panel">
           <div class="panel-header">
-            <h2>Kredi Karti</h2>
+            <h2>Kredi Kartı</h2>
           </div>
 
-          <div class="card-stage" [class.is-flipped]="isCvvFocused">
-            <div class="card-preview card-front">
-              <div class="card-topline">
-                <span class="preview-chip"></span>
-                <span class="preview-brand">Secure Pay</span>
+          <div class="credit-card-grid">
+            <!-- Sol Taraf: Kart Girişleri -->
+            <div class="credit-card-inputs">
+              <div class="field-grid">
+                <label class="field" [class.field-error]="hasControlError('cardHolderName')">
+                  <span>Kart Üzerindeki İsim</span>
+                  <input type="text" formControlName="cardHolderName" id="cc-name" name="ccname" placeholder="AD SOYAD" autocomplete="cc-name" (input)="onCardHolderNameInput()" style="text-transform: uppercase;">
+                  <small class="error-text" *ngIf="getFieldError('cardHolderName')">{{ getFieldError('cardHolderName') }}</small>
+                </label>
               </div>
-              <p class="preview-number">{{ cardPreviewNumber }}</p>
-              <div class="preview-meta">
-                <div>
-                  <span>Kart Sahibi</span>
-                  <strong>{{ cardPreviewName }}</strong>
-                </div>
-                <div>
-                  <span>Son Kul.</span>
-                  <strong>{{ cardPreviewExpiry }}</strong>
-                </div>
+
+              <div class="field-grid">
+                <label class="field" [class.field-error]="hasControlError('cardNumber')">
+                  <span>Kart Numarası</span>
+                  <input type="text" formControlName="cardNumber" id="cc-number" name="cardnumber" inputmode="numeric" maxlength="19" placeholder="16 haneli kart numarası" (input)="onCardNumberInput()" autocomplete="cc-number">
+                  <small class="error-text" *ngIf="getFieldError('cardNumber')">{{ getFieldError('cardNumber') }}</small>
+                </label>
+              </div>
+
+              <div class="field-grid two-col payment-row">
+                <label class="field" [class.field-error]="hasControlError('expireDate')">
+                  <span>Son Kullanma</span>
+                  <input type="text" formControlName="expireDate" id="cc-exp" name="ccmonth" inputmode="numeric" maxlength="7" placeholder="AA/YY" (input)="onExpireDateInput()" autocomplete="cc-exp">
+                  <small class="error-text" *ngIf="getFieldError('expireDate')">{{ getFieldError('expireDate') }}</small>
+                </label>
+
+                <label class="field" [class.field-error]="hasControlError('cvv')">
+                  <span>CVV</span>
+                  <input type="text" style="-webkit-text-security: disc;" formControlName="cvv" id="cc-csc" name="cvv2" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" (focus)="isCvvFocused = true" (blur)="isCvvFocused = false" autocomplete="cc-csc">
+                  <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
+                </label>
               </div>
             </div>
 
-            <div class="card-preview card-back">
-              <div class="magnetic-strip"></div>
-              <div class="signature-row">
-                <span></span>
-                <strong>{{ cardPreviewCvv }}</strong>
+            <!-- Sağ Taraf: Kart Animasyonu / Önizleme -->
+            <div class="credit-card-preview-area">
+              <div class="card-stage" [class.is-flipped]="isCvvFocused">
+                <div class="card-preview card-front">
+                  <div class="card-topline">
+                    <span class="preview-chip"></span>
+                    <span class="preview-brand">Secure Pay</span>
+                  </div>
+                  <p class="preview-number">{{ cardPreviewNumber }}</p>
+                  <div class="preview-meta">
+                    <div>
+                      <span>Kart Sahibi</span>
+                      <strong>{{ cardPreviewName }}</strong>
+                    </div>
+                    <div>
+                      <span>Son Kul.</span>
+                      <strong>{{ cardPreviewExpiry }}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="card-preview card-back">
+                  <div class="magnetic-strip"></div>
+                  <div class="signature-row">
+                    <span></span>
+                    <strong>{{ cardPreviewCvv }}</strong>
+                  </div>
+                  <p>CVV</p>
+                </div>
               </div>
-              <p>CVV</p>
             </div>
           </div>
 
-          <div class="field-grid">
-            <label class="field" [class.field-error]="hasControlError('cardHolderName')">
-              <span>Kart Uzerindeki Isim</span>
-              <input type="text" formControlName="cardHolderName" id="cc-name" name="ccname" placeholder="AD SOYAD" autocomplete="cc-name" (input)="onCardHolderNameInput()" style="text-transform: uppercase;">
-              <small class="error-text" *ngIf="getFieldError('cardHolderName')">{{ getFieldError('cardHolderName') }}</small>
-            </label>
-          </div>
-
-          <div class="field-grid">
-            <label class="field" [class.field-error]="hasControlError('cardNumber')">
-              <span>Kart Numarasi</span>
-              <input type="text" formControlName="cardNumber" id="cc-number" name="cardnumber" inputmode="numeric" maxlength="19" placeholder="16 haneli kart numarasi" (input)="onCardNumberInput()" autocomplete="cc-number">
-              <small class="error-text" *ngIf="getFieldError('cardNumber')">{{ getFieldError('cardNumber') }}</small>
-            </label>
-          </div>
-
-          <div class="field-grid two-col payment-row">
-            <label class="field" [class.field-error]="hasControlError('expireDate')">
-              <span>Son Kullanma</span>
-              <input type="text" formControlName="expireDate" id="cc-exp" name="ccmonth" inputmode="numeric" maxlength="7" placeholder="AA/YY" (input)="onExpireDateInput()" autocomplete="cc-exp">
-              <small class="error-text" *ngIf="getFieldError('expireDate')">{{ getFieldError('expireDate') }}</small>
-            </label>
-
-            <label class="field" [class.field-error]="hasControlError('cvv')">
-              <span>CVV</span>
-              <input type="text" style="-webkit-text-security: disc;" formControlName="cvv" id="cc-csc" name="cvv2" inputmode="numeric" maxlength="3" placeholder="123" (input)="onCvvInput()" (focus)="isCvvFocused = true" (blur)="isCvvFocused = false" autocomplete="cc-csc">
-              <small class="error-text" *ngIf="getFieldError('cvv')">{{ getFieldError('cvv') }}</small>
-            </label>
-          </div>
-
-          <p class="error-banner" *ngIf="checkoutForm.errors?.['expiredCard']">Kartinizin son kullanma tarihi gecmis gorunuyor.</p>
+          <p class="error-banner" *ngIf="checkoutForm.errors?.['expiredCard']" style="margin-top: 15px;">Kartınızın son kullanma tarihi geçmiş görünüyor.</p>
         </section>
       </div>
 
       <aside class="checkout-side">
         <section class="panel summary-panel">
           <div class="panel-header">
-            <h2>Siparis Ozeti</h2>
-            <p>{{ itemCount }} urun, guvenli odeme ile tamamlanacak.</p>
+            <h2>Sipariş Özeti</h2>
+            <p>{{ itemCount }} ürün gönderilecek.</p>
           </div>
 
           <div class="summary-list">
             <div class="summary-products-scroll">
-              <div class="summary-item" *ngFor="let item of basketItems">
-                <div>
+              <div class="summary-item" *ngFor="let item of basketItems" [style.align-items]="getItemDiscountAmount(item) > 0 ? 'flex-start' : 'center'">
+                <div class="summary-item-image">
+                  <img [src]="getProductImage(item.imagePath)" [alt]="item.name">
+                </div>
+                <div class="summary-item-details">
                   <strong>{{ item.name }}</strong>
                   <span>{{ item.quantity }} adet</span>
+                  <div *ngIf="item.campaigns && item.campaigns.length > 0 && getItemDiscountAmount(item) > 0" style="font-size: 10px; color: #e74c3c; margin-top: 3px; font-weight: 500;">
+                    <i class="fa-solid fa-gift"></i> {{ item.campaigns[0].name }}
+                  </div>
                 </div>
-                <b>{{ item.price * item.quantity | turkishCurrency }}</b>
+                <div class="summary-item-price-block" style="text-align: right; display: flex; flex-direction: column;">
+                  <span *ngIf="getItemDiscountAmount(item) > 0" style="text-decoration: line-through; color: #7f8c8d; font-size: 11px; margin-bottom: 2px;">
+                    {{ item.price * item.quantity | turkishCurrency }}
+                  </span>
+                  <b [style.color]="getItemDiscountAmount(item) > 0 ? '#e67e22' : null">
+                    {{ (item.price * item.quantity) - getItemDiscountAmount(item) | turkishCurrency }}
+                  </b>
+                  <span *ngIf="getItemDiscountAmount(item) > 0" style="color: #2e7d32; font-size: 10px; font-weight: 600; margin-top: 2px;">
+                    -{{ getItemDiscountAmount(item) | turkishCurrency }}
+                  </span>
+                </div>
               </div>
             </div>
             
             <div class="summary-divider" style="margin: 15px 0; border-top: 1px solid #eee;"></div>
             
             <div class="summary-totals-area">
+              <div class="summary-row shipping-row">
+                <span>Kargo</span>
+                <b *ngIf="shippingFee > 0; else freeShippingText">{{ shippingFee | turkishCurrency }}</b>
+                <ng-template #freeShippingText><b>Ücretsiz</b></ng-template>
+              </div>
+
               <div class="summary-row">
                 <span>Ara Toplam</span>
                 <b>{{ basePrice | turkishCurrency }}</b>
               </div>
 
+              <!-- Uygulanan Indirimleri Listeleme (FreeShipping hariç) -->
               <ng-container *ngIf="discountResponse?.appliedDiscounts?.length">
-                <div class="summary-row discount-row" *ngFor="let discount of discountResponse.appliedDiscounts">
-                  <span>{{ discount.discountName }}</span>
-                  <b *ngIf="discount.discountAmount > 0; else freeShippingTxt">-{{ discount.discountAmount | turkishCurrency }}</b>
-                  <ng-template #freeShippingTxt><b>Bedava</b></ng-template>
-                </div>
+                <ng-container *ngFor="let discount of discountResponse.appliedDiscounts">
+                  <div class="summary-row discount-row"
+                       [ngClass]="{
+                         'coupon-row': discount.discountType === 'Coupon',
+                         'campaign-row': discount.discountType === 'Campaign',
+                         'free-shipping-row': discount.discountType === 'FreeShipping'
+                       }">
+                    <div class="discount-content">
+                      <span class="discount-title">{{ discount.discountName }}</span>
+                      <span class="discount-description">{{ getDiscountDescription(discount) }}</span>
+                    </div>
+                    <b *ngIf="discount.discountAmount > 0; else freeShippingTxt">-{{ discount.discountAmount | turkishCurrency }}</b>
+                    <ng-template #freeShippingTxt><b>Bedava</b></ng-template>
+                  </div>
+                </ng-container>
               </ng-container>
-
-              <div class="summary-row">
-                <span>Kargo Ücreti</span>
-                <b [style.color]="(discountResponse?.isShippingFree || basePrice >= 500) ? '#16a34a' : 'inherit'">
-                  {{ (discountResponse?.isShippingFree || basePrice >= 500) ? 'Bedava' : (59.99 | turkishCurrency) }}
-                </b>
-              </div>
             </div>
           </div>
 
-          <div class="summary-total" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd;">
+          <div class="summary-total" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; margin-bottom: 15px;">
             <span>Genel Toplam</span>
             <strong>{{ totalPrice | turkishCurrency }}</strong>
           </div>
 
+          <div class="coupon-code-container">
+            <div class="my-coupons-dropdown-container" *ngIf="myCoupons && myCoupons.length > 0">
+              <label for="couponSelect" class="my-coupons-label">
+                <mat-icon>local_offer</mat-icon>
+                <span>Kullanılabilir Kuponlarım</span>
+              </label>
+              <select id="couponSelect" class="my-coupons-select" [value]="hasCouponApplied ? couponCodeInput : ''" (change)="selectCoupon($event)">
+                <option value="">Kupon Seçin</option>
+                <option *ngFor="let coupon of myCoupons" [value]="coupon.code">
+                  {{ coupon.code }} - 
+                  <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
+                  <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
+                  <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
+                  <ng-container *ngIf="coupon.minCartAmount > 0"> (Min: {{ coupon.minCartAmount }} TL)</ng-container>
+                </option>
+              </select>
+            </div>
+
+            <div class="coupon-input-group" *ngIf="!hasCouponApplied; else appliedCouponTpl">
+              <input type="text" [(ngModel)]="couponCodeInput" [ngModelOptions]="{standalone: true}" class="coupon-input" placeholder="İndirim Kodu Gir" (input)="onCouponInput($event)">
+              <button type="button" class="coupon-btn" (click)="applyCoupon()">
+                Uygula
+              </button>
+            </div>
+            <ng-template #appliedCouponTpl>
+              <div class="applied-coupon-box">
+                <span class="coupon-code-label">Kupon: {{ couponCodeInput }}</span>
+                <button type="button" class="coupon-remove-btn" (click)="removeCoupon()">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            </ng-template>
+          </div>
+
           <button type="submit" class="submit-btn" [disabled]="isSubmitting">
-            <span>{{ isSubmitting ? 'Siparis Hazirlaniyor...' : 'Siparisi Tamamla' }}</span>
+            <span>{{ isSubmitting ? 'Sipariş Hazırlanıyor...' : 'Siparişi Tamamla' }}</span>
           </button>
 
-          <div class="summary-note">
-            <span class="note-dot"></span>
-            <p>Form validasyonu frontend ve backend tarafinda calisir. Kritik olaylar Serilog uzerinden maskeli olarak loglanir.</p>
-          </div>
+
         </section>
       </aside>
     </form>

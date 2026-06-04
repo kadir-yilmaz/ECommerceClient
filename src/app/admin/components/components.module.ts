@@ -8,6 +8,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { AuthorizeMenuModule } from './authorize-menu/authorize-menu.module';
 import { RoleModule } from './role/role.module';
 import { UserModule } from './user/user.module';
+import { RewardRulesModule } from './reward-rules/reward-rules.module';
 @NgModule({
   declarations: [
   ],
@@ -18,7 +19,8 @@ import { UserModule } from './user/user.module';
     DashboardModule,
     AuthorizeMenuModule,
     RoleModule,
-    UserModule
+    UserModule,
+    RewardRulesModule
   ]
 })
 export class ComponentsModule { }

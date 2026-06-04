@@ -1,0 +1,45 @@
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 300px;
+  padding: 10px 0;
+
+  .user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #eee;
+
+    .username {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .status-badge {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-weight: bold;
+
+      &.used {
+        background: #e8f5e9;
+        color: #2e7d32;
+      }
+      &.pending {
+        background: #fff3e0;
+        color: #e65100;
+      }
+    }
+  }
+
+  .no-users {
+    color: #888;
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+  }
+}

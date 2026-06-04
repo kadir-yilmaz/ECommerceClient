@@ -72,20 +72,22 @@ export class ProductService {
       });
   }
 
-  async read(page: number = 0, size: number = 5, categoryId?: string, sortType?: string, searchTerm?: string, isShowcase?: boolean, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalProductCount: number; products: List_Product[] }> {
+  async read(page: number = 0, size: number = 5, categoryId?: string, sortType?: string, searchTerm?: string, isShowcase?: boolean, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void, brand?: string, productIds?: string): Promise<{ totalProductCount: number; products: List_Product[] }> {
     let queryString = `page=${page}&size=${size}`;
     if (categoryId) queryString += `&categoryId=${categoryId}`;
     if (sortType) queryString += `&sortType=${sortType}`;
     if (searchTerm) queryString += `&search=${encodeURIComponent(searchTerm)}`;
     if (isShowcase) queryString += `&isShowcase=true`;
+    if (brand) queryString += `&brand=${encodeURIComponent(brand)}`;
+    if (productIds) queryString += `&productIds=${productIds}`;
 
     const promiseData: Promise<{ totalProductCount: number; products: List_Product[] }> = this.httpClientService.get<{ totalProductCount: number; products: List_Product[] }>({
       controller: "products",
       queryString: queryString
     }).toPromise();
 
-    promiseData.then(d => successCallBack())
-      .catch((errorResponse: HttpErrorResponse) => errorCallBack(errorResponse.message))
+    promiseData.then(d => { if (successCallBack) successCallBack(); })
+      .catch((errorResponse: HttpErrorResponse) => { if (errorCallBack) errorCallBack(errorResponse.message); });
 
     return await promiseData;
   }

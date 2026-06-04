@@ -16,10 +16,16 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AssignCouponDialogComponent } from './assign-coupon-dialog/assign-coupon-dialog.component';
+import { CouponUsersDialogComponent } from './coupon-users-dialog/coupon-users-dialog.component';
 
 @NgModule({
   declarations: [
-    DiscountCouponsComponent
+    DiscountCouponsComponent,
+    AssignCouponDialogComponent,
+    CouponUsersDialogComponent
   ],
   imports: [
     CommonModule,
@@ -36,7 +42,9 @@ import { MatNativeDateModule } from '@angular/material/core';
     MatSelectModule,
     MatSlideToggleModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatDialogModule,
+    MatTooltipModule
   ]
 })
 export class DiscountCouponsModule { }

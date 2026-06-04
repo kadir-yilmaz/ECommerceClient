@@ -9,6 +9,9 @@ import { CategoryService } from './services/common/models/category.service';
 import { Category } from './contracts/category';
 import { ProductService } from './services/common/models/product.service';
 import { UserAuthService } from './services/common/models/user-auth.service';
+import { SignalRService } from './services/common/signalr.service';
+import { HubUrls } from './constants/hub-urls';
+import { ReceiveFunctions } from './constants/receive-functions';
 
 @Component({
   selector: 'app-root',
@@ -41,7 +44,8 @@ export class AppComponent implements OnInit, OnDestroy {
     public favoriteService: FavoriteService,
     private categoryService: CategoryService,
     private productService: ProductService,
-    private userAuthService: UserAuthService
+    private userAuthService: UserAuthService,
+    private signalRService: SignalRService
   ) {
     authService.identityCheck();
     basketService.get();
@@ -77,6 +81,13 @@ export class AppComponent implements OnInit, OnDestroy {
       this.basketService.get();
       if (isAuth) {
         this.favoriteService.get();
+        // Register signalR for coupons if logged in
+        this.signalRService.on(HubUrls.CouponHub, ReceiveFunctions.CouponAddedMessage, (message: string) => {
+          this.toastrService.message(message, "Yeni Ödül Kuponu!", {
+            messageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
+          });
+        });
       }
     });
   }

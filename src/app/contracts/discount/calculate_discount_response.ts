@@ -5,5 +5,7 @@ export class CalculateDiscountResponse {
     totalDiscount: number;
     finalTotal: number;
     isShippingFree: boolean;
+    shippingFee: number;
+    shippingThreshold: number;
     appliedDiscounts: DiscountDetail[];
 }

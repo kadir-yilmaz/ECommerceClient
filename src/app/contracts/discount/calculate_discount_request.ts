@@ -7,6 +7,7 @@ export class CalculateDiscountItem {
     productId: string;
     productName: string;
     categoryId: string;
+    brand?: string;
     quantity: number;
     unitPrice: number;
 }

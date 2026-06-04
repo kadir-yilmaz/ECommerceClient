@@ -7,5 +7,7 @@ export class List_Basket_Item {
   quantity: number;
   productId: string;
   categoryId: string;
+  imagePath?: string;
+  brand?: string;
   campaigns?: ProductCampaign[];
 }

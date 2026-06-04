@@ -12,6 +12,9 @@ import { BasketService } from '../../../services/common/models/basket.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../../services/ui/custom-toastr.service';
 import { CalculateDiscountRequest, CalculateDiscountItem } from '../../../contracts/discount/calculate_discount_request';
 import { CalculateDiscountResponse } from '../../../contracts/discount/calculate_discount_response';
+import { FileService } from '../../../services/common/models/file.service';
+import { DiscountCoupon } from '../../../contracts/discount-coupon/discount-coupon';
+import { DiscountCouponService } from '../../../services/common/models/discount-coupon.service';
 
 @Component({
   selector: 'app-baskets',
@@ -26,14 +29,19 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     private toastrService: CustomToastrService,
     private router: Router,
     private dialogService: DialogService,
-    public authService: AuthService
+    public authService: AuthService,
+    private fileService: FileService,
+    private discountCouponService: DiscountCouponService
   ) {
     super(spinner)
   }
 
+  baseUrl: string;
+
   basketItems: List_Basket_Item[] = [];
   discountResponse: CalculateDiscountResponse | null = null;
   couponCodeInput: string = '';
+  myCoupons: DiscountCoupon[] = [];
   private basketSubscription?: Subscription;
   private routerSubscription?: Subscription;
   private authSubscription?: Subscription;
@@ -47,8 +55,12 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   get shippingFee(): number {
-    if (this.discountResponse) return this.discountResponse.isShippingFree ? 0 : 59.99;
-    return this.totalPrice >= 500 ? 0 : 59.99;
+    if (this.discountResponse) return this.discountResponse.shippingFee;
+    return 50;
+  }
+
+  get shippingThreshold(): number {
+    return this.discountResponse?.shippingThreshold ?? 500;
   }
 
   get grandTotal(): number {
@@ -56,7 +68,23 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   get hasCouponApplied(): boolean {
-    return !!this.discountResponse?.appliedDiscounts?.find(d => d.discountType === 'Coupon');
+    return !!this.couponCodeInput && !!this.discountResponse?.appliedDiscounts?.some(d => d.discountName === this.couponCodeInput);
+  }
+
+  getDiscountDescription(discount: any): string {
+    if (discount?.description) {
+      return discount.description;
+    }
+
+    if (discount.discountType === 'Campaign') {
+      return 'Kampanya uygulandı. İndirim tutarı sepetinize yansıtıldı.';
+    }
+
+    if (discount.discountType === 'Coupon') {
+      return 'Kupon kodu başarıyla kullanıldı. İndirim sepetinize uygulandı.';
+    }
+
+    return 'İndirim tutarı sepetinize eklendi.';
   }
 
   async incrementQuantity(basketItem: List_Basket_Item) {
@@ -70,6 +98,9 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
   }
 
   async ngOnInit(): Promise<void> {
+    const baseUrlObj = await this.fileService.getBaseStorageUrl();
+    this.baseUrl = baseUrlObj.url;
+
     this.couponCodeInput = localStorage.getItem('appliedCoupon') || '';
     this.basketSubscription = this.basketService.basketItems$.subscribe(async items => {
       this.basketItems = items;
@@ -86,11 +117,40 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
       });
     
     // Reactive auth state değişikliklerini dinle
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(() => {
+    this.authSubscription = this.authService.isAuthenticated$.subscribe(async () => {
       this.loadBasket();
+      if (this.authService.isAuthenticated) {
+        await this.loadMyCoupons();
+      } else {
+        this.myCoupons = [];
+      }
     });
     
+    if (this.authService.isAuthenticated) {
+      await this.loadMyCoupons();
+    }
     await this.loadBasket();
+  }
+
+  async loadMyCoupons(): Promise<void> {
+    try {
+      const coupons = await this.discountCouponService.getMyCoupons();
+      // Filter out used or expired coupons
+      this.myCoupons = (coupons || []).filter(c => !c.isUsed && !c.isExpired);
+    } catch (error) {
+      console.error('Error loading my coupons:', error);
+    }
+  }
+
+  async selectCoupon(event: Event): Promise<void> {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedCode = selectElement.value;
+    if (selectedCode) {
+      this.couponCodeInput = selectedCode;
+      await this.applyCoupon();
+    } else {
+      await this.removeCoupon();
+    }
   }
 
   ngOnDestroy(): void {
@@ -181,6 +241,7 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
       p.productId = item.productId || "";
       p.productName = item.name;
       p.categoryId = item.categoryId || "";
+      p.brand = item.brand;
       p.quantity = item.quantity;
       p.unitPrice = item.price;
       return p;
@@ -191,6 +252,13 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     } catch (error) {
       console.error("Discount calculation error", error);
     }
+  }
+
+  onCouponInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const upper = input.value.toUpperCase();
+    this.couponCodeInput = upper;
+    input.value = upper;
   }
 
   async applyCoupon(): Promise<void> {
@@ -205,7 +273,7 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     this.showSpinner(SpinnerType.BallAtom);
     try {
       await this.calculateDiscounts();
-      const hasCoupon = this.discountResponse?.appliedDiscounts.find(d => d.discountType === "Coupon");
+      const hasCoupon = this.discountResponse?.appliedDiscounts.some(d => d.discountName === this.couponCodeInput);
       if (hasCoupon) {
         localStorage.setItem('appliedCoupon', this.couponCodeInput);
         this.toastrService.message("Kupon başarıyla uygulandı.", "Başarılı", {
@@ -238,5 +306,117 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }
+  }
+
+  getItemDiscountAmount(item: List_Basket_Item): number {
+    if (!this.discountResponse || !item.campaigns || item.campaigns.length === 0) return 0;
+
+    let totalItemDiscount = 0;
+
+    for (const campaign of item.campaigns) {
+      // Check if this campaign was actually applied
+      const isApplied = this.discountResponse.appliedDiscounts.some(ad => 
+        ad.discountType === 'Campaign' && ad.discountName === campaign.name
+      );
+      if (!isApplied) continue;
+
+      if (campaign.ruleType === 'BrandDiscount' || campaign.ruleType === 'CategoryDiscount' || campaign.ruleType === 'SelectedProductsDiscount') {
+        const rate = campaign.discountRate || 0;
+        const discount = (item.price * item.quantity) * (rate / 100);
+        totalItemDiscount += discount;
+      } 
+      else if (campaign.ruleType === 'FreeItem') {
+        const minQty = campaign.minQuantity || 1;
+        const freeQty = campaign.freeQuantity || 0;
+        const sets = Math.floor(item.quantity / minQty);
+        const freeCount = sets * freeQty;
+        totalItemDiscount += freeCount * item.price;
+      } 
+      else if (campaign.ruleType === 'CheapestItemDiscount') {
+        if (this.isCampaignConditionMet(campaign) && this.isCheapestItemInCampaign(item, campaign)) {
+          const rate = campaign.discountRate || 0;
+          totalItemDiscount += item.price * (rate / 100);
+        }
+      }
+    }
+
+    return Math.round(totalItemDiscount * 100) / 100;
+  }
+
+  isCheapestItemInCampaign(basketItem: List_Basket_Item, campaign: any): boolean {
+    if (!campaign || campaign.ruleType !== 'CheapestItemDiscount') return false;
+
+    let targetedItems = this.basketItems;
+    if (campaign.categoryId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.categoryId && item.categoryId.toLowerCase() === campaign.categoryId.toLowerCase()
+      );
+    } else if (campaign.productId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.productId && item.productId.toLowerCase() === campaign.productId.toLowerCase()
+      );
+    } else {
+      return false;
+    }
+
+    if (targetedItems.length === 0) return false;
+
+    const minPrice = Math.min(...targetedItems.map(item => item.price));
+    return basketItem.price === minPrice;
+  }
+
+  isCampaignConditionMet(campaign: any): boolean {
+    if (!campaign) return false;
+    if (campaign.ruleType === 'CheapestItemDiscount' || campaign.ruleType === 'FreeItem') {
+      const minQty = campaign.minQuantity || 0;
+      if (minQty <= 0) return true;
+
+      let targetedItems = this.basketItems;
+      if (campaign.categoryId) {
+        targetedItems = this.basketItems.filter(item => 
+          item.categoryId && item.categoryId.toLowerCase() === campaign.categoryId.toLowerCase()
+        );
+      } else if (campaign.productId) {
+        targetedItems = this.basketItems.filter(item => 
+          item.productId && item.productId.toLowerCase() === campaign.productId.toLowerCase()
+        );
+      }
+      
+      const totalQty = targetedItems.reduce((sum, item) => sum + item.quantity, 0);
+      return totalQty >= minQty;
+    }
+    return true;
+  }
+
+  getRemainingQuantityForCampaign(campaign: any): number {
+    if (!campaign) return 0;
+    const minQty = campaign.minQuantity || 0;
+    if (minQty <= 0) return 0;
+
+    let targetedItems = this.basketItems;
+    if (campaign.categoryId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.categoryId && item.categoryId.toLowerCase() === campaign.categoryId.toLowerCase()
+      );
+    } else if (campaign.productId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.productId && item.productId.toLowerCase() === campaign.productId.toLowerCase()
+      );
+    }
+    
+    const totalQty = targetedItems.reduce((sum, item) => sum + item.quantity, 0);
+    return Math.max(0, minQty - totalQty);
+  }
+
+  getProductImage(path?: string): string {
+    if (!path) return '../../../../../assets/default-product.png';
+    const normalizedPath = path.replace(/\\/g, '/');
+    if (/^https?:\/\//i.test(normalizedPath)) {
+      return normalizedPath;
+    }
+    if (!this.baseUrl) return '../../../../../assets/default-product.png';
+    const sanitizedBaseUrl = this.baseUrl.replace(/\/+$/, '');
+    if (normalizedPath.startsWith('/')) return `${sanitizedBaseUrl}${normalizedPath}`;
+    return `${sanitizedBaseUrl}/${normalizedPath}`;
   }
 }

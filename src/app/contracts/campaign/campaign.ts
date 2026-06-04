@@ -1,3 +1,5 @@
+import { List_Product } from "../list_product";
+
 export class Campaign {
   id: string;
   name: string;
@@ -9,7 +11,10 @@ export class Campaign {
   freeQuantity?: number;
   productId?: string;
   categoryId?: string;
+  brand?: string;
+  endDate?: Date | string;
   isActive: boolean;
+  product?: List_Product;
 }
 
 export class Create_Campaign {
@@ -22,6 +27,8 @@ export class Create_Campaign {
   freeQuantity?: number;
   productId?: string;
   categoryId?: string;
+  brand?: string;
+  endDate?: Date | string;
   isActive: boolean;
 }
 

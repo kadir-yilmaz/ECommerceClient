@@ -42,4 +42,33 @@ export class DiscountCouponService {
 
     await firstValueFrom(observable);
   }
+
+  async assignCouponToUsers(couponId: string, userIds: string[]): Promise<{success: boolean, message: string}> {
+    const observable = this.httpClientService.post<any>({
+      controller: 'discountcoupons',
+      action: 'assign-to-users'
+    }, { couponId, userIds });
+
+    return await firstValueFrom(observable);
+  }
+
+  async getPublicCoupons(): Promise<DiscountCoupon[]> {
+    const observable = this.httpClientService.get<{ coupons: DiscountCoupon[] }>({
+      controller: 'discountcoupons',
+      action: 'public'
+    });
+
+    const response = await firstValueFrom(observable);
+    return response.coupons;
+  }
+
+  async getMyCoupons(): Promise<DiscountCoupon[]> {
+    const observable = this.httpClientService.get<{ coupons: DiscountCoupon[] }>({
+      controller: 'discountcoupons',
+      action: 'my-coupons'
+    });
+
+    const response = await firstValueFrom(observable);
+    return response.coupons;
+  }
 }

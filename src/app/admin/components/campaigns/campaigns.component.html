@@ -2,13 +2,16 @@
   <div class="header">
     <h2>Kampanya Yönetimi</h2>
     <p>Aktif ve pasif tüm indirim/kampanya kurallarını buradan yönetebilirsiniz.</p>
-    <button mat-raised-button color="primary" (click)="openAddForm()" *ngIf="!showForm">
+  </div>
+
+  <div class="header-action" style="display: flex; justify-content: flex-end; margin-bottom: 20px;" *ngIf="!showForm">
+    <button mat-raised-button color="primary" (click)="openAddForm()">
       <mat-icon>add</mat-icon> Yeni Kampanya Ekle
     </button>
   </div>
 
   <!-- CREATE / EDIT FORM -->
-  <mat-card class="form-card" *ngIf="showForm">
+  <mat-card class="form-card" *ngIf="showForm" style="margin-bottom: 20px;">
     <mat-card-header>
       <mat-card-title>{{ isEditMode ? 'Kampanya Düzenle' : 'Yeni Kampanya' }}</mat-card-title>
     </mat-card-header>
@@ -128,6 +131,117 @@
           </mat-form-field>
         </div>
 
+        <!-- Koşullu Alanlar: Seçili Ürünlere İndirim -->
+        <div class="form-row" *ngIf="campaignForm.get('ruleType')?.value === 'SelectedProductsDiscount'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Ürünler (Çoklu Seçim)</mat-label>
+            <mat-select formControlName="productId" placeholder="Ürünleri Seçiniz" multiple>
+              <mat-option disabled class="search-option">
+                <input matInput formControlName="productSearch" placeholder="Ürün Ara..." style="width: 100%;" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              </mat-option>
+              <mat-option *ngFor="let product of filteredProducts" [value]="product.id">
+                <div style="display: flex; justify-content: space-between; width: 100%;">
+                  <span>{{product.name}}</span>
+                  <strong style="color: #c0392b;">{{product.price}} TL</strong>
+                </div>
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="campaignForm.get('productId')?.hasError('required')">En az bir ürün seçilmelidir.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>İndirim Oranı (%)</mat-label>
+            <input matInput type="number" formControlName="discountRate" placeholder="Örn: 10">
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('required')">İndirim oranı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('min')">İndirim oranı en az %1 olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('max')">İndirim oranı en fazla %100 olabilir.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Koşullu Alanlar: Marka İndirimi -->
+        <div class="form-row" *ngIf="campaignForm.get('ruleType')?.value === 'BrandDiscount'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Marka (Zorunlu)</mat-label>
+            <mat-select formControlName="brand" placeholder="Marka Seçiniz">
+              <mat-option disabled class="search-option">
+                <input matInput formControlName="brandSearch" placeholder="Marka Ara..." style="width: 100%;" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              </mat-option>
+              <mat-option [value]="null">-- Temizle --</mat-option>
+              <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+                {{brand}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="campaignForm.get('brand')?.hasError('required')">Lütfen bir marka seçiniz.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Kategori (Opsiyonel)</mat-label>
+            <mat-select formControlName="categoryId" placeholder="Kategori Seçiniz">
+              <mat-option disabled class="search-option">
+                <input matInput formControlName="categorySearch" placeholder="Kategori Ara..." style="width: 100%;" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              </mat-option>
+              <mat-option [value]="null">-- Hepsi --</mat-option>
+              <mat-option *ngFor="let category of filteredCategories" [value]="category.id">
+                {{category.name}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>İndirim Oranı (%)</mat-label>
+            <input matInput type="number" formControlName="discountRate" placeholder="Örn: 10">
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('required')">İndirim oranı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('min')">İndirim oranı en az %1 olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('max')">İndirim oranı en fazla %100 olabilir.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <!-- Koşullu Alanlar: Kategori İndirimi -->
+        <div class="form-row" *ngIf="campaignForm.get('ruleType')?.value === 'CategoryDiscount'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Kategori (Zorunlu)</mat-label>
+            <mat-select formControlName="categoryId" placeholder="Kategori Seçiniz">
+              <mat-option disabled class="search-option">
+                <input matInput formControlName="categorySearch" placeholder="Kategori Ara..." style="width: 100%;" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              </mat-option>
+              <mat-option [value]="null">-- Temizle --</mat-option>
+              <mat-option *ngFor="let category of filteredCategories" [value]="category.id">
+                {{category.name}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="campaignForm.get('categoryId')?.hasError('required')">Lütfen bir kategori seçiniz.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Geçerli Marka (Opsiyonel)</mat-label>
+            <mat-select formControlName="brand" placeholder="Marka Seçiniz">
+              <mat-option disabled class="search-option">
+                <input matInput formControlName="brandSearch" placeholder="Marka Ara..." style="width: 100%;" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+              </mat-option>
+              <mat-option [value]="null">-- Hepsi --</mat-option>
+              <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+                {{brand}}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>İndirim Oranı (%)</mat-label>
+            <input matInput type="number" formControlName="discountRate" placeholder="Örn: 10">
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('required')">İndirim oranı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('min')">İndirim oranı en az %1 olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('max')">İndirim oranı en fazla %100 olabilir.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Bitiş Tarihi (Opsiyonel)</mat-label>
+            <input matInput type="datetime-local" formControlName="endDate">
+            <mat-hint>Kampanyanın otomatik olarak sona ereceği tarih/saat</mat-hint>
+          </mat-form-field>
+        </div>
+
         <div class="toggle-container">
           <mat-slide-toggle formControlName="isActive" color="primary">Aktif mi?</mat-slide-toggle>
         </div>
@@ -170,9 +284,15 @@
       <ng-container matColumnDef="isActive">
         <th mat-header-cell *matHeaderCellDef> Durum </th>
         <td mat-cell *matCellDef="let element">
-          <span class="badge" [class.badge-active]="element.isActive" [class.badge-passive]="!element.isActive">
+          <span class="badge" *ngIf="isExpired(element)" style="background-color: #e74c3c; color: white;">
+            Süresi Doldu
+          </span>
+          <span *ngIf="!isExpired(element)" class="badge" [class.badge-active]="element.isActive" [class.badge-passive]="!element.isActive">
             {{element.isActive ? 'Aktif' : 'Pasif'}}
           </span>
+          <div *ngIf="element.endDate" style="font-size: 11px; margin-top: 4px; color: #7f8c8d;">
+            Bitiş: {{element.endDate | date:'dd.MM.yyyy HH:mm'}}
+          </div>
         </td>
       </ng-container>
 
@@ -206,34 +326,4 @@
 
     <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
   </mat-card>
-
-  <!-- SHIPPING CAMPAIGN SETTING -->
-  <mat-card class="form-card shipping-card" style="margin-top: 32px;">
-    <mat-card-header>
-      <div mat-card-avatar>
-        <mat-icon color="primary" style="font-size: 32px; height: 32px; width: 32px; display:flex; align-items:center; justify-content:center; background:#e3f2fd; border-radius:50%; padding:8px;">local_shipping</mat-icon>
-      </div>
-      <mat-card-title>Kargo Bedava Kuralı</mat-card-title>
-      <mat-card-subtitle>Müşterilerinize otomatik ücretsiz kargo sunmak için limiti belirleyin.</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content style="margin-top: 24px;">
-      <div class="form-row" style="display: flex; gap: 16px; align-items: center;">
-        <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
-          <mat-label>Minimum Sepet Tutarı (TL)</mat-label>
-          <input matInput type="number" [(ngModel)]="shippingThreshold" placeholder="Örn: 100" min="0">
-          <mat-hint>0 veya pozitif bir değer giriniz.</mat-hint>
-        </mat-form-field>
-
-        <mat-slide-toggle color="primary" [(ngModel)]="isShippingActive" style="margin-bottom: 22px;">
-          Kargo Kampanyası Aktif mi?
-        </mat-slide-toggle>
-      </div>
-    </mat-card-content>
-    
-    <mat-card-actions align="end">
-      <button mat-raised-button color="primary" (click)="saveShippingRule()">Ayarları Kaydet</button>
-    </mat-card-actions>
-  </mat-card>
-
 </div>

@@ -1,0 +1,136 @@
+<div class="rules-admin-container">
+  <div class="header">
+    <h2>Ödül Kuralları Yönetimi</h2>
+    <p>Kullanıcıların belirli bir sürede ulaştıkları harcama tutarına göre kazanacakları ödül kuponlarını buradan yönetebilirsiniz.</p>
+    <button mat-raised-button color="primary" (click)="openAddForm()" *ngIf="!showForm">
+      <mat-icon>add</mat-icon> Yeni Kural Ekle
+    </button>
+  </div>
+
+  <!-- CREATE / EDIT FORM -->
+  <mat-card class="form-card" *ngIf="showForm">
+    <mat-card-header>
+      <mat-card-title>{{ isEditMode ? 'Kural Düzenle' : 'Yeni Kural Oluştur' }}</mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <form [formGroup]="ruleForm" class="rule-form" style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Kural Adı</mat-label>
+          <input matInput formControlName="name" placeholder="Örn: 1 Ayda 5000 TL Harcamaya 500 TL İndirim">
+          <mat-error *ngIf="ruleForm.get('name')?.hasError('required')">Kural adı zorunludur.</mat-error>
+        </mat-form-field>
+
+        <div style="display: flex; gap: 15px;">
+          <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+            <mat-label>Gerekli Harcama Tutarı (TL)</mat-label>
+            <input matInput type="number" formControlName="minTotalSpent" placeholder="Örn: 5000">
+            <mat-error *ngIf="ruleForm.get('minTotalSpent')?.hasError('required')">Zorunlu alan.</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+            <mat-label>Harcama Süresi (Gün)</mat-label>
+            <input matInput type="number" formControlName="periodInDays" placeholder="Örn: 30">
+            <mat-error *ngIf="ruleForm.get('periodInDays')?.hasError('required')">Zorunlu alan.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="coupon-config-section" style="padding: 15px; border: 1px dashed #ccc; border-radius: 8px; background: #fafafa; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h4 style="margin: 0; color: #333;">Verilecek Kupon:</h4>
+            <p style="margin: 5px 0 0; color: #666; font-size: 13px;">
+              <span *ngIf="ruleForm.get('rewardDiscountType')?.value === 'Amount'">Tutar İndirimi: {{ ruleForm.get('rewardDiscountValue')?.value }} TL</span>
+              <span *ngIf="ruleForm.get('rewardDiscountType')?.value === 'Percentage'">Yüzde İndirimi: %{{ ruleForm.get('rewardDiscountValue')?.value }}</span>
+              <span *ngIf="ruleForm.get('rewardDiscountType')?.value === 'FreeShipping'">Kargo Bedava</span>
+              <span style="color: #999; margin-left: 10px;">({{ ruleForm.get('couponValidityDays')?.value }} Gün Geçerli)</span>
+            </p>
+          </div>
+          <button mat-stroked-button color="accent" type="button" (click)="openCouponDialog()">
+            <mat-icon>settings</mat-icon> Kuponu Düzenle
+          </button>
+        </div>
+
+        <div class="toggle-container">
+          <mat-slide-toggle formControlName="isActive" color="primary">Kural Aktif mi?</mat-slide-toggle>
+        </div>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-actions align="end">
+      <button mat-button (click)="cancelForm()">İptal</button>
+      <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="formSubmitted && ruleForm.invalid">Kaydet</button>
+    </mat-card-actions>
+  </mat-card>
+
+  <!-- TABLE -->
+  <mat-card class="table-card" *ngIf="!showForm" style="margin-top: 20px;">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" style="width: 100%;">
+      
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Kural Adı </th>
+        <td mat-cell *matCellDef="let element"> <b>{{element.name}}</b> </td>
+      </ng-container>
+
+      <!-- MinTotalSpent Column -->
+      <ng-container matColumnDef="minTotalSpent">
+        <th mat-header-cell *matHeaderCellDef> Gerekli Tutar </th>
+        <td mat-cell *matCellDef="let element"> {{element.minTotalSpent}} TL </td>
+      </ng-container>
+
+      <!-- PeriodInDays Column -->
+      <ng-container matColumnDef="periodInDays">
+        <th mat-header-cell *matHeaderCellDef> Süre </th>
+        <td mat-cell *matCellDef="let element"> {{element.periodInDays}} Gün </td>
+      </ng-container>
+
+      <!-- RewardDiscount Column -->
+      <ng-container matColumnDef="rewardDiscount">
+        <th mat-header-cell *matHeaderCellDef> Ödül Tutarı </th>
+        <td mat-cell *matCellDef="let element" style="color: green; font-weight: bold;">
+          <span *ngIf="element.rewardDiscountType === 'Amount'">{{element.rewardDiscountValue}} TL</span>
+          <span *ngIf="element.rewardDiscountType === 'Percentage'">%{{element.rewardDiscountValue}} İndirim</span>
+          <span *ngIf="element.rewardDiscountType === 'FreeShipping'">Kargo Bedava</span>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="isActive">
+        <th mat-header-cell *matHeaderCellDef> Durum </th>
+        <td mat-cell *matCellDef="let element">
+          <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;" [ngStyle]="{'background-color': element.isActive ? '#e8f5e9' : '#ffebee', 'color': element.isActive ? '#2e7d32' : '#c62828'}">
+            {{element.isActive ? 'Aktif' : 'Pasif'}}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> İşlemler </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="primary" matTooltip="Düzenle" (click)="openEditForm(element)">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" matTooltip="Sil" (click)="deleteRule(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+      <tr class="mat-row empty-state-row" *matNoDataRow>
+        <td class="mat-cell empty-state-cell" colspan="6" style="text-align: center; padding: 40px;">
+          <div>
+            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #ccc;">card_giftcard</mat-icon>
+            <h3>Hiç Ödül Kuralı Yok</h3>
+            <p>Müşterilerinize harcamalarına göre ödül vermek için yeni bir kural ekleyin.</p>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+</div>

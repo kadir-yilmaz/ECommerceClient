@@ -27,6 +27,7 @@
   <section class="campaign-slider-section" *ngIf="activeCampaigns && activeCampaigns.length > 0">
     <div class="section-title">
       <h2>Sana Özel Kampanyalar</h2>
+      <a routerLink="/campaigns">Tüm Kampanyaları Gör</a>
     </div>
     
     <div class="slider-container">
@@ -37,24 +38,67 @@
       <div class="campaign-slider" #campaignsScroll>
         <article *ngFor="let campaign of activeCampaigns; let cIndex = index" 
                  class="colored-campaign-card" 
-                 [ngClass]="'color-variant-' + (cIndex % 3)"
+                 [ngClass]="['color-variant-' + (cIndex % 3), campaign.product ? 'has-product' : '']"
                  [routerLink]="['/campaigns', campaign.id]">
           
-          <div class="card-icon">
-             <i class="fa-solid" [ngClass]="campaign.ruleType === 'FreeShipping' ? 'fa-truck-fast' : 'fa-tags'"></i>
+          <div class="card-left">
+            <div class="card-icon">
+               <i class="fa-solid" [ngClass]="campaign.ruleType === 'FreeShipping' ? 'fa-truck-fast' : 'fa-tags'"></i>
+            </div>
+            
+            <div class="card-content">
+              <h2>{{ campaign.name }}</h2>
+              <p>{{ campaign.description }}</p>
+              <span class="cta-text">Hemen İncele <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </div>
+
+          <div class="card-product-preview" *ngIf="campaign.product">
+            <div class="preview-img-wrapper">
+              <img [src]="getProductImage(campaign.product.imagePath)" [alt]="campaign.product.name" class="preview-img">
+            </div>
+            <div class="preview-info">
+              <span class="preview-brand" *ngIf="campaign.product.brand">{{ campaign.product.brand }}</span>
+              <span class="preview-price">{{ campaign.product.price }} TL</span>
+            </div>
           </div>
           
-          <div class="card-content">
-            <h2>{{ campaign.name }}</h2>
-            <p>{{ campaign.description }}</p>
-            <span class="cta-text">Hemen İncele <i class="fa-solid fa-arrow-right"></i></span>
-          </div>
         </article>
       </div>
 
       <button class="slider-btn next" (click)="scrollCampaigns('right')">
         <i class="fa-solid fa-chevron-right"></i>
       </button>
+    </div>
+  </section>
+
+  <!-- Public Coupons Section -->
+  <section class="public-coupons-section" *ngIf="publicCoupons && publicCoupons.length > 0" style="padding: 40px 0;">
+    <div class="section-title text-center">
+      <h2>Herkese Açık Kuponlar</h2>
+      <p class="text-muted" style="font-size: 14px; margin-top: 5px;">Aşağıdaki kodları ödeme sayfasında kullanarak anında indirim kazanabilirsiniz!</p>
+    </div>
+
+    <div class="coupon-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding: 20px;">
+      <div *ngFor="let coupon of publicCoupons" class="coupon-card shadow-sm" style="border: 1px dashed #ccc; padding: 20px; border-radius: 8px; text-align: center; background: #fafafa; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; min-height: 140px;">
+        <div style="position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: #f27a1a;"></div>
+        
+        <h3 style="font-size: 24px; color: #f27a1a; margin-bottom: 5px; font-weight: bold; letter-spacing: 2px;">{{ coupon.code }}</h3>
+        
+        <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px; color: #333;">
+          <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
+          <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
+          <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
+        </div>
+
+        <p class="text-muted" style="font-size: 13px; margin-bottom: 5px;" *ngIf="coupon.minCartAmount > 0">
+          Alt Limit: {{ coupon.minCartAmount }} TL
+        </p>
+
+        <p class="text-muted" style="font-size: 12px; margin-bottom: 0;" *ngIf="coupon.expirationDate">
+          Son Kullanma: {{ coupon.expirationDate | date:'dd.MM.yyyy' }}
+        </p>
+      </div>
     </div>
   </section>
 

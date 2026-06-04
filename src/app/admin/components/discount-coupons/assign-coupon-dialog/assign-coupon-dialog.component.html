@@ -1,0 +1,20 @@
+<h1 mat-dialog-title>Kupon Ata: {{data.couponCode}}</h1>
+<div mat-dialog-content>
+  <p>Bu özel kuponu atamak istediğiniz kullanıcıları seçin. Daha önce atanmış olan kullanıcılar atlanacaktır.</p>
+  
+  <form [formGroup]="assignForm">
+    <mat-form-field appearance="outline" style="width: 100%;">
+      <mat-label>Kullanıcılar</mat-label>
+      <mat-select formControlName="userIds" multiple>
+        <mat-option *ngFor="let user of users" [value]="user.id">
+          {{ user.nameSurname }} ({{ user.email }})
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="assignForm.get('userIds')?.hasError('required')">En az bir kullanıcı seçmelisiniz.</mat-error>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="onNoClick()" [disabled]="isSaving">İptal</button>
+  <button mat-raised-button color="primary" (click)="onAssign()" [disabled]="assignForm.invalid || isSaving">Ata</button>
+</div>

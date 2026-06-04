@@ -58,6 +58,16 @@ const routes: Routes = [
         path: "discount-coupons",
         loadChildren: () => import("./admin/components/discount-coupons/discount-coupons.module").then(module => module.DiscountCouponsModule),
         canActivate: [AuthGuard]
+      },
+      {
+        path: "reward-rules",
+        loadChildren: () => import("./admin/components/reward-rules/reward-rules.module").then(module => module.RewardRulesModule),
+        canActivate: [AuthGuard]
+      },
+      {
+        path: "shippings",
+        loadChildren: () => import("./admin/components/shippings/shippings.module").then(module => module.ShippingsModule),
+        canActivate: [AuthGuard]
       }
     ]
   },
@@ -108,6 +118,15 @@ const routes: Routes = [
     path: "profile", 
     loadChildren: () => import("./ui/components/profile/profile.module").then(module => module.ProfileModule),
     canActivate: [AuthGuard]
+  },
+  {
+    path: "my-coupons",
+    loadChildren: () => import("./ui/components/my-coupons/my-coupons.module").then(module => module.MyCouponsModule),
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: "campaigns", 
+    loadChildren: () => import("./ui/components/campaigns/campaigns.module").then(module => module.CampaignsModule) 
   },
   { 
     path: "campaigns/:id", 

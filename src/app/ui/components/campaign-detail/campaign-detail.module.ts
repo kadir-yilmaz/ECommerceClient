@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { CampaignDetailRoutingModule } from './campaign-detail-routing.module';
 import { CampaignDetailComponent } from './campaign-detail.component';
 import { MatIconModule } from '@angular/material/icon';
+import { SharedUiModule } from '../shared/shared-ui.module';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     CommonModule,
     CampaignDetailRoutingModule,
-    MatIconModule
+    MatIconModule,
+    SharedUiModule
   ]
 })
 export class CampaignDetailModule { }

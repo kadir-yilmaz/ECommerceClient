@@ -14,6 +14,8 @@ import { ProductService } from 'src/app/services/common/models/product.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { CampaignService } from 'src/app/services/common/models/campaign.service';
+import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
+import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
 
 @Component({
   selector: 'app-home',
@@ -22,6 +24,7 @@ import { CampaignService } from 'src/app/services/common/models/campaign.service
 })
 export class HomeComponent extends BaseComponent implements OnInit {
   activeCampaigns: import('src/app/contracts/campaign/campaign').Campaign[] = [];
+  publicCoupons: DiscountCoupon[] = [];
   featuredProducts: List_Product[] = [];
   baseUrl: BaseUrl;
 
@@ -43,7 +46,8 @@ export class HomeComponent extends BaseComponent implements OnInit {
     private router: Router,
     private customToastrService: CustomToastrService,
     private campaignService: CampaignService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private discountCouponService: DiscountCouponService
   ) {
     super(spinner);
   }
@@ -71,7 +75,26 @@ export class HomeComponent extends BaseComponent implements OnInit {
       }));
 
       const allActive = await this.campaignService.getActiveCampaigns();
-      this.activeCampaigns = allActive.filter(c => c.ruleType !== 'FreeShipping');
+      const campaigns = allActive.filter(c => c.ruleType !== 'FreeShipping');
+      this.activeCampaigns = await Promise.all(campaigns.map(async (c) => {
+        if (c.productId) {
+          try {
+            const p = await this.productService.readById(c.productId);
+            if (p) {
+              p.imagePath = p.productImageFiles?.length
+                ? (p.productImageFiles.find(img => img.showcase)?.path ?? p.productImageFiles[0].path)
+                : '';
+              return { ...c, product: p };
+            }
+          } catch (e) {
+            console.error('Error fetching product for campaign:', e);
+          }
+        }
+        return c;
+      }));
+
+      // Fetch public coupons
+      this.publicCoupons = await this.discountCouponService.getPublicCoupons();
 
       // Load homepage showcased categories
       const categoryData = await this.categoryService.getAll();
@@ -185,5 +208,17 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   isProductFavorite(productId: string): boolean {
     return this.favoriteService.isFavorite(productId);
+  }
+
+  getProductImage(path?: string): string {
+    if (!path) return '../../../../../assets/default-product.png';
+    const normalizedPath = path.replace(/\\/g, '/');
+    if (/^https?:\/\//i.test(normalizedPath)) {
+      return normalizedPath;
+    }
+    const sanitizedBaseUrl = (this.baseUrl?.url ?? '').replace(/\/+$/, '');
+    if (!sanitizedBaseUrl) return normalizedPath;
+    if (normalizedPath.startsWith('/')) return `${sanitizedBaseUrl}${normalizedPath}`;
+    return `${sanitizedBaseUrl}/${normalizedPath}`;
   }
 }

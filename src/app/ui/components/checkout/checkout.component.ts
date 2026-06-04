@@ -9,6 +9,11 @@ import { BasketService } from 'src/app/services/common/models/basket.service';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { CalculateDiscountRequest, CalculateDiscountItem } from 'src/app/contracts/discount/calculate_discount_request';
+import { HttpClient } from '@angular/common/http';
+import { FileService } from 'src/app/services/common/models/file.service';
+import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
+import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
+
 
 @Component({
   selector: 'app-checkout',
@@ -22,10 +27,20 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   basketItems: List_Basket_Item[] = [];
   discountResponse: import('src/app/contracts/discount/calculate_discount_response').CalculateDiscountResponse | null = null;
   couponCodeInput: string = '';
+  myCoupons: DiscountCoupon[] = [];
   submitted = false;
   isSubmitting = false;
   isCvvFocused = false;
   serverValidationErrors: { [key: string]: string[] } = {};
+
+  citiesData: any = {};
+  provinces: string[] = [];
+  districts: string[] = [];
+  neighborhoods: string[] = [];
+  autofillCityVal: string = '';
+  autofillDistrictVal: string = '';
+
+  baseUrl: string;
 
   constructor(
     spinner: NgxSpinnerService,
@@ -33,7 +48,10 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     private basketService: BasketService,
     private orderService: OrderService,
     private toastrService: CustomToastrService,
-    private router: Router
+    private router: Router,
+    private httpClient: HttpClient,
+    private fileService: FileService,
+    private discountCouponService: DiscountCouponService
   ) {
     super(spinner);
   }
@@ -47,8 +65,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   }
 
   get shippingFee(): number {
-    if (this.discountResponse) return this.discountResponse.isShippingFree ? 0 : 59.99;
-    return this.basePrice >= 500 ? 0 : 59.99;
+    if (this.discountResponse) return this.discountResponse.shippingFee;
+    return 50;
   }
 
   get itemCount(): number {
@@ -81,6 +99,34 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     this.couponCodeInput = localStorage.getItem('appliedCoupon') || '';
     this.buildForm();
     await this.loadBasket();
+    this.loadLocationData();
+    await this.loadMyCoupons();
+    try {
+      const baseUrlObj = await this.fileService.getBaseStorageUrl();
+      this.baseUrl = baseUrlObj.url;
+    } catch (err) {
+      console.error('Base storage url load error', err);
+    }
+  }
+
+  async loadMyCoupons(): Promise<void> {
+    try {
+      const coupons = await this.discountCouponService.getMyCoupons();
+      this.myCoupons = (coupons || []).filter(c => !c.isUsed && !c.isExpired);
+    } catch (error) {
+      console.error('Error loading my coupons:', error);
+    }
+  }
+
+  async selectCoupon(event: Event): Promise<void> {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedCode = selectElement.value;
+    if (selectedCode) {
+      this.couponCodeInput = selectedCode;
+      await this.applyCoupon();
+    } else {
+      await this.removeCoupon();
+    }
   }
 
   private buildForm(): void {
@@ -92,7 +138,6 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       neighborhood: ['', [Validators.required, Validators.maxLength(100)]],
       postalCode: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
       addressLine: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
-      description: ['', [Validators.maxLength(300)]],
       cardHolderName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/), this.luhnValidator()]],
       expireDate: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
@@ -135,6 +180,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       p.productId = item.productId || "";
       p.productName = item.name;
       p.categoryId = item.categoryId || "";
+      p.brand = item.brand;
       p.quantity = item.quantity;
       p.unitPrice = item.price;
       return p;
@@ -142,7 +188,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
     try {
       this.discountResponse = await this.basketService.calculateDiscount(request);
-      const hasCoupon = this.discountResponse?.appliedDiscounts.find(d => d.discountType === "Coupon");
+      const hasCoupon = this.discountResponse?.appliedDiscounts.some(d => d.discountName === this.couponCodeInput);
       if (this.couponCodeInput && !hasCoupon) {
          this.couponCodeInput = '';
          localStorage.removeItem('appliedCoupon');
@@ -155,6 +201,13 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
   onCardHolderNameInput(): void {
     const value = (this.f['cardHolderName'].value ?? '').toLocaleUpperCase('tr-TR');
     this.f['cardHolderName'].setValue(value, { emitEvent: false });
+  }
+
+  onCouponInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const upper = input.value.toUpperCase();
+    this.couponCodeInput = upper;
+    input.value = upper;
   }
 
   onCardNumberInput(): void {
@@ -217,8 +270,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
     if (this.totalPrice > this.iyzicoMaxPaymentAmount) {
       this.toastrService.message(
-        'Iyzico 100.000 TL uzeri odemeleri kabul etmez. Lutfen sepet tutarini 100.000 TL veya altina dusurun.',
-        'Odeme Limiti Asildi',
+        'Iyzico 100.000 TL üzeri ödemeleri kabul etmez. Lütfen sepet tutarını 100.000 TL veya altına düşürün.',
+        'Ödeme Limiti Aşıldı',
         {
           messageType: ToastrMessageType.Warning,
           position: ToastrPosition.BottomRight
@@ -239,7 +292,6 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       const formValue = this.checkoutForm.value;
       const [expireMonth, expireYear] = this.parseExpireDate(formValue.expireDate);
       const order: Create_Order = {
-        description: formValue.description?.trim() ?? '',
         contactName: formValue.contactName.trim(),
         phoneNumber: formValue.phoneNumber.trim(),
         city: formValue.city.trim(),
@@ -259,7 +311,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       this.basketService.clear();
       localStorage.removeItem('appliedCoupon');
 
-      this.toastrService.message('Siparisiniz alindi. Hazirlaniyor.', 'Siparis Basarili', {
+      this.toastrService.message('Siparişiniz alındı. Hazırlanıyor.', 'Sipariş Başarılı', {
         messageType: ToastrMessageType.Success,
         position: ToastrPosition.BottomRight
       });
@@ -271,7 +323,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
       const errorMessage = this.extractErrorMessage(error);
       if (errorMessage) {
-        this.toastrService.message(errorMessage, 'Siparis Olusturulamadi', {
+        this.toastrService.message(errorMessage, 'Sipariş Oluşturulamadı', {
           messageType: ToastrMessageType.Error,
           position: ToastrPosition.BottomRight
         });
@@ -326,8 +378,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
       'CardNumber': 'cardNumber',
       'ExpireMonth': 'expireDate',
       'ExpireYear': 'expireDate',
-      'Cvv': 'cvv',
-      'Description': 'description'
+      'Cvv': 'cvv'
     };
     return mapping[serverField] || serverField.toLowerCase();
   }
@@ -446,8 +497,348 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     return [month, `20${year}`];
   }
 
+  private normalizeText(val: string): string {
+    if (!val) return '';
+    return val
+      .replace(/İ/g, 'i')
+      .replace(/I/g, 'ı')
+      .replace(/ı/g, 'i')
+      .replace(/ş/g, 's')
+      .replace(/Ş/g, 's')
+      .replace(/ç/g, 'c')
+      .replace(/Ç/g, 'c')
+      .replace(/ğ/g, 'g')
+      .replace(/Ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/Ü/g, 'u')
+      .replace(/ö/g, 'o')
+      .replace(/Ö/g, 'o')
+      .toLowerCase();
+  }
+
+  onAutofillCity(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (!value) return;
+    this.autofillCityVal = value;
+    this.applyAutofillCity();
+  }
+
+  private applyAutofillCity(): void {
+    if (!this.autofillCityVal || !this.provinces || this.provinces.length === 0) return;
+    const normalized = this.normalizeText(this.autofillCityVal);
+    const matched = this.provinces.find(p => this.normalizeText(p) === normalized || normalized.includes(this.normalizeText(p)));
+    if (matched) {
+      this.checkoutForm.get('city')?.setValue(matched);
+      this.autofillCityVal = ''; // clear
+    }
+  }
+
+  onAutofillDistrict(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value;
+    if (!value) return;
+    this.autofillDistrictVal = value;
+    this.applyAutofillDistrict();
+  }
+
+  private applyAutofillDistrict(): void {
+    if (!this.autofillDistrictVal || !this.districts || this.districts.length === 0) return;
+    const normalized = this.normalizeText(this.autofillDistrictVal);
+    const matched = this.districts.find(d => this.normalizeText(d) === normalized || normalized.includes(this.normalizeText(d)));
+    if (matched) {
+      this.checkoutForm.get('district')?.setValue(matched);
+      this.autofillDistrictVal = ''; // clear
+    }
+  }
+
+  private loadLocationData(): void {
+    this.httpClient.get<any>('assets/il_ilce_mahalle.json').subscribe({
+      next: (data) => {
+        this.citiesData = data || {};
+        this.provinces = Object.keys(this.citiesData).sort((a, b) => a.localeCompare(b, 'tr'));
+        
+        // Apply city if already autofilled
+        if (this.autofillCityVal) {
+          this.applyAutofillCity();
+        }
+
+        // Listen to changes
+        this.checkoutForm.get('city')?.valueChanges.subscribe(city => {
+          this.onCityChange(city);
+        });
+
+        this.checkoutForm.get('district')?.valueChanges.subscribe(district => {
+          this.onDistrictChange(district);
+        });
+
+        // Listen to address line changes to auto-fill location dropdowns
+        this.checkoutForm.get('addressLine')?.valueChanges.subscribe(address => {
+          if (!address) return;
+          const normalizedAddress = this.normalizeText(address);
+
+          // 1. Match City (İl) if empty
+          const currentCity = this.checkoutForm.get('city')?.value;
+          if (!currentCity && this.provinces && this.provinces.length > 0) {
+            const matchedCity = this.provinces.find(p => {
+              const norm = this.normalizeText(p);
+              return normalizedAddress.includes(norm);
+            });
+            if (matchedCity) {
+              this.checkoutForm.get('city')?.setValue(matchedCity);
+            }
+          }
+
+          // 2. Match District (İlçe) if empty
+          const currentDistrict = this.checkoutForm.get('district')?.value;
+          if (!currentDistrict && this.districts && this.districts.length > 0) {
+            const matchedDistrict = this.districts.find(d => {
+              const norm = this.normalizeText(d);
+              return normalizedAddress.includes(norm);
+            });
+            if (matchedDistrict) {
+              this.checkoutForm.get('district')?.setValue(matchedDistrict);
+            }
+          }
+
+          // 3. Match Neighborhood (Mahalle) if empty
+          const currentNeighborhood = this.checkoutForm.get('neighborhood')?.value;
+          if (!currentNeighborhood && this.neighborhoods && this.neighborhoods.length > 0) {
+            const matchedNeighborhood = this.neighborhoods.find(n => {
+              const cleanName = n.replace(/\s+mah\.?$/i, '');
+              const norm = this.normalizeText(cleanName);
+              if (norm.length < 3) return false;
+              return normalizedAddress.includes(norm);
+            });
+            if (matchedNeighborhood) {
+              this.checkoutForm.get('neighborhood')?.setValue(matchedNeighborhood);
+            }
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Konum verileri yüklenemedi', err);
+      }
+    });
+  }
+
+  onCityChange(city: string): void {
+    this.districts = [];
+    this.neighborhoods = [];
+    this.checkoutForm.get('district')?.setValue('', { emitEvent: false });
+    this.checkoutForm.get('neighborhood')?.setValue('', { emitEvent: false });
+
+    if (city && this.citiesData[city]) {
+      this.districts = Object.keys(this.citiesData[city]).sort((a, b) => a.localeCompare(b, 'tr'));
+      
+      // Apply district if already autofilled
+      if (this.autofillDistrictVal) {
+        this.applyAutofillDistrict();
+      }
+
+      // Check addressLine match fallback
+      const currentDistrict = this.checkoutForm.get('district')?.value;
+      const address = this.checkoutForm.get('addressLine')?.value;
+      if (!currentDistrict && address) {
+        const normalizedAddress = this.normalizeText(address);
+        const matched = this.districts.find(d => {
+          const norm = this.normalizeText(d);
+          return normalizedAddress.includes(norm);
+        });
+        if (matched) {
+          this.checkoutForm.get('district')?.setValue(matched);
+        }
+      }
+    }
+  }
+
+  onDistrictChange(district: string): void {
+    this.neighborhoods = [];
+    this.checkoutForm.get('neighborhood')?.setValue('', { emitEvent: false });
+
+    const city = this.checkoutForm.get('city')?.value;
+    if (city && district && this.citiesData[city]?.[district]) {
+      this.neighborhoods = [...this.citiesData[city][district]].sort((a, b) => a.localeCompare(b, 'tr'));
+
+      // Check addressLine match fallback
+      const currentNeighborhood = this.checkoutForm.get('neighborhood')?.value;
+      const address = this.checkoutForm.get('addressLine')?.value;
+      if (!currentNeighborhood && address) {
+        const normalizedAddress = this.normalizeText(address);
+        const matched = this.neighborhoods.find(n => {
+          const cleanName = n.replace(/\s+mah\.?$/i, '');
+          const norm = this.normalizeText(cleanName);
+          if (norm.length < 3) return false;
+          return normalizedAddress.includes(norm);
+        });
+        if (matched) {
+          this.checkoutForm.get('neighborhood')?.setValue(matched);
+        }
+      }
+    }
+  }
+
   hasControlError(controlName: string): boolean {
     const control = this.f[controlName];
     return !!control && control.invalid && (control.dirty || control.touched || this.submitted);
+  }
+
+  isCheapestItemInCampaign(basketItem: List_Basket_Item, campaign: any): boolean {
+    if (!campaign || campaign.ruleType !== 'CheapestItemDiscount') return false;
+
+    let targetedItems = this.basketItems;
+    if (campaign.categoryId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.categoryId && item.categoryId.toLowerCase() === campaign.categoryId.toLowerCase()
+      );
+    } else if (campaign.productId) {
+      targetedItems = this.basketItems.filter(item => 
+        item.productId && item.productId.toLowerCase() === campaign.productId.toLowerCase()
+      );
+    } else {
+      return false;
+    }
+
+    if (targetedItems.length === 0) return false;
+
+    const minPrice = Math.min(...targetedItems.map(item => item.price));
+    return basketItem.price === minPrice;
+  }
+
+  isCampaignConditionMet(campaign: any): boolean {
+    if (!campaign) return false;
+    if (campaign.ruleType === 'CheapestItemDiscount' || campaign.ruleType === 'FreeItem') {
+      const minQty = campaign.minQuantity || 0;
+      if (minQty <= 0) return true;
+
+      let targetedItems = this.basketItems;
+      if (campaign.categoryId) {
+        targetedItems = this.basketItems.filter(item => 
+          item.categoryId && item.categoryId.toLowerCase() === campaign.categoryId.toLowerCase()
+        );
+      } else if (campaign.productId) {
+        targetedItems = this.basketItems.filter(item => 
+          item.productId && item.productId.toLowerCase() === campaign.productId.toLowerCase()
+        );
+      }
+      
+      const totalQty = targetedItems.reduce((sum, item) => sum + item.quantity, 0);
+      return totalQty >= minQty;
+    }
+    return true;
+  }
+
+  getItemDiscountAmount(item: List_Basket_Item): number {
+    if (!this.discountResponse || !item.campaigns || item.campaigns.length === 0) return 0;
+
+    let totalItemDiscount = 0;
+
+    for (const campaign of item.campaigns) {
+      // Check if this campaign was actually applied
+      const isApplied = this.discountResponse.appliedDiscounts.some(ad => 
+        ad.discountType === 'Campaign' && ad.discountName === campaign.name
+      );
+      if (!isApplied) continue;
+
+      if (campaign.ruleType === 'BrandDiscount' || campaign.ruleType === 'CategoryDiscount' || campaign.ruleType === 'SelectedProductsDiscount') {
+        const rate = campaign.discountRate || 0;
+        const discount = (item.price * item.quantity) * (rate / 100);
+        totalItemDiscount += discount;
+      } 
+      else if (campaign.ruleType === 'FreeItem') {
+        const minQty = campaign.minQuantity || 1;
+        const freeQty = campaign.freeQuantity || 0;
+        const sets = Math.floor(item.quantity / minQty);
+        const freeCount = sets * freeQty;
+        totalItemDiscount += freeCount * item.price;
+      } 
+      else if (campaign.ruleType === 'CheapestItemDiscount') {
+        if (this.isCampaignConditionMet(campaign) && this.isCheapestItemInCampaign(item, campaign)) {
+          const rate = campaign.discountRate || 0;
+          totalItemDiscount += item.price * (rate / 100);
+        }
+      }
+    }
+
+    return Math.round(totalItemDiscount * 100) / 100;
+  }
+
+  getProductImage(path?: string): string {
+    if (!path) return '../../../../../assets/default-product.png';
+    const normalizedPath = path.replace(/\\/g, '/');
+    if (/^https?:\/\//i.test(normalizedPath)) {
+      return normalizedPath;
+    }
+    if (!this.baseUrl) return '../../../../../assets/default-product.png';
+    const sanitizedBaseUrl = this.baseUrl.replace(/\/+$/, '');
+    if (normalizedPath.startsWith('/')) return `${sanitizedBaseUrl}${normalizedPath}`;
+    return `${sanitizedBaseUrl}/${normalizedPath}`;
+  }
+
+  get hasCouponApplied(): boolean {
+    return !!this.couponCodeInput && !!this.discountResponse?.appliedDiscounts?.some(d => d.discountName === this.couponCodeInput);
+  }
+
+  getDiscountDescription(discount: any): string {
+    if (discount?.description) {
+      return discount.description;
+    }
+
+    if (discount.discountType === 'Campaign') {
+      return 'Kampanya uygulandı. İndirim tutarı sepete yansıtıldı.';
+    }
+
+    if (discount.discountType === 'Coupon') {
+      return 'Kupon kodu başarıyla kullanıldı. İndirim tutarı sepete uygulandı.';
+    }
+
+    return 'İndirim tutarı sepete eklendi.';
+  }
+
+  async applyCoupon(): Promise<void> {
+    if (!this.couponCodeInput) {
+      this.toastrService.message("Lütfen geçerli bir kupon kodu giriniz.", "Hata", {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomRight
+      });
+      return;
+    }
+
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.calculateDiscounts();
+      const hasCoupon = this.discountResponse?.appliedDiscounts.some(d => d.discountName === this.couponCodeInput);
+      if (hasCoupon) {
+        localStorage.setItem('appliedCoupon', this.couponCodeInput);
+        this.toastrService.message("Kupon başarıyla uygulandı.", "Başarılı", {
+          messageType: ToastrMessageType.Success,
+          position: ToastrPosition.BottomRight
+        });
+      } else {
+        this.toastrService.message("Geçersiz veya şartları sağlamayan kupon kodu.", "Hata", {
+          messageType: ToastrMessageType.Error,
+          position: ToastrPosition.BottomRight
+        });
+        this.couponCodeInput = ''; // clear invalid coupon
+        localStorage.removeItem('appliedCoupon');
+      }
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
+  }
+
+  async removeCoupon(): Promise<void> {
+    this.couponCodeInput = '';
+    localStorage.removeItem('appliedCoupon');
+    this.showSpinner(SpinnerType.BallAtom);
+    try {
+      await this.calculateDiscounts();
+      this.toastrService.message("Kupon kaldırıldı.", "Bilgi", {
+        messageType: ToastrMessageType.Info,
+        position: ToastrPosition.BottomRight
+      });
+    } finally {
+      this.hideSpinner(SpinnerType.BallAtom);
+    }
   }
 }

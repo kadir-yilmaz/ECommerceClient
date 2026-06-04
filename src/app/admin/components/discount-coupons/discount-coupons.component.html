@@ -26,6 +26,16 @@
           </mat-form-field>
           
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kupon Kapsamı (Scope)</mat-label>
+            <mat-select formControlName="scope">
+              <mat-option *ngFor="let scope of scopes" [value]="scope.value">
+                {{ scope.label }}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="couponForm.get('scope')?.hasError('required')">Kapsam seçilmelidir.</mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>İndirim Tipi</mat-label>
             <mat-select formControlName="discountType">
               <mat-option *ngFor="let type of discountTypes" [value]="type.value">
@@ -35,8 +45,22 @@
             <mat-error *ngIf="couponForm.get('discountType')?.hasError('required')">İndirim tipi seçilmelidir.</mat-error>
           </mat-form-field>
         </div>
+        
+        <!-- Private Scope - User Selection -->
+        <div class="form-row" *ngIf="couponForm.get('scope')?.value === 'Private'">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kullanıcı Seçimi (Zorunlu)</mat-label>
+            <mat-select formControlName="userIds" multiple>
+              <mat-option *ngFor="let user of users" [value]="user.id">
+                {{ user.userName }} ({{ user.email }})
+              </mat-option>
+            </mat-select>
+            <mat-hint>En az 1 kullanıcı seçmelisiniz.</mat-hint>
+            <mat-error *ngIf="couponForm.get('userIds')?.hasError('required')">Kullanıcı seçimi zorunludur.</mat-error>
+          </mat-form-field>
+        </div>
 
-        <div class="form-row">
+        <div class="form-row" *ngIf="couponForm.get('discountType')?.value !== 'FreeShipping'">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>İndirim Değeri {{ couponForm.get('discountType')?.value === 'Percentage' ? '(%)' : '(TL)' }}</mat-label>
             <input matInput type="number" formControlName="discountValue" placeholder="Örn: 50">
@@ -44,6 +68,16 @@
             <mat-error *ngIf="couponForm.get('discountValue')?.hasError('min')">İndirim değeri en az 1 olmalıdır.</mat-error>
             <mat-error *ngIf="couponForm.get('discountValue')?.hasError('max')">Yüzdelik indirim en fazla %100 olabilir.</mat-error>
           </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width" *ngIf="couponForm.get('discountType')?.value === 'Percentage'">
+            <mat-label>Maksimum İndirim Tutarı (TL)</mat-label>
+            <input matInput type="number" formControlName="maxDiscountAmount" placeholder="Örn: 200 (Opsiyonel)">
+            <mat-hint>Opsiyonel — Belirtilirse indirim bu tutarı geçemez</mat-hint>
+            <mat-error *ngIf="couponForm.get('maxDiscountAmount')?.hasError('min')">En az 1 olmalıdır.</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Geçerli Olması İçin Min Sepet Tutarı (TL)</mat-label>
@@ -61,13 +95,6 @@
             <mat-datepicker #picker></mat-datepicker>
             <mat-hint>Opsiyonel — Boş bırakılırsa süresiz geçerli</mat-hint>
             <mat-error *ngIf="isExpirationDateInPast()">Son kullanma tarihi geçmiş olamaz.</mat-error>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Kullanım Limiti</mat-label>
-            <input matInput type="number" formControlName="usageLimit" placeholder="Boş bırakılırsa sınırsız">
-            <mat-hint>Opsiyonel — Boş bırakılırsa sınırsız</mat-hint>
-            <mat-error *ngIf="couponForm.get('usageLimit')?.hasError('min')">Kullanım limiti en az 1 olmalıdır.</mat-error>
           </mat-form-field>
         </div>
 
@@ -95,11 +122,22 @@
         </td>
       </ng-container>
 
+      <!-- Scope Column -->
+      <ng-container matColumnDef="scope">
+        <th mat-header-cell *matHeaderCellDef> Kapsam </th>
+        <td mat-cell *matCellDef="let element"> 
+          <span class="status-badge" [class.badge-active]="element.scope === 'Public'" [class.badge-passive]="element.scope === 'Private'">
+            {{ element.scope === 'Public' ? 'Herkese Açık' : 'Kişiye Özel' }}
+          </span>
+          <span *ngIf="element.isRewardCoupon" class="status-badge badge-active" style="background-color: #ffd700; color: #000; margin-left: 4px;">Ödül</span>
+        </td>
+      </ng-container>
+
       <!-- DiscountType Column -->
       <ng-container matColumnDef="discountType">
         <th mat-header-cell *matHeaderCellDef> İndirim Türü </th>
         <td mat-cell *matCellDef="let element"> 
-          {{ element.discountType === 'Amount' ? 'Tutar (TL)' : 'Yüzde (%)' }}
+          {{ element.discountType === 'Amount' ? 'Tutar (TL)' : (element.discountType === 'Percentage' ? 'Yüzde (%)' : 'Kargo Bedava') }}
         </td>
       </ng-container>
 
@@ -107,7 +145,11 @@
       <ng-container matColumnDef="discountValue">
         <th mat-header-cell *matHeaderCellDef> İndirim Değeri </th>
         <td mat-cell *matCellDef="let element"> 
-          <span class="value-text">{{ element.discountType === 'Amount' ? element.discountValue + ' TL' : '%' + element.discountValue }}</span>
+          <span class="value-text" *ngIf="element.discountType !== 'FreeShipping'">
+            {{ element.discountType === 'Amount' ? element.discountValue + ' TL' : '%' + element.discountValue }}
+            <small *ngIf="element.discountType === 'Percentage' && element.maxDiscountAmount"> (Max: {{element.maxDiscountAmount}} TL)</small>
+          </span>
+          <span class="value-text" *ngIf="element.discountType === 'FreeShipping'">-</span>
         </td>
       </ng-container>
 
@@ -115,6 +157,27 @@
       <ng-container matColumnDef="minCartAmount">
         <th mat-header-cell *matHeaderCellDef> Min Sepet </th>
         <td mat-cell *matCellDef="let element"> {{element.minCartAmount}} TL </td>
+      </ng-container>
+
+      <!-- Expiration Column -->
+      <ng-container matColumnDef="expiration">
+        <th mat-header-cell *matHeaderCellDef> Kalan Süre </th>
+        <td mat-cell *matCellDef="let element">
+          <span [style.color]="getExpirationColor(element.expirationDate)">
+            {{ getExpirationText(element.expirationDate) }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Users Column -->
+      <ng-container matColumnDef="users">
+        <th mat-header-cell *matHeaderCellDef> Kullanıcılar </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-button color="accent" (click)="openUsersDialog(element)" *ngIf="element.assignedUsers && element.assignedUsers.length > 0">
+            {{ element.assignedUsers.length }} Kullanıcı
+          </button>
+          <span *ngIf="!element.assignedUsers || element.assignedUsers.length === 0" style="color: #999; font-size: 12px;">Yok</span>
+        </td>
       </ng-container>
 
       <!-- Status Column -->
@@ -131,10 +194,10 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef> İşlemler </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="primary" (click)="openEditForm(element)">
+          <button mat-icon-button color="primary" matTooltip="Düzenle" (click)="openEditForm(element)">
             <mat-icon>edit</mat-icon>
           </button>
-          <button mat-icon-button color="warn" (click)="deleteCoupon(element.id)">
+          <button mat-icon-button color="warn" matTooltip="Sil" (click)="deleteCoupon(element.id)">
             <mat-icon>delete</mat-icon>
           </button>
         </td>
@@ -145,7 +208,7 @@
 
       <!-- EMPTY STATE -->
       <tr class="mat-row empty-state-row" *matNoDataRow>
-        <td class="mat-cell empty-state-cell" colspan="6">
+        <td class="mat-cell empty-state-cell" colspan="9">
           <div class="empty-state-content">
             <mat-icon>local_activity</mat-icon>
             <h3>Hiç İndirim Kuponu Yok</h3>

@@ -1,0 +1,40 @@
+<div class="shippings-admin-container">
+  <div class="header">
+    <h2>Kargo Ayarları</h2>
+    <p>Müşterilerinize sunulacak olan ücretsiz kargo limitlerini ve kural durumlarını buradan hızlıca yönetebilirsiniz.</p>
+  </div>
+
+  <mat-card class="form-card shipping-card">
+    <mat-card-header>
+      <div mat-card-avatar>
+        <mat-icon color="primary" style="font-size: 32px; height: 32px; width: 32px; display:flex; align-items:center; justify-content:center; background:#e3f2fd; border-radius:50%; padding:8px;">local_shipping</mat-icon>
+      </div>
+      <mat-card-title>Kargo Bedava Kuralı</mat-card-title>
+      <mat-card-subtitle>Belirtilen minimum sepet tutarına ulaşan siparişlerde kargo ücreti sıfırlanır.</mat-card-subtitle>
+    </mat-card-header>
+    
+    <mat-card-content style="margin-top: 24px;">
+      <div class="form-row" style="display: flex; gap: 16px; align-items: center;">
+        <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+          <mat-label>Minimum Sepet Tutarı (TL)</mat-label>
+          <input matInput type="number" [(ngModel)]="shippingThreshold" placeholder="Örn: 100" min="0">
+          <mat-hint>Ücretsiz kargo olması için gereken asgari sepet tutarı.</mat-hint>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+          <mat-label>Kargo Ücreti (TL)</mat-label>
+          <input matInput type="number" [(ngModel)]="shippingFee" placeholder="Örn: 50" min="0">
+          <mat-hint>Sepet tutarı limiti aşmadığında alınacak standart kargo ücreti.</mat-hint>
+        </mat-form-field>
+
+        <mat-slide-toggle color="primary" [(ngModel)]="isShippingActive" style="margin-bottom: 22px;">
+          Kargo Kampanyası Aktif mi?
+        </mat-slide-toggle>
+      </div>
+    </mat-card-content>
+    
+    <mat-card-actions align="end">
+      <button mat-raised-button color="primary" (click)="saveShippingRule()">Ayarları Kaydet</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

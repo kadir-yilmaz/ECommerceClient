@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatIconModule } from '@angular/material/icon';
 
 import { CheckoutRoutingModule } from './checkout-routing.module';
 import { CheckoutComponent } from './checkout.component';
@@ -15,6 +16,8 @@ import { SharedUiModule } from '../shared/shared-ui.module';
     CommonModule,
     CheckoutRoutingModule,
     ReactiveFormsModule,
+    FormsModule,
+    MatIconModule,
     SharedUiModule
   ]
 })

@@ -1,5 +1,4 @@
 export class Create_Order {
-  description: string;
   contactName: string;
   phoneNumber: string;
   city: string;

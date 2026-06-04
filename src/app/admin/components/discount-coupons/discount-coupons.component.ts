@@ -2,11 +2,16 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatDialog } from '@angular/material/dialog';
 import { DiscountCoupon, Create_DiscountCoupon, Update_DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
 import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { SpinnerType } from 'src/app/base/base.component';
+import { AssignCouponDialogComponent } from './assign-coupon-dialog/assign-coupon-dialog.component';
+import { UserService } from 'src/app/services/common/models/user.service';
+import { List_User } from 'src/app/contracts/users/list_user';
+import { CouponUsersDialogComponent } from './coupon-users-dialog/coupon-users-dialog.component';
 
 @Component({
   selector: 'app-discount-coupons',
@@ -17,7 +22,7 @@ export class DiscountCouponsComponent implements OnInit {
 
   coupons: DiscountCoupon[] = [];
   dataSource: MatTableDataSource<DiscountCoupon> = new MatTableDataSource<DiscountCoupon>();
-  displayedColumns: string[] = ['code', 'discountType', 'discountValue', 'minCartAmount', 'isActive', 'actions'];
+  displayedColumns: string[] = ['code', 'scope', 'discountType', 'discountValue', 'minCartAmount', 'expiration', 'users', 'isActive', 'actions'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -26,53 +31,106 @@ export class DiscountCouponsComponent implements OnInit {
   isEditMode: boolean = false;
   editingCouponId: string | null = null;
   formSubmitted: boolean = false;
+  
+  users: List_User[] = [];
 
   discountTypes = [
     { value: 'Amount', label: 'Tutar İndirimi (TL)' },
-    { value: 'Percentage', label: 'Yüzdelik İndirim (%)' }
+    { value: 'Percentage', label: 'Yüzdelik İndirim (%)' },
+    { value: 'FreeShipping', label: 'Kargo Bedava' }
+  ];
+
+  scopes = [
+    { value: 'Public', label: 'Herkese Açık' },
+    { value: 'Private', label: 'Kişiye Özel' }
   ];
 
   constructor(
     private discountCouponService: DiscountCouponService,
     private formBuilder: FormBuilder,
     private toastrService: CustomToastrService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private dialog: MatDialog,
+    private userService: UserService
   ) { }
 
   ngOnInit(): void {
     this.createForm();
     this.loadCoupons();
+    this.loadUsers();
+  }
+
+  async loadUsers() {
+    try {
+      // 0 page, 1000 size for simplicity to get all active users to assign
+      const response = await this.userService.getAllUsers(0, 1000);
+      this.users = response.users;
+    } catch (error) {
+      console.error("Kullanıcılar yüklenirken hata oluştu", error);
+    }
   }
 
   createForm() {
     this.couponForm = this.formBuilder.group({
       code: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       discountType: ['Amount', Validators.required],
-      discountValue: [null, [Validators.required, Validators.min(1)]],
+      discountValue: [null],
+      maxDiscountAmount: [null, [Validators.min(1)]],
       minCartAmount: [0, [Validators.required, Validators.min(0)]],
       isActive: [true],
       expirationDate: [null],
-      usageLimit: [null, [Validators.min(1)]]
+      scope: ['Public', Validators.required],
+      userIds: [[]]
     });
 
     // DiscountType değiştiğinde discountValue max validatorünü güncelle
     this.couponForm.get('discountType')?.valueChanges.subscribe(type => {
       this.updateDiscountValueValidators(type);
     });
+
+    // Kupon kodu alanındaki tüm girişleri büyük harfe dönüştür
+    this.couponForm.get('code')?.valueChanges.subscribe(value => {
+      const upper = (value || '').toString().toUpperCase();
+      if (value !== upper) {
+        this.couponForm.get('code')?.setValue(upper, { emitEvent: false });
+      }
+    });
+
+    // scope değiştiğinde userIds validatorü (Private ise zorunlu olabilir, ama şimdilik en az 1 kişi seçilmesi UI'da zorunlu yapılabilir)
+    this.couponForm.get('scope')?.valueChanges.subscribe(scope => {
+      const userIdsControl = this.couponForm.get('userIds');
+      if (scope === 'Private') {
+        userIdsControl?.setValidators([Validators.required]);
+      } else {
+        userIdsControl?.clearValidators();
+        userIdsControl?.setValue([]);
+      }
+      userIdsControl?.updateValueAndValidity();
+    });
   }
 
   /**
-   * Yüzde tipi seçildiğinde discountValue max 100 olmalı,
-   * tutar tipi seçildiğinde max sınırı yok.
+   * İndirim tipine göre validatorleri güncelle
    */
   updateDiscountValueValidators(type: string) {
     const discountValue = this.couponForm.get('discountValue');
-    if (type === 'Percentage') {
+    const maxDiscountAmount = this.couponForm.get('maxDiscountAmount');
+
+    if (type === 'FreeShipping') {
+      discountValue?.clearValidators();
+      discountValue?.setValue(0);
+      maxDiscountAmount?.clearValidators();
+      maxDiscountAmount?.setValue(null);
+    } else if (type === 'Percentage') {
       discountValue?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+      maxDiscountAmount?.setValidators([Validators.min(1)]);
     } else {
       discountValue?.setValidators([Validators.required, Validators.min(1)]);
+      maxDiscountAmount?.clearValidators();
+      maxDiscountAmount?.setValue(null);
     }
     discountValue?.updateValueAndValidity();
+    maxDiscountAmount?.updateValueAndValidity();
   }
 
   /**
@@ -107,7 +165,7 @@ export class DiscountCouponsComponent implements OnInit {
     this.isEditMode = false;
     this.editingCouponId = null;
     this.formSubmitted = false;
-    this.couponForm.reset({ discountType: 'Amount', minCartAmount: 0, isActive: true });
+    this.couponForm.reset({ discountType: 'Amount', minCartAmount: 0, isActive: true, scope: 'Public', discountValue: null, maxDiscountAmount: null, userIds: [] });
     this.showForm = true;
   }
 
@@ -116,17 +174,64 @@ export class DiscountCouponsComponent implements OnInit {
     this.editingCouponId = coupon.id;
     this.formSubmitted = false;
     this.couponForm.patchValue({
-      code: coupon.code,
+      code: coupon.code?.toUpperCase(),
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
+      maxDiscountAmount: coupon.maxDiscountAmount,
       minCartAmount: coupon.minCartAmount,
       isActive: coupon.isActive,
       expirationDate: coupon.expirationDate,
-      usageLimit: coupon.usageLimit
+      scope: coupon.scope
     });
     // discountType'a göre validatorleri güncelle
     this.updateDiscountValueValidators(coupon.discountType);
     this.showForm = true;
+  }
+
+  openAssignDialog(coupon: DiscountCoupon) {
+    const dialogRef = this.dialog.open(AssignCouponDialogComponent, {
+      width: '500px',
+      data: { couponId: coupon.id, couponCode: coupon.code }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // İsteğe bağlı olarak table yenilenebilir
+      }
+    });
+  }
+
+  openUsersDialog(coupon: DiscountCoupon) {
+    this.dialog.open(CouponUsersDialogComponent, {
+      width: '500px',
+      data: { couponCode: coupon.code, users: coupon.assignedUsers || [] }
+    });
+  }
+
+  getExpirationText(expirationDate: Date | string | null): string {
+    if (!expirationDate) return 'Süresiz';
+    const expDate = new Date(expirationDate);
+    const today = new Date();
+    const diffTime = expDate.getTime() - today.getTime();
+    
+    if (diffTime < 0) return 'Süresi Doldu';
+    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Bugün Son';
+    return `${diffDays} gün kaldı`;
+  }
+
+  getExpirationColor(expirationDate: Date | string | null): string {
+    if (!expirationDate) return '#2e7d32'; // Green for unlimited
+    const expDate = new Date(expirationDate);
+    const today = new Date();
+    const diffTime = expDate.getTime() - today.getTime();
+    
+    if (diffTime < 0) return '#d32f2f'; // Red for expired
+    
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    if (diffDays <= 3) return '#ed6c02'; // Orange if expiring soon
+    return '#2e7d32'; // Green otherwise
   }
 
   cancelForm() {

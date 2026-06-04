@@ -12,6 +12,7 @@ import { ProductService } from 'src/app/services/common/models/product.service';
 import { List_Product } from 'src/app/contracts/list_product';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { Category } from 'src/app/contracts/category';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-campaigns',
@@ -25,6 +26,8 @@ export class CampaignsComponent implements OnInit {
   filteredProducts: List_Product[] = [];
   categories: Category[] = [];
   filteredCategories: Category[] = [];
+  brands: string[] = [];
+  filteredBrands: string[] = [];
   dataSource: MatTableDataSource<Campaign> = new MatTableDataSource<Campaign>();
   displayedColumns: string[] = ['name', 'ruleType', 'summary', 'isActive', 'actions'];
 
@@ -36,15 +39,13 @@ export class CampaignsComponent implements OnInit {
   editingCampaignId: string | null = null;
   formSubmitted: boolean = false;
 
-  // Kargo Kuralı
-  freeShippingCampaign: Campaign | null = null;
-  shippingThreshold: number = 100;
-  isShippingActive: boolean = true;
-
   ruleTypes = [
     { value: 'TotalAmountDiscount', label: 'Sepet Tutarı İndirimi' },
     { value: 'FreeItem', label: 'Bedava Ürün (X Al Y Öde)' },
-    { value: 'CheapestItemDiscount', label: 'En Ucuz Ürüne İndirim' }
+    { value: 'CheapestItemDiscount', label: 'En Ucuz Ürüne İndirim' },
+    { value: 'BrandDiscount', label: 'Markaya Özel İndirim' },
+    { value: 'CategoryDiscount', label: 'Komple Kategoriye Yüzdelik İndirim' },
+    { value: 'SelectedProductsDiscount', label: 'Seçili Ürünlere İndirim' }
   ];
 
   constructor(
@@ -53,13 +54,15 @@ export class CampaignsComponent implements OnInit {
     private categoryService: CategoryService,
     private formBuilder: FormBuilder,
     private toastrService: CustomToastrService,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private http: HttpClient
   ) { }
 
   async ngOnInit(): Promise<void> {
     this.createForm();
     await this.loadProducts();
     await this.loadCategories();
+    await this.loadBrands();
     await this.loadCampaigns();
 
     // Filtreleme mantığı (Ürünler)
@@ -71,6 +74,36 @@ export class CampaignsComponent implements OnInit {
     this.campaignForm.get('categorySearch')?.valueChanges.subscribe(val => {
       this.filterCategories(val);
     });
+
+    // Filtreleme mantığı (Markalar)
+    this.campaignForm.get('brandSearch')?.valueChanges.subscribe(val => {
+      this.filterBrands(val);
+    });
+  }
+
+  async loadBrands() {
+    return new Promise<void>((resolve) => {
+      this.http.get<string[]>('assets/brands.json').subscribe({
+        next: (data) => {
+          this.brands = data || [];
+          this.filteredBrands = [...this.brands];
+          resolve();
+        },
+        error: (err) => {
+          console.error('Markalar yüklenemedi', err);
+          resolve();
+        }
+      });
+    });
+  }
+
+  filterBrands(searchQuery: string) {
+    if (!searchQuery) {
+      this.filteredBrands = [...this.brands];
+      return;
+    }
+    const lowerCaseQuery = searchQuery.toLowerCase();
+    this.filteredBrands = this.brands.filter(b => b.toLowerCase().includes(lowerCaseQuery));
   }
 
   async loadProducts() {
@@ -127,6 +160,9 @@ export class CampaignsComponent implements OnInit {
       productSearch: [''],
       categoryId: [''],
       categorySearch: [''],
+      brand: [''],
+      brandSearch: [''],
+      endDate: [null],
       isActive: [true]
     });
 
@@ -147,9 +183,10 @@ export class CampaignsComponent implements OnInit {
     const freeQuantity = this.campaignForm.get('freeQuantity');
     const productId = this.campaignForm.get('productId');
     const categoryId = this.campaignForm.get('categoryId');
+    const brand = this.campaignForm.get('brand');
 
     // Tüm koşullu alanların validatorlerini temizle
-    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId].forEach(ctrl => {
+    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId, brand].forEach(ctrl => {
       ctrl?.clearValidators();
       ctrl?.updateValueAndValidity({ emitEvent: false });
     });
@@ -171,12 +208,43 @@ export class CampaignsComponent implements OnInit {
         minQuantity?.setValidators([Validators.required, Validators.min(2)]);
         discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
         break;
+
+      case 'BrandDiscount':
+        brand?.setValidators([Validators.required]);
+        discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+        break;
+
+      case 'CategoryDiscount':
+        categoryId?.setValidators([Validators.required]);
+        discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+        break;
+
+      case 'SelectedProductsDiscount':
+        productId?.setValidators([Validators.required]);
+        discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+        break;
     }
 
     // Güncellenmiş validatorleri uygula
-    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId].forEach(ctrl => {
+    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId, brand].forEach(ctrl => {
       ctrl?.updateValueAndValidity({ emitEvent: false });
     });
+  }
+
+  formatDateForInput(dateStr: string | Date | undefined | null): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+    
+    // Adjust for timezone offset to match local time for type="datetime-local"
+    const tzOffset = date.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);
+    return localISOTime;
+  }
+
+  isExpired(campaign: Campaign): boolean {
+    if (!campaign.endDate) return false;
+    return new Date(campaign.endDate) < new Date();
   }
 
   async loadCampaigns() {
@@ -184,16 +252,6 @@ export class CampaignsComponent implements OnInit {
     try {
       const allCampaigns = await this.campaignService.getAllCampaigns();
       
-      // Kargo kampanyasını ayır
-      this.freeShippingCampaign = allCampaigns.find(c => c.ruleType === 'FreeShipping') || null;
-      if (this.freeShippingCampaign) {
-        this.shippingThreshold = this.freeShippingCampaign.minAmount || 100;
-        this.isShippingActive = this.freeShippingCampaign.isActive;
-      } else {
-        this.shippingThreshold = 100;
-        this.isShippingActive = true;
-      }
-
       // Tabloda kargo hariç diğerlerini göster
       this.campaigns = allCampaigns.filter(c => c.ruleType !== 'FreeShipping');
       this.dataSource = new MatTableDataSource<Campaign>(this.campaigns);
@@ -226,55 +284,22 @@ export class CampaignsComponent implements OnInit {
       return `Kategori: ${categoryName} (En az ${campaign.minQuantity || 0} adet alana en ucuzu ${actionText})`;
     }
 
+    if (campaign.ruleType === 'BrandDiscount') {
+      return `Marka: ${campaign.brand} (Sepette %${campaign.discountRate || 0} indirim)`;
+    }
+
+    if (campaign.ruleType === 'CategoryDiscount') {
+      const category = this.categories.find(c => c.id === campaign.categoryId);
+      const categoryName = category ? category.name : 'Bilinmeyen Kategori';
+      return `Kategori: ${categoryName} (Sepette %${campaign.discountRate || 0} indirim)`;
+    }
+
+    if (campaign.ruleType === 'SelectedProductsDiscount') {
+      const productIds = campaign.productId ? campaign.productId.split(',') : [];
+      return `Seçili Ürünler (${productIds.length} adet) (Sepette %${campaign.discountRate || 0} indirim)`;
+    }
+
     return '-';
-  }
-
-  async saveShippingRule() {
-    if (this.shippingThreshold == null || this.shippingThreshold < 0) {
-      this.toastrService.message("Lütfen geçerli bir minimum tutar giriniz.", "Uyarı", {
-        messageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-      return;
-    }
-
-    this.spinner.show(SpinnerType.BallAtom);
-    try {
-      if (this.freeShippingCampaign) {
-        // Güncelle
-        const updateModel: Update_Campaign = {
-          id: this.freeShippingCampaign.id,
-          name: 'Kargo Bedava',
-          description: `${this.shippingThreshold} TL ve üzeri alışverişlerde kargo bedava!`,
-          ruleType: 'FreeShipping',
-          minAmount: this.shippingThreshold,
-          isActive: this.isShippingActive
-        };
-        await this.campaignService.updateCampaign(updateModel);
-      } else {
-        // Yeni Ekle
-        const createModel: Create_Campaign = {
-          name: 'Kargo Bedava',
-          description: `${this.shippingThreshold} TL ve üzeri alışverişlerde kargo bedava!`,
-          ruleType: 'FreeShipping',
-          minAmount: this.shippingThreshold,
-          isActive: this.isShippingActive
-        };
-        await this.campaignService.createCampaign(createModel);
-      }
-      this.toastrService.message("Kargo kuralı kaydedildi.", "Başarılı", {
-        messageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-      await this.loadCampaigns();
-    } catch (error) {
-      this.toastrService.message("Kargo kuralı kaydedilirken hata oluştu.", "Hata", {
-        messageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
-    } finally {
-      this.spinner.hide(SpinnerType.BallAtom);
-    }
   }
 
   openAddForm() {
@@ -289,6 +314,12 @@ export class CampaignsComponent implements OnInit {
     this.isEditMode = true;
     this.editingCampaignId = campaign.id;
     this.formSubmitted = false;
+
+    let prodValue: any = campaign.productId;
+    if (campaign.ruleType === 'SelectedProductsDiscount') {
+      prodValue = campaign.productId ? campaign.productId.split(',') : [];
+    }
+
     this.campaignForm.patchValue({
       name: campaign.name,
       description: campaign.description,
@@ -297,8 +328,10 @@ export class CampaignsComponent implements OnInit {
       discountRate: campaign.discountRate,
       minQuantity: campaign.minQuantity,
       freeQuantity: campaign.freeQuantity,
-      productId: campaign.productId,
+      productId: prodValue,
       categoryId: campaign.categoryId,
+      brand: campaign.brand,
+      endDate: campaign.endDate ? this.formatDateForInput(campaign.endDate) : null,
       isActive: campaign.isActive
     });
     // Dinamik validatorleri uygula
@@ -326,7 +359,12 @@ export class CampaignsComponent implements OnInit {
 
     this.spinner.show(SpinnerType.BallAtom);
     try {
-      const formData = this.campaignForm.value;
+      const formData = { ...this.campaignForm.value };
+      if (formData.ruleType === 'SelectedProductsDiscount' && Array.isArray(formData.productId)) {
+        formData.productId = formData.productId.join(',');
+      } else if (Array.isArray(formData.productId)) {
+        formData.productId = formData.productId[0] || '';
+      }
 
       if (this.isEditMode && this.editingCampaignId) {
         const updateModel: Update_Campaign = {

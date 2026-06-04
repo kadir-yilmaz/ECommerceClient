@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Ödül Kuponu Tanımla</h2>
+<mat-dialog-content>
+  <form [formGroup]="couponForm" style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;">
+    
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>İndirim Tipi</mat-label>
+      <mat-select formControlName="discountType">
+        <mat-option value="Amount">Tutar İndirimi (TL)</mat-option>
+        <mat-option value="Percentage">Yüzde İndirimi (%)</mat-option>
+        <mat-option value="FreeShipping">Kargo Bedava</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div style="display: flex; gap: 15px;" *ngIf="couponForm.get('discountType')?.value !== 'FreeShipping'">
+      <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+        <mat-label>İndirim Değeri ({{ couponForm.get('discountType')?.value === 'Percentage' ? '%' : 'TL' }})</mat-label>
+        <input matInput type="number" formControlName="discountValue" placeholder="Örn: 50">
+        <mat-error *ngIf="couponForm.get('discountValue')?.hasError('required')">Zorunlu alan.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" style="flex: 1;" *ngIf="couponForm.get('discountType')?.value === 'Percentage'">
+        <mat-label>Maksimum İndirim (TL) - Opsiyonel</mat-label>
+        <input matInput type="number" formControlName="maxDiscountAmount" placeholder="Örn: 200">
+      </mat-form-field>
+    </div>
+
+    <div style="display: flex; gap: 15px;">
+      <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+        <mat-label>Kupon Geçerlilik Süresi (Gün)</mat-label>
+        <input matInput type="number" formControlName="validityDays" placeholder="Örn: 30">
+        <mat-error *ngIf="couponForm.get('validityDays')?.hasError('required')">Zorunlu alan.</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
+        <mat-label>Minimum Sepet Tutarı (TL) - Opsiyonel</mat-label>
+        <input matInput type="number" formControlName="minCartAmount" placeholder="Örn: 100">
+      </mat-form-field>
+    </div>
+
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">İptal</button>
+  <button mat-raised-button color="primary" (click)="save()" [disabled]="couponForm.invalid">Kaydet</button>
+</mat-dialog-actions>

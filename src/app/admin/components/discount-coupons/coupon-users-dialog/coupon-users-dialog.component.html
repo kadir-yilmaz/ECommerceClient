@@ -1,0 +1,17 @@
+<h2 mat-dialog-title>{{ data.couponCode }} - Kupon Kullanıcıları</h2>
+<mat-dialog-content>
+  <div class="users-list">
+    <div class="user-item" *ngFor="let u of data.users">
+      <span class="username">{{ u.userName }}</span>
+      <span class="status-badge" [class.used]="u.isUsed" [class.pending]="!u.isUsed">
+        {{ u.isUsed ? 'Kullanıldı' : 'Bekliyor' }}
+      </span>
+    </div>
+    <div *ngIf="data.users.length === 0" class="no-users">
+      Bu kupon henüz kimse tarafından kullanılmamış/kimseye atanmamış.
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Kapat</button>
+</mat-dialog-actions>
