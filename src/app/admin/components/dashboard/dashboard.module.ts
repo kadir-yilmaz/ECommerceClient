@@ -6,6 +6,8 @@ import { FormsModule } from '@angular/forms';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatTableModule } from '@angular/material/table';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 @NgModule({
   declarations: [
@@ -16,10 +18,11 @@ import { MatButtonModule } from '@angular/material/button';
     FormsModule,
     MatIconModule,
     MatButtonModule,
+    MatTableModule,
+    MatSlideToggleModule,
     RouterModule.forChild([
       { path: "", component: DashboardComponent }
     ])
   ]
 })
-
 export class DashboardModule { }

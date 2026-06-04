@@ -7,88 +7,104 @@
 
 <div class="card shadow-sm">
   <div class="card-body p-4">
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Brand</mat-label>
-          <input type="text" matInput [matAutocomplete]="auto" [(ngModel)]="brandText" (ngModelChange)="filterBrands($event)">
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
-            <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
-              {{brand}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+    <form [formGroup]="productForm" (ngSubmit)="create()" novalidate>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Brand</mat-label>
+            <input type="text" matInput [matAutocomplete]="auto" formControlName="brand" (input)="filterBrands($any($event.target).value)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
+              <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+                {{brand}}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-hint>Opsiyonel</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" maxlength="150">
+            <mat-hint align="end">{{ productForm.get('name')?.value?.length || 0 }} / 150</mat-hint>
+            <mat-error *ngIf="f['name'].hasError('required')">Ürün adı zorunludur.</mat-error>
+            <mat-error *ngIf="f['name'].hasError('minlength')">Ürün adı en az 5 karakter olmalıdır.</mat-error>
+            <mat-error *ngIf="f['name'].hasError('maxlength')">Ürün adı en fazla 150 karakter olabilir.</mat-error>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Name</mat-label>
-          <input matInput #txtName>
-        </mat-form-field>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Stock</mat-label>
-          <input matInput type="number" min="0" value="0" #txtStock>
-        </mat-form-field>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Stock</mat-label>
+            <input matInput type="number" formControlName="stock" min="0">
+            <mat-error *ngIf="f['stock'].hasError('required')">Stok bilgisi zorunludur.</mat-error>
+            <mat-error *ngIf="f['stock'].hasError('min')">Stok bilgisi negatif olamaz.</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Price</mat-label>
+            <input matInput type="number" formControlName="price" min="0">
+            <mat-error *ngIf="f['price'].hasError('required')">Fiyat bilgisi zorunludur.</mat-error>
+            <mat-error *ngIf="f['price'].hasError('min')">Fiyat 0'dan büyük olmalıdır.</mat-error>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Price</mat-label>
-          <input matInput type="number" min="0" value="0" #txtPrice>
-        </mat-form-field>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Ana Kategori</mat-label>
-          <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
-            <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
-            <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3" [class.category-error]="submitted && !isCategorySelectionValid()">
+            <mat-label>Ana Kategori</mat-label>
+            <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
+              <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
+              <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="custom-error" *ngIf="submitted && !isCategorySelectionValid()">
+            <mat-icon>error_outline</mat-icon>
+            <span *ngIf="!selectedMainCategoryId">Lütfen bir kategori seçiniz.</span>
+            <span *ngIf="selectedMainCategoryId">Seçilen kategori alt kategorilere sahip olduğundan, ürün doğrudan bu kategoriye eklenemez. Lütfen bir alt kategori seçiniz.</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3" [class.category-error]="submitted && !isCategorySelectionValid() && selectedMainCategoryId">
+            <mat-label>Alt Kategori</mat-label>
+            <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
+              <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
+              <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
+              <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Alt Kategori</mat-label>
-          <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
-            <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
-            <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
-            <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+
+      <div class="mb-3">
+        <label class="form-label fw-bold">Images</label>
+        <input class="form-control" type="file" multiple accept="image/*"
+          (change)="onFileSelected($event)">
       </div>
-    </div>
 
-    <div class="mb-3">
-      <label class="form-label fw-bold">Images</label>
-      <input class="form-control" type="file" multiple accept="image/*"
-        (change)="onFileSelected($event)">
-    </div>
+      <!-- Image Previews -->
+      <div class="d-flex flex-wrap gap-3 mt-3" *ngIf="imagePreviews.length > 0">
+        <div *ngFor="let preview of imagePreviews; let i = index" class="position-relative"
+          style="width: 120px; height: 120px;">
+          <img [src]="preview" class="img-thumbnail"
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+          <button type="button" class="btn btn-sm btn-danger position-absolute p-0 shadow"
+            style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
+            (click)="removeImage(i)">
+            &times;
+          </button>
+        </div>
+      </div>
 
-    <!-- Image Previews -->
-    <div class="d-flex flex-wrap gap-3 mt-3" *ngIf="imagePreviews.length > 0">
-      <div *ngFor="let preview of imagePreviews; let i = index" class="position-relative"
-        style="width: 120px; height: 120px;">
-        <img [src]="preview" class="img-thumbnail"
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-        <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
-          style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
-          (click)="removeImage(i)">
-          &times;
+      <div class="d-flex justify-content-end mt-4 gap-2">
+        <button type="button" mat-flat-button routerLink="/admin/products">Cancel</button>
+        <button type="submit" mat-flat-button color="warn" [disabled]="submitted && productForm.invalid">
+          <mat-icon>add</mat-icon> Create Product
         </button>
       </div>
-    </div>
-
-    <div class="d-flex justify-content-end mt-4 gap-2">
-      <button mat-flat-button routerLink="/admin/products">Cancel</button>
-      <button mat-flat-button color="warn" (click)="create(txtName, txtStock, txtPrice)">
-        <mat-icon>add</mat-icon> Create Product
-      </button>
-    </div>
+    </form>
   </div>
 </div>

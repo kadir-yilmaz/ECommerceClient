@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { DiscountCoupon, Create_DiscountCoupon, Update_DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
@@ -25,6 +25,7 @@ export class DiscountCouponsComponent implements OnInit {
   couponForm: FormGroup;
   isEditMode: boolean = false;
   editingCouponId: string | null = null;
+  formSubmitted: boolean = false;
 
   discountTypes = [
     { value: 'Amount', label: 'Tutar İndirimi (TL)' },
@@ -45,14 +46,45 @@ export class DiscountCouponsComponent implements OnInit {
 
   createForm() {
     this.couponForm = this.formBuilder.group({
-      code: ['', [Validators.required, Validators.minLength(3)]],
+      code: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
       discountType: ['Amount', Validators.required],
       discountValue: [null, [Validators.required, Validators.min(1)]],
       minCartAmount: [0, [Validators.required, Validators.min(0)]],
       isActive: [true],
       expirationDate: [null],
-      usageLimit: [null]
+      usageLimit: [null, [Validators.min(1)]]
     });
+
+    // DiscountType değiştiğinde discountValue max validatorünü güncelle
+    this.couponForm.get('discountType')?.valueChanges.subscribe(type => {
+      this.updateDiscountValueValidators(type);
+    });
+  }
+
+  /**
+   * Yüzde tipi seçildiğinde discountValue max 100 olmalı,
+   * tutar tipi seçildiğinde max sınırı yok.
+   */
+  updateDiscountValueValidators(type: string) {
+    const discountValue = this.couponForm.get('discountValue');
+    if (type === 'Percentage') {
+      discountValue?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+    } else {
+      discountValue?.setValidators([Validators.required, Validators.min(1)]);
+    }
+    discountValue?.updateValueAndValidity();
+  }
+
+  /**
+   * Geçmiş tarih kontrolü — expirationDate girilmişse bugünden sonra olmalı
+   */
+  isExpirationDateInPast(): boolean {
+    const date = this.couponForm.get('expirationDate')?.value;
+    if (!date) return false;
+    const expDate = new Date(date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return expDate < today;
   }
 
   async loadCoupons() {
@@ -74,6 +106,7 @@ export class DiscountCouponsComponent implements OnInit {
   openAddForm() {
     this.isEditMode = false;
     this.editingCouponId = null;
+    this.formSubmitted = false;
     this.couponForm.reset({ discountType: 'Amount', minCartAmount: 0, isActive: true });
     this.showForm = true;
   }
@@ -81,6 +114,7 @@ export class DiscountCouponsComponent implements OnInit {
   openEditForm(coupon: DiscountCoupon) {
     this.isEditMode = true;
     this.editingCouponId = coupon.id;
+    this.formSubmitted = false;
     this.couponForm.patchValue({
       code: coupon.code,
       discountType: coupon.discountType,
@@ -90,16 +124,31 @@ export class DiscountCouponsComponent implements OnInit {
       expirationDate: coupon.expirationDate,
       usageLimit: coupon.usageLimit
     });
+    // discountType'a göre validatorleri güncelle
+    this.updateDiscountValueValidators(coupon.discountType);
     this.showForm = true;
   }
 
   cancelForm() {
     this.showForm = false;
+    this.formSubmitted = false;
     this.couponForm.reset();
   }
 
   async submitForm() {
+    this.formSubmitted = true;
+
+    // Geçmiş tarih kontrolü
+    if (this.isExpirationDateInPast()) {
+      this.toastrService.message("Son kullanma tarihi geçmiş bir tarih olamaz.", "Uyarı", {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
+      });
+      return;
+    }
+
     if (this.couponForm.invalid) {
+      this.couponForm.markAllAsTouched();
       this.toastrService.message("Lütfen zorunlu alanları doldurun.", "Uyarı", {
         messageType: ToastrMessageType.Warning,
         position: ToastrPosition.TopRight
@@ -133,6 +182,7 @@ export class DiscountCouponsComponent implements OnInit {
       }
 
       this.showForm = false;
+      this.formSubmitted = false;
       await this.loadCoupons();
     } catch (error) {
       this.toastrService.message("Bir hata oluştu.", "Hata", {

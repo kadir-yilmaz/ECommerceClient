@@ -25,6 +25,10 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
   formParentCategoryId: string = '';
   formShowOnHomepage: boolean = false;
   formHomepageOrder: number = 0;
+  formSubmitted: boolean = false;
+
+  // Validation errors
+  formErrors: { name?: string } = {};
 
   constructor(
     spinner: NgxSpinnerService,
@@ -82,6 +86,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formParentCategoryId = parentId || '';
     this.formShowOnHomepage = false;
     this.formHomepageOrder = 0;
+    this.formSubmitted = false;
+    this.formErrors = {};
   }
 
   openEditForm(category: Category) {
@@ -92,6 +98,8 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formParentCategoryId = category.parentCategoryId || '';
     this.formShowOnHomepage = !!category.showOnHomepage;
     this.formHomepageOrder = category.homepageOrder || 0;
+    this.formSubmitted = false;
+    this.formErrors = {};
   }
 
   cancelForm() {
@@ -101,14 +109,49 @@ export class CategoriesComponent extends BaseComponent implements OnInit {
     this.formParentCategoryId = '';
     this.formShowOnHomepage = false;
     this.formHomepageOrder = 0;
+    this.formSubmitted = false;
+    this.formErrors = {};
+  }
+
+  /**
+   * Kategori adı doğrulaması — domain'de Name string (non-nullable)
+   * Min 2, max 100 karakter ve boş olamaz.
+   */
+  validateForm(): boolean {
+    this.formErrors = {};
+    const name = this.formCategoryName?.trim() || '';
+
+    if (!name) {
+      this.formErrors.name = 'Kategori adı zorunludur.';
+      return false;
+    }
+    if (name.length < 2) {
+      this.formErrors.name = 'Kategori adı en az 2 karakter olmalıdır.';
+      return false;
+    }
+    if (name.length > 100) {
+      this.formErrors.name = 'Kategori adı en fazla 100 karakter olabilir.';
+      return false;
+    }
+
+    // Aynı isimde kategori kontrolü (aynı parent altında)
+    const duplicate = this.categories.find(c =>
+      c.name.toLowerCase() === name.toLowerCase() &&
+      (c.parentCategoryId || '') === this.formParentCategoryId &&
+      c.id !== this.formCategoryId
+    );
+    if (duplicate) {
+      this.formErrors.name = 'Bu isimde bir kategori zaten mevcut.';
+      return false;
+    }
+
+    return true;
   }
 
   async saveCategory() {
-    if (!this.formCategoryName.trim()) {
-      this.toastr.message('Kategori adı boş olamaz.', 'Uyarı', {
-        messageType: ToastrMessageType.Warning,
-        position: ToastrPosition.BottomRight
-      });
+    this.formSubmitted = true;
+
+    if (!this.validateForm()) {
       return;
     }
 

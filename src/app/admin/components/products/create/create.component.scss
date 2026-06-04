@@ -14,3 +14,49 @@
 .img-thumbnail:hover {
   transform: scale(1.05);
 }
+
+/* Category error state */
+.category-error ::ng-deep .mat-mdc-text-field-wrapper {
+  border: 1.5px solid #f44336 !important;
+  border-radius: 4px;
+}
+
+.custom-error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #f44336;
+  font-size: 12px;
+  margin-top: -12px;
+  margin-bottom: 12px;
+  padding-left: 14px;
+  animation: slideDown 0.3s ease;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+/* Shake animation for invalid form submit */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.shake {
+  animation: shake 0.5s ease-in-out;
+}

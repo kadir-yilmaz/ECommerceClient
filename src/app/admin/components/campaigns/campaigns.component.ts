@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Campaign, Create_Campaign, Update_Campaign } from 'src/app/contracts/campaign/campaign';
@@ -34,6 +34,7 @@ export class CampaignsComponent implements OnInit {
   campaignForm: FormGroup;
   isEditMode: boolean = false;
   editingCampaignId: string | null = null;
+  formSubmitted: boolean = false;
 
   // Kargo Kuralı
   freeShippingCampaign: Campaign | null = null;
@@ -98,7 +99,10 @@ export class CampaignsComponent implements OnInit {
       return;
     }
     const lowerCaseQuery = searchQuery.toLowerCase();
-    this.filteredProducts = this.products.filter(p => p.name.toLowerCase().includes(lowerCaseQuery));
+    this.filteredProducts = this.products.filter(p => 
+      p.name.toLowerCase().includes(lowerCaseQuery) || 
+      (p.brand && p.brand.toLowerCase().includes(lowerCaseQuery))
+    );
   }
 
   filterCategories(searchQuery: string) {
@@ -112,8 +116,8 @@ export class CampaignsComponent implements OnInit {
 
   createForm() {
     this.campaignForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
+      name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
+      description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
       ruleType: ['', Validators.required],
       minAmount: [null],
       discountRate: [null],
@@ -126,8 +130,52 @@ export class CampaignsComponent implements OnInit {
       isActive: [true]
     });
 
+    // RuleType değiştiğinde dinamik validatorleri güncelle
     this.campaignForm.get('ruleType')?.valueChanges.subscribe(val => {
-      // Logic to reset validators based on ruletype if needed
+      this.updateConditionalValidators(val);
+    });
+  }
+
+  /**
+   * RuleType'a göre koşullu alanların validatorlerini dinamik olarak ekle/kaldır.
+   * Nullable alanlar sadece ilgili RuleType seçildiğinde zorunlu olur.
+   */
+  updateConditionalValidators(ruleType: string) {
+    const minAmount = this.campaignForm.get('minAmount');
+    const discountRate = this.campaignForm.get('discountRate');
+    const minQuantity = this.campaignForm.get('minQuantity');
+    const freeQuantity = this.campaignForm.get('freeQuantity');
+    const productId = this.campaignForm.get('productId');
+    const categoryId = this.campaignForm.get('categoryId');
+
+    // Tüm koşullu alanların validatorlerini temizle
+    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId].forEach(ctrl => {
+      ctrl?.clearValidators();
+      ctrl?.updateValueAndValidity({ emitEvent: false });
+    });
+
+    switch (ruleType) {
+      case 'TotalAmountDiscount':
+        minAmount?.setValidators([Validators.required, Validators.min(1)]);
+        discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+        break;
+
+      case 'FreeItem':
+        productId?.setValidators([Validators.required]);
+        minQuantity?.setValidators([Validators.required, Validators.min(2)]);
+        freeQuantity?.setValidators([Validators.required, Validators.min(1)]);
+        break;
+
+      case 'CheapestItemDiscount':
+        categoryId?.setValidators([Validators.required]);
+        minQuantity?.setValidators([Validators.required, Validators.min(2)]);
+        discountRate?.setValidators([Validators.required, Validators.min(1), Validators.max(100)]);
+        break;
+    }
+
+    // Güncellenmiş validatorleri uygula
+    [minAmount, discountRate, minQuantity, freeQuantity, productId, categoryId].forEach(ctrl => {
+      ctrl?.updateValueAndValidity({ emitEvent: false });
     });
   }
 
@@ -182,6 +230,14 @@ export class CampaignsComponent implements OnInit {
   }
 
   async saveShippingRule() {
+    if (this.shippingThreshold == null || this.shippingThreshold < 0) {
+      this.toastrService.message("Lütfen geçerli bir minimum tutar giriniz.", "Uyarı", {
+        messageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
+      });
+      return;
+    }
+
     this.spinner.show(SpinnerType.BallAtom);
     try {
       if (this.freeShippingCampaign) {
@@ -224,6 +280,7 @@ export class CampaignsComponent implements OnInit {
   openAddForm() {
     this.isEditMode = false;
     this.editingCampaignId = null;
+    this.formSubmitted = false;
     this.campaignForm.reset({ isActive: true });
     this.showForm = true;
   }
@@ -231,6 +288,7 @@ export class CampaignsComponent implements OnInit {
   openEditForm(campaign: Campaign) {
     this.isEditMode = true;
     this.editingCampaignId = campaign.id;
+    this.formSubmitted = false;
     this.campaignForm.patchValue({
       name: campaign.name,
       description: campaign.description,
@@ -243,16 +301,22 @@ export class CampaignsComponent implements OnInit {
       categoryId: campaign.categoryId,
       isActive: campaign.isActive
     });
+    // Dinamik validatorleri uygula
+    this.updateConditionalValidators(campaign.ruleType);
     this.showForm = true;
   }
 
   cancelForm() {
     this.showForm = false;
+    this.formSubmitted = false;
     this.campaignForm.reset();
   }
 
   async submitForm() {
+    this.formSubmitted = true;
+
     if (this.campaignForm.invalid) {
+      this.campaignForm.markAllAsTouched();
       this.toastrService.message("Lütfen zorunlu alanları doldurun.", "Uyarı", {
         messageType: ToastrMessageType.Warning,
         position: ToastrPosition.TopRight
@@ -286,6 +350,7 @@ export class CampaignsComponent implements OnInit {
       }
 
       this.showForm = false;
+      this.formSubmitted = false;
       await this.loadCampaigns();
     } catch (error) {
       this.toastrService.message("Bir hata oluştu.", "Hata", {

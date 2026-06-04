@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from '../../../../base/base.component';
@@ -20,6 +21,9 @@ import { HttpClient } from '@angular/common/http';
 })
 export class UpdateComponent extends BaseComponent implements OnInit {
 
+  productForm: FormGroup;
+  submitted = false;
+
   productId: string;
   product: List_Product;
   existingImages: List_Product_Image[] = [];
@@ -34,10 +38,10 @@ export class UpdateComponent extends BaseComponent implements OnInit {
 
   brands: string[] = [];
   filteredBrands: string[] = [];
-  brandText: string = '';
 
   constructor(
     spinner: NgxSpinnerService,
+    private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
@@ -47,7 +51,19 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     private http: HttpClient
   ) {
     super(spinner);
+    this.createForm();
   }
+
+  createForm() {
+    this.productForm = this.fb.group({
+      brand: [''],
+      name: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(150)]],
+      stock: [null, [Validators.required, Validators.min(0)]],
+      price: [null, [Validators.required, Validators.min(0.01)]]
+    });
+  }
+
+  get f() { return this.productForm.controls; }
 
   async ngOnInit() {
     this.showSpinner(SpinnerType.BallAtom);
@@ -73,6 +89,16 @@ export class UpdateComponent extends BaseComponent implements OnInit {
           }
         );
 
+        // Form'u mevcut ürün verileriyle doldur
+        if (this.product) {
+          this.productForm.patchValue({
+            brand: this.product.brand || '',
+            name: this.product.name,
+            stock: this.product.stock,
+            price: this.product.price
+          });
+        }
+
         if (this.product?.categoryId) {
           const category = this.allCategories.find(c => c.id === this.product.categoryId);
           if (category) {
@@ -86,9 +112,6 @@ export class UpdateComponent extends BaseComponent implements OnInit {
             }
           }
         }
-        if (this.product?.brand) {
-          this.brandText = this.product.brand;
-        }
 
         this.existingImages = await this.productService.readImages(this.productId, () => { });
       } catch (error) {
@@ -101,7 +124,7 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   onMainCategoryChange(categoryId: string) {
     this.selectedMainCategoryId = categoryId;
     this.selectedSubCategoryId = '';
-    
+
     if (categoryId) {
       this.subCategories = this.allCategories.filter(c => c.parentCategoryId === categoryId);
     } else {
@@ -115,7 +138,7 @@ export class UpdateComponent extends BaseComponent implements OnInit {
   }
 
   onBrandSelected(event: any) {
-    this.brandText = event.option.value;
+    this.productForm.patchValue({ brand: event.option.value });
   }
 
   getImageUrl(path: string): string {
@@ -168,7 +191,7 @@ export class UpdateComponent extends BaseComponent implements OnInit {
         this.existingImages.forEach(img => img.showcase = false);
         const selected = this.existingImages.find(img => img.id === imageId);
         if (selected) selected.showcase = true;
-        
+
         this.hideSpinner(SpinnerType.BallAtom);
         this.alertify.message("Vitrin resmi güncellendi.", {
           dismissOthers: true,
@@ -181,15 +204,41 @@ export class UpdateComponent extends BaseComponent implements OnInit {
     }
   }
 
-  async update(name: HTMLInputElement, stock: HTMLInputElement, price: HTMLInputElement) {
+  isCategorySelectionValid(): boolean {
+    const finalCategoryId = this.selectedSubCategoryId || this.selectedMainCategoryId;
+    if (!finalCategoryId) return false;
+    return !this.allCategories.some(c => c.parentCategoryId === finalCategoryId);
+  }
+
+  async update() {
+    this.submitted = true;
+
+    if (!this.isCategorySelectionValid()) {
+      const msg = !this.selectedMainCategoryId 
+        ? "Lütfen bir kategori seçiniz!"
+        : "Seçilen kategori alt kategorilere sahip olduğundan, ürün doğrudan bu kategoriye eklenemez. Lütfen bir alt kategori seçiniz.";
+      
+      this.alertify.message(msg, {
+        dismissOthers: true,
+        messageType: MessageType.Error,
+        position: Position.BottomRight
+      });
+    }
+
+    if (this.productForm.invalid || !this.isCategorySelectionValid()) {
+      this.productForm.markAllAsTouched();
+      return;
+    }
+
     this.showSpinner(SpinnerType.BallAtom);
 
+    const formValue = this.productForm.value;
     const updateModel: any = {
       id: this.productId,
-      name: name.value,
-      stock: parseInt(stock.value),
-      price: parseFloat(price.value),
-      brand: this.brandText
+      name: formValue.name,
+      stock: formValue.stock,
+      price: formValue.price,
+      brand: formValue.brand
     };
     if (this.selectedSubCategoryId) {
       updateModel.categoryId = this.selectedSubCategoryId;

@@ -12,6 +12,9 @@ import { RoleService } from '../../../../services/common/models/role.service';
 })
 export class CreateComponent extends BaseComponent implements OnInit {
 
+  roleName: string = '';
+  submitted: boolean = false;
+
   constructor(spiner: NgxSpinnerService,
     private roleService: RoleService,
     private alertify: AlertifyService) {
@@ -23,9 +26,24 @@ export class CreateComponent extends BaseComponent implements OnInit {
 
   @Output() createdRole: EventEmitter<string> = new EventEmitter();
 
+  /**
+   * Rol adı doğrulaması — IdentityRole Name string (non-nullable)
+   * Min 2, max 50 karakter.
+   */
+  getNameError(): string | null {
+    const name = this.roleName?.trim() || '';
+    if (!name) return 'Rol adı zorunludur.';
+    if (name.length < 2) return 'Rol adı en az 2 karakter olmalıdır.';
+    if (name.length > 50) return 'Rol adı en fazla 50 karakter olabilir.';
+    return null;
+  }
+
   create(name: HTMLInputElement) {
-    if (!name.value || name.value.trim() === '') {
-      this.alertify.message("Rol adı boş olamaz", {
+    this.submitted = true;
+
+    const error = this.getNameError();
+    if (error) {
+      this.alertify.message(error, {
         dismissOthers: true,
         messageType: MessageType.Warning,
         position: Position.BottomRight
@@ -35,14 +53,14 @@ export class CreateComponent extends BaseComponent implements OnInit {
 
     this.showSpinner(SpinnerType.BallAtom);
 
-    this.roleService.create(name.value, () => {
+    this.roleService.create(this.roleName.trim(), () => {
       this.hideSpinner(SpinnerType.BallAtom);
       this.alertify.message("Rol başarıyla eklenmiştir.", {
         dismissOthers: true,
         messageType: MessageType.Success,
         position: Position.BottomRight
       });
-      this.createdRole.emit(name.value);
+      this.createdRole.emit(this.roleName.trim());
     }, errorMessage => {
       this.hideSpinner(SpinnerType.BallAtom);
       this.alertify.message(errorMessage,

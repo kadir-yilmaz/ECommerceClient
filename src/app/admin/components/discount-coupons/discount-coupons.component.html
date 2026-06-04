@@ -18,8 +18,11 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Kupon Kodu</mat-label>
-            <input matInput formControlName="code" placeholder="Örn: SEPETTE50">
-            <mat-error *ngIf="couponForm.get('code')?.hasError('required')">Kupon kodu zorunludur</mat-error>
+            <input matInput formControlName="code" placeholder="Örn: SEPETTE50" maxlength="30" style="text-transform: uppercase;">
+            <mat-hint align="end">{{ couponForm.get('code')?.value?.length || 0 }} / 30</mat-hint>
+            <mat-error *ngIf="couponForm.get('code')?.hasError('required')">Kupon kodu zorunludur.</mat-error>
+            <mat-error *ngIf="couponForm.get('code')?.hasError('minlength')">Kupon kodu en az 3 karakter olmalıdır.</mat-error>
+            <mat-error *ngIf="couponForm.get('code')?.hasError('maxlength')">Kupon kodu en fazla 30 karakter olabilir.</mat-error>
           </mat-form-field>
           
           <mat-form-field appearance="outline" class="full-width">
@@ -29,18 +32,24 @@
                 {{ type.label }}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="couponForm.get('discountType')?.hasError('required')">İndirim tipi seçilmelidir.</mat-error>
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>İndirim Değeri</mat-label>
+            <mat-label>İndirim Değeri {{ couponForm.get('discountType')?.value === 'Percentage' ? '(%)' : '(TL)' }}</mat-label>
             <input matInput type="number" formControlName="discountValue" placeholder="Örn: 50">
+            <mat-error *ngIf="couponForm.get('discountValue')?.hasError('required')">İndirim değeri zorunludur.</mat-error>
+            <mat-error *ngIf="couponForm.get('discountValue')?.hasError('min')">İndirim değeri en az 1 olmalıdır.</mat-error>
+            <mat-error *ngIf="couponForm.get('discountValue')?.hasError('max')">Yüzdelik indirim en fazla %100 olabilir.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Geçerli Olması İçin Min Sepet Tutarı (TL)</mat-label>
             <input matInput type="number" formControlName="minCartAmount" placeholder="Örn: 400">
+            <mat-error *ngIf="couponForm.get('minCartAmount')?.hasError('required')">Minimum sepet tutarı zorunludur.</mat-error>
+            <mat-error *ngIf="couponForm.get('minCartAmount')?.hasError('min')">Minimum sepet tutarı negatif olamaz.</mat-error>
           </mat-form-field>
         </div>
 
@@ -50,11 +59,15 @@
             <input matInput [matDatepicker]="picker" formControlName="expirationDate">
             <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
+            <mat-hint>Opsiyonel — Boş bırakılırsa süresiz geçerli</mat-hint>
+            <mat-error *ngIf="isExpirationDateInPast()">Son kullanma tarihi geçmiş olamaz.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Kullanım Limiti (Opsiyonel)</mat-label>
+            <mat-label>Kullanım Limiti</mat-label>
             <input matInput type="number" formControlName="usageLimit" placeholder="Boş bırakılırsa sınırsız">
+            <mat-hint>Opsiyonel — Boş bırakılırsa sınırsız</mat-hint>
+            <mat-error *ngIf="couponForm.get('usageLimit')?.hasError('min')">Kullanım limiti en az 1 olmalıdır.</mat-error>
           </mat-form-field>
         </div>
 
@@ -66,7 +79,7 @@
     
     <mat-card-actions align="end">
       <button mat-button (click)="cancelForm()">İptal</button>
-      <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="couponForm.invalid">Kaydet</button>
+      <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="formSubmitted && couponForm.invalid">Kaydet</button>
     </mat-card-actions>
   </mat-card>
 

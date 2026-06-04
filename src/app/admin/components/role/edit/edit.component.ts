@@ -35,6 +35,7 @@ interface ExampleFlatNode {
 export class EditComponent extends BaseComponent implements OnInit {
   roleName: string;
   hasChanges: boolean = false;
+  saveSubmitted: boolean = false;
 
   constructor(
     spinner: NgxSpinnerService,
@@ -139,9 +140,23 @@ export class EditComponent extends BaseComponent implements OnInit {
     }
   }
 
+  /**
+   * Rol adı doğrulaması — IdentityRole Name string (non-nullable)
+   * Min 2, max 50 karakter.
+   */
+  getRoleNameError(): string | null {
+    const name = this.roleName?.trim() || '';
+    if (!name) return 'Rol adı zorunludur.';
+    if (name.length < 2) return 'Rol adı en az 2 karakter olmalıdır.';
+    if (name.length > 50) return 'Rol adı en fazla 50 karakter olabilir.';
+    return null;
+  }
+
   async save() {
-    if (!this.roleName || this.roleName.trim() === '') {
-      this.alertifyService.message('Rol adı boş olamaz', {
+    this.saveSubmitted = true;
+    const error = this.getRoleNameError();
+    if (error) {
+      this.alertifyService.message(error, {
         messageType: MessageType.Warning,
         position: Position.BottomRight
       });

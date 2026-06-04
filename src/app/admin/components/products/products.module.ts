@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ProductsComponent } from './products.component';
 import { RouterModule } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -47,6 +47,7 @@ import { UpdateComponent } from './update/update.component';
     FileUploadModule,
     DeleteDirectiveModule,
     FormsModule,
+    ReactiveFormsModule,
     MatAutocompleteModule
   ]
 })

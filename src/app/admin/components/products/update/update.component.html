@@ -7,122 +7,138 @@
 
 <div class="card shadow-sm" *ngIf="product">
   <div class="card-body p-4">
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Brand</mat-label>
-          <input type="text" matInput [matAutocomplete]="auto" [(ngModel)]="brandText" (ngModelChange)="filterBrands($event)">
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
-            <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
-              {{brand}}
-            </mat-option>
-          </mat-autocomplete>
-        </mat-form-field>
+    <form [formGroup]="productForm" (ngSubmit)="update()" novalidate>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Brand</mat-label>
+            <input type="text" matInput [matAutocomplete]="auto" formControlName="brand" (input)="filterBrands($any($event.target).value)">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event)">
+              <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
+                {{brand}}
+              </mat-option>
+            </mat-autocomplete>
+            <mat-hint>Opsiyonel</mat-hint>
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Name</mat-label>
+            <input matInput formControlName="name" maxlength="150">
+            <mat-hint align="end">{{ productForm.get('name')?.value?.length || 0 }} / 150</mat-hint>
+            <mat-error *ngIf="f['name'].hasError('required')">Ürün adı zorunludur.</mat-error>
+            <mat-error *ngIf="f['name'].hasError('minlength')">Ürün adı en az 5 karakter olmalıdır.</mat-error>
+            <mat-error *ngIf="f['name'].hasError('maxlength')">Ürün adı en fazla 150 karakter olabilir.</mat-error>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Name</mat-label>
-          <input matInput #txtName [value]="product.name">
-        </mat-form-field>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Stock</mat-label>
-          <input matInput type="number" min="0" [value]="product.stock" #txtStock>
-        </mat-form-field>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Stock</mat-label>
+            <input matInput type="number" formControlName="stock" min="0">
+            <mat-error *ngIf="f['stock'].hasError('required')">Stok bilgisi zorunludur.</mat-error>
+            <mat-error *ngIf="f['stock'].hasError('min')">Stok bilgisi negatif olamaz.</mat-error>
+          </mat-form-field>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3">
+            <mat-label>Price</mat-label>
+            <input matInput type="number" formControlName="price" min="0">
+            <mat-error *ngIf="f['price'].hasError('required')">Fiyat bilgisi zorunludur.</mat-error>
+            <mat-error *ngIf="f['price'].hasError('min')">Fiyat 0'dan büyük olmalıdır.</mat-error>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Price</mat-label>
-          <input matInput type="number" min="0" [value]="product.price" #txtPrice>
-        </mat-form-field>
-      </div>
-    </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Ana Kategori</mat-label>
-          <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
-            <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
-            <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+      <div class="row">
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3" [class.category-error]="submitted && !isCategorySelectionValid()">
+            <mat-label>Ana Kategori</mat-label>
+            <mat-select [(value)]="selectedMainCategoryId" (selectionChange)="onMainCategoryChange($event.value)">
+              <mat-option value="">-- Ana Kategori Seçiniz --</mat-option>
+              <mat-option *ngFor="let cat of mainCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+          <div class="custom-error" *ngIf="submitted && !isCategorySelectionValid()">
+            <mat-icon>error_outline</mat-icon>
+            <span *ngIf="!selectedMainCategoryId">Lütfen bir kategori seçiniz.</span>
+            <span *ngIf="selectedMainCategoryId">Seçilen kategori alt kategorilere sahip olduğundan, ürün doğrudan bu kategoriye eklenemez. Lütfen bir alt kategori seçiniz.</span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <mat-form-field appearance="outline" class="w-100 mb-3" [class.category-error]="submitted && !isCategorySelectionValid() && selectedMainCategoryId">
+            <mat-label>Alt Kategori</mat-label>
+            <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
+              <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
+              <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
+              <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
-      <div class="col-md-6">
-        <mat-form-field appearance="outline" class="w-100 mb-3">
-          <mat-label>Alt Kategori</mat-label>
-          <mat-select [(value)]="selectedSubCategoryId" [disabled]="!selectedMainCategoryId">
-            <mat-option value="" *ngIf="!selectedMainCategoryId">-- Önce Ana Kategori Seçiniz --</mat-option>
-            <mat-option value="" *ngIf="selectedMainCategoryId">-- Alt Kategori Seçiniz --</mat-option>
-            <mat-option *ngFor="let cat of subCategories" [value]="cat.id">{{ cat.name }}</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
 
-    <!-- Existing Images -->
-    <div class="mb-4" *ngIf="existingImages && existingImages.length > 0">
-      <label class="form-label fw-bold mb-2">Current Images</label>
-      <div class="d-flex flex-wrap gap-3">
-        <div *ngFor="let img of existingImages; let i = index" class="position-relative shadow-sm"
-          style="width: 140px; height: 160px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; overflow: visible; display: flex; flex-direction: column;">
-          
-          <!-- Image -->
-          <img [src]="getImageUrl(img.path)" class="w-100"
-            style="height: 120px; object-fit: cover; border-bottom: 1px solid #eee; border-top-left-radius: 8px; border-top-right-radius: 8px;"
-            [class.border-primary]="img.showcase" [style.border-bottom-width]="img.showcase ? '3px' : '1px'">
-            
-          <!-- Delete Button -->
-          <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
-            style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
-            (click)="deleteExistingImage(img.id, i)">
-            &times;
-          </button>
+      <!-- Existing Images -->
+      <div class="mb-4" *ngIf="existingImages && existingImages.length > 0">
+        <label class="form-label fw-bold mb-2">Current Images</label>
+        <div class="d-flex flex-wrap gap-3">
+          <div *ngFor="let img of existingImages; let i = index" class="position-relative shadow-sm"
+            style="width: 140px; height: 160px; background: #fff; border-radius: 8px; border: 1px solid #dee2e6; overflow: visible; display: flex; flex-direction: column;">
 
-          <!-- Showcase Selection Area -->
-          <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
-            <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-weight: 500; color: #475569;">
-              <input type="radio" name="updateShowcase" [checked]="img.showcase" (change)="setAsShowcase(img.id)" style="width: 14px; height: 14px; cursor: pointer;">
-              Vitrin Yap
-            </label>
+            <!-- Image -->
+            <img [src]="getImageUrl(img.path)" class="w-100"
+              style="height: 120px; object-fit: cover; border-bottom: 1px solid #eee; border-top-left-radius: 8px; border-top-right-radius: 8px;"
+              [class.border-primary]="img.showcase" [style.border-bottom-width]="img.showcase ? '3px' : '1px'">
+
+            <!-- Delete Button -->
+            <button type="button" class="btn btn-sm btn-danger position-absolute p-0 shadow"
+              style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
+              (click)="deleteExistingImage(img.id, i)">
+              &times;
+            </button>
+
+            <!-- Showcase Selection Area -->
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f8fafc; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+              <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; margin: 0; font-weight: 500; color: #475569;">
+                <input type="radio" name="updateShowcase" [checked]="img.showcase" (change)="setAsShowcase(img.id)" style="width: 14px; height: 14px; cursor: pointer;">
+                Vitrin Yap
+              </label>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <div *ngIf="existingImages && existingImages.length === 0" class="mb-4">
-      <p class="text-muted">No images attached to this product yet.</p>
-    </div>
+      <div *ngIf="existingImages && existingImages.length === 0" class="mb-4">
+        <p class="text-muted">No images attached to this product yet.</p>
+      </div>
 
-    <!-- New Images -->
-    <div class="mb-3">
-      <label class="form-label fw-bold">Add New Images</label>
-      <input class="form-control" type="file" multiple accept="image/*"
-        (change)="onFileSelected($event)">
-    </div>
+      <!-- New Images -->
+      <div class="mb-3">
+        <label class="form-label fw-bold">Add New Images</label>
+        <input class="form-control" type="file" multiple accept="image/*"
+          (change)="onFileSelected($event)">
+      </div>
 
-    <div class="d-flex flex-wrap gap-3 mt-3" *ngIf="newImagePreviews.length > 0">
-      <div *ngFor="let preview of newImagePreviews; let i = index" class="position-relative"
-        style="width: 120px; height: 120px;">
-        <img [src]="preview" class="img-thumbnail"
-          style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-        <button class="btn btn-sm btn-danger position-absolute p-0 shadow"
-          style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
-          (click)="removeNewImage(i)">
-          &times;
+      <div class="d-flex flex-wrap gap-3 mt-3" *ngIf="newImagePreviews.length > 0">
+        <div *ngFor="let preview of newImagePreviews; let i = index" class="position-relative"
+          style="width: 120px; height: 120px;">
+          <img [src]="preview" class="img-thumbnail"
+            style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+          <button type="button" class="btn btn-sm btn-danger position-absolute p-0 shadow"
+            style="width: 24px; height: 24px; line-height: 22px; top: -8px; right: -8px; border-radius: 50%; font-size: 16px; font-weight: bold; z-index: 10;"
+            (click)="removeNewImage(i)">
+            &times;
+          </button>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-4 gap-2">
+        <button type="button" mat-flat-button routerLink="/admin/products" queryParamsHandling="preserve">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="submitted && productForm.invalid">
+          <mat-icon>save</mat-icon> Update Product
         </button>
       </div>
-    </div>>
-
-    <div class="d-flex justify-content-end mt-4 gap-2">
-      <button mat-flat-button routerLink="/admin/products" queryParamsHandling="preserve">Cancel</button>
-      <button mat-flat-button color="primary" (click)="update(txtName, txtStock, txtPrice)">
-        <mat-icon>save</mat-icon> Update Product
-      </button>
-    </div>
+    </form>
   </div>
 </div>

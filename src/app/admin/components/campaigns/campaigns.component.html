@@ -18,7 +18,11 @@
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Kampanya Adı</mat-label>
-            <input matInput formControlName="name" placeholder="Örn: 1000 TL Üzeri Kargo Bedava">
+            <input matInput formControlName="name" placeholder="Örn: 1000 TL Üzeri Kargo Bedava" maxlength="100">
+            <mat-hint align="end">{{ campaignForm.get('name')?.value?.length || 0 }} / 100</mat-hint>
+            <mat-error *ngIf="campaignForm.get('name')?.hasError('required')">Kampanya adı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('name')?.hasError('minlength')">Kampanya adı en az 3 karakter olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('name')?.hasError('maxlength')">Kampanya adı en fazla 100 karakter olabilir.</mat-error>
           </mat-form-field>
           
           <mat-form-field appearance="outline" class="full-width">
@@ -28,12 +32,17 @@
                 {{ type.label }}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="campaignForm.get('ruleType')?.hasError('required')">Kural türü seçilmelidir.</mat-error>
           </mat-form-field>
         </div>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Açıklama</mat-label>
-          <textarea matInput formControlName="description" rows="2" placeholder="Kampanya hakkında müşteri açıklaması..."></textarea>
+          <textarea matInput formControlName="description" rows="2" placeholder="Kampanya hakkında müşteri açıklaması..." maxlength="500"></textarea>
+          <mat-hint align="end">{{ campaignForm.get('description')?.value?.length || 0 }} / 500</mat-hint>
+          <mat-error *ngIf="campaignForm.get('description')?.hasError('required')">Açıklama zorunludur.</mat-error>
+          <mat-error *ngIf="campaignForm.get('description')?.hasError('minlength')">Açıklama en az 10 karakter olmalıdır.</mat-error>
+          <mat-error *ngIf="campaignForm.get('description')?.hasError('maxlength')">Açıklama en fazla 500 karakter olabilir.</mat-error>
         </mat-form-field>
 
         <!-- Koşullu Alanlar: Sepet Tutarı İndirimi -->
@@ -41,10 +50,15 @@
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Gereken Minimum Tutar (TL)</mat-label>
             <input matInput type="number" formControlName="minAmount" placeholder="Örn: 500">
+            <mat-error *ngIf="campaignForm.get('minAmount')?.hasError('required')">Minimum tutar zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('minAmount')?.hasError('min')">Minimum tutar en az 1 TL olmalıdır.</mat-error>
           </mat-form-field>
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>İndirim Oranı (%)</mat-label>
             <input matInput type="number" formControlName="discountRate" placeholder="Örn: 10">
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('required')">İndirim oranı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('min')">İndirim oranı en az %1 olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('max')">İndirim oranı en fazla %100 olabilir.</mat-error>
           </mat-form-field>
         </div>
 
@@ -64,16 +78,21 @@
                 </div>
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="campaignForm.get('productId')?.hasError('required')">Lütfen bir ürün seçiniz.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Gereken Minimum Adet</mat-label>
             <input matInput type="number" formControlName="minQuantity" placeholder="Örn: 4">
+            <mat-error *ngIf="campaignForm.get('minQuantity')?.hasError('required')">Minimum adet zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('minQuantity')?.hasError('min')">Minimum adet en az 2 olmalıdır.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Bedava Verilecek Adet</mat-label>
             <input matInput type="number" formControlName="freeQuantity" placeholder="Örn: 1">
+            <mat-error *ngIf="campaignForm.get('freeQuantity')?.hasError('required')">Bedava adet zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('freeQuantity')?.hasError('min')">Bedava adet en az 1 olmalıdır.</mat-error>
           </mat-form-field>
         </div>
 
@@ -90,16 +109,22 @@
                 {{category.name}}
               </mat-option>
             </mat-select>
+            <mat-error *ngIf="campaignForm.get('categoryId')?.hasError('required')">Lütfen bir kategori seçiniz.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Gereken Minimum Adet</mat-label>
             <input matInput type="number" formControlName="minQuantity" placeholder="Örn: 2">
+            <mat-error *ngIf="campaignForm.get('minQuantity')?.hasError('required')">Minimum adet zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('minQuantity')?.hasError('min')">Minimum adet en az 2 olmalıdır.</mat-error>
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>İndirim Oranı (%)</mat-label>
             <input matInput type="number" formControlName="discountRate" placeholder="Örn: 20 (Bedava için 100 girin)">
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('required')">İndirim oranı zorunludur.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('min')">İndirim oranı en az %1 olmalıdır.</mat-error>
+            <mat-error *ngIf="campaignForm.get('discountRate')?.hasError('max')">İndirim oranı en fazla %100 olabilir.</mat-error>
           </mat-form-field>
         </div>
 
@@ -111,7 +136,7 @@
     
     <mat-card-actions align="end">
       <button mat-button (click)="cancelForm()">İptal</button>
-      <button mat-raised-button color="primary" (click)="submitForm()">Kaydet</button>
+      <button mat-raised-button color="primary" (click)="submitForm()" [disabled]="formSubmitted && campaignForm.invalid">Kaydet</button>
     </mat-card-actions>
   </mat-card>
 
@@ -196,7 +221,8 @@
       <div class="form-row" style="display: flex; gap: 16px; align-items: center;">
         <mat-form-field appearance="outline" class="full-width" style="flex: 1;">
           <mat-label>Minimum Sepet Tutarı (TL)</mat-label>
-          <input matInput type="number" [(ngModel)]="shippingThreshold" placeholder="Örn: 100">
+          <input matInput type="number" [(ngModel)]="shippingThreshold" placeholder="Örn: 100" min="0">
+          <mat-hint>0 veya pozitif bir değer giriniz.</mat-hint>
         </mat-form-field>
 
         <mat-slide-toggle color="primary" [(ngModel)]="isShippingActive" style="margin-bottom: 22px;">

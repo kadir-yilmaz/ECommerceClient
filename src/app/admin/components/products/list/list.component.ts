@@ -90,6 +90,15 @@ export class ListComponent extends BaseComponent implements OnInit {
     await this.getProducts();
   }
 
+  formatPrice(price: number): string {
+    if (price == null || isNaN(price)) return '';
+    const hasDecimal = price % 1 !== 0;
+    return price.toLocaleString('tr-TR', {
+      minimumFractionDigits: hasDecimal ? 2 : 0,
+      maximumFractionDigits: hasDecimal ? 2 : 0
+    }) + ' TL';
+  }
+
   async ngOnInit() {
     this.baseUrl = await this.fileService.getBaseStorageUrl();
     await this.loadCategories();

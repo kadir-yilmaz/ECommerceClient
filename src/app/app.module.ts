@@ -24,6 +24,7 @@ import { DynamicLoadComponentDirective } from './directives/common/dynamic-load-
 import { environment } from '../environments/environment';
 import { AuthTokenStore } from './services/common/auth-token-store';
 import { CredentialsInterceptor } from './services/common/credentials.interceptor';
+import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { CredentialsInterceptor } from './services/common/credentials.intercepto
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorHandlerInterceptorService, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: BasketInterceptorService, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: CredentialsInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: CredentialsInterceptor, multi: true },
+    { provide: MAT_FORM_FIELD_DEFAULT_OPTIONS, useValue: { hideRequiredMarker: true } }
   ],
   bootstrap: [AppComponent],
   schemas: [

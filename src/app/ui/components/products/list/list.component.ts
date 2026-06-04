@@ -99,15 +99,8 @@ export class ListComponent extends BaseComponent implements OnInit {
         const path = showcaseImage ? showcaseImage.path : (p.productImageFiles?.length ? p.productImageFiles[0].path : '');
 
         return {
-          id: p.id,
-          createdDate: p.createdDate,
-          imagePath: path,
-          name: p.name,
-          price: p.price,
-          stock: p.stock,
-          updatedDate: p.updatedDate,
-          productImageFiles: p.productImageFiles,
-          categoryId: p.categoryId
+          ...p,
+          imagePath: path
         };
       });
 

@@ -9,14 +9,20 @@
 
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Rol Adı</mat-label>
-      <input matInput #txtName placeholder="Örn: Manager, Warehouse Staff" autofocus>
-      <mat-hint>Rolün açıklayıcı bir adını girin</mat-hint>
+      <input matInput #txtName [(ngModel)]="roleName" placeholder="Örn: Manager, Warehouse Staff" autofocus maxlength="50"
+        (input)="submitted = false">
+      <mat-hint align="end">{{ roleName?.length || 0 }} / 50</mat-hint>
+      <mat-error *ngIf="submitted && getNameError()">{{ getNameError() }}</mat-error>
     </mat-form-field>
+    <div *ngIf="submitted && getNameError()" style="color: #f44336; font-size: 12px; margin-top: -8px; margin-bottom: 8px; padding-left: 14px; display: flex; align-items: center; gap: 4px;">
+      <mat-icon style="font-size: 16px; width: 16px; height: 16px;">error_outline</mat-icon>
+      {{ getNameError() }}
+    </div>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
     <button mat-button mat-dialog-close>İptal</button>
-    <button mat-raised-button color="primary" (click)="create(txtName)">
+    <button mat-raised-button color="primary" (click)="create(txtName)" [disabled]="submitted && getNameError()">
       <mat-icon>add</mat-icon>
       Oluştur
     </button>

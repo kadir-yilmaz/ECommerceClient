@@ -36,7 +36,9 @@ export class ProductCardComponent implements OnChanges, OnInit, OnDestroy {
   get allImages(): string[] {
     const images: string[] = [];
     if (this.product?.productImageFiles && this.product.productImageFiles.length > 0) {
-      this.product.productImageFiles.forEach(img => {
+      // Sort so showcase image is first
+      const sortedFiles = [...this.product.productImageFiles].sort((a, b) => (a.showcase === b.showcase) ? 0 : a.showcase ? -1 : 1);
+      sortedFiles.forEach(img => {
         if (img.path) images.push(this.getImageUrl(img.path));
       });
     } else if (this.product?.imagePath) {

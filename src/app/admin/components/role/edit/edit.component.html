@@ -7,9 +7,15 @@
   <mat-dialog-content>
     <mat-form-field appearance="outline" class="full-width">
       <mat-label>Rol Adı</mat-label>
-      <input matInput [(ngModel)]="roleName" placeholder="Rol adını girin">
+      <input matInput [(ngModel)]="roleName" placeholder="Rol adını girin" maxlength="50"
+        (input)="saveSubmitted = false">
       <mat-icon matPrefix>badge</mat-icon>
+      <mat-hint align="end">{{ roleName?.length || 0 }} / 50</mat-hint>
     </mat-form-field>
+    <div *ngIf="saveSubmitted && getRoleNameError()" style="color: #f44336; font-size: 12px; margin-top: -4px; margin-bottom: 12px; padding-left: 14px; display: flex; align-items: center; gap: 4px;">
+      <mat-icon style="font-size: 16px; width: 16px; height: 16px;">error_outline</mat-icon>
+      {{ getRoleNameError() }}
+    </div>
 
     <div class="permissions-section-new">
       <h3>
@@ -57,7 +63,7 @@
       <mat-icon>close</mat-icon>
       İptal
     </button>
-    <button mat-raised-button color="primary" (click)="save()">
+    <button mat-raised-button color="primary" (click)="save()" [disabled]="saveSubmitted && getRoleNameError()">
       <mat-icon>save</mat-icon>
       Kaydet
     </button>
