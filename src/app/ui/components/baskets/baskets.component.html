@@ -17,12 +17,6 @@
       <!-- Left Side: Basket Items -->
       <section class="cart-items-section">
         <article class="cart-item-card" *ngFor="let basketItem of basketItems; let i = index">
-          <div class="cart-item-checkbox-container">
-            <span class="checked-checkbox">
-              <mat-icon>check_box</mat-icon>
-            </span>
-          </div>
-
           <div class="cart-item-image">
             <img [src]="getProductImage(basketItem.imagePath)" [alt]="basketItem.name">
           </div>

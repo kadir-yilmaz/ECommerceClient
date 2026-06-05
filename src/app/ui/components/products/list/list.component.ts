@@ -51,6 +51,8 @@ export class ListComponent extends BaseComponent implements OnInit {
   selectedCategoryId: string = '';
   selectedSortType: string = '';
   searchTerm: string = '';
+  selectedBrand: string = '';
+  selectedProductIds: string = '';
   sidebarOpen: boolean = false;
 
   sortOptions = [
@@ -74,6 +76,8 @@ export class ListComponent extends BaseComponent implements OnInit {
         this.selectedCategoryId = queryParams['category'] || '';
         this.selectedSortType = queryParams['sort'] || '';
         this.searchTerm = queryParams['search'] || '';
+        this.selectedBrand = queryParams['brand'] || '';
+        this.selectedProductIds = queryParams['productIds'] || '';
 
         await this.loadProducts();
       });
@@ -91,7 +95,9 @@ export class ListComponent extends BaseComponent implements OnInit {
         this.searchTerm || undefined,
         undefined,
         () => { },
-        () => { }
+        () => { },
+        this.selectedBrand || undefined,
+        this.selectedProductIds || undefined
       );
 
       this.products = data.products.map<List_Product>(p => {
@@ -168,6 +174,8 @@ export class ListComponent extends BaseComponent implements OnInit {
     this.selectedCategoryId = '';
     this.selectedSortType = '';
     this.searchTerm = '';
+    this.selectedBrand = '';
+    this.selectedProductIds = '';
     this.navigateWithFilters();
   }
 
@@ -180,6 +188,8 @@ export class ListComponent extends BaseComponent implements OnInit {
     if (this.selectedCategoryId) queryParams.category = this.selectedCategoryId;
     if (this.selectedSortType) queryParams.sort = this.selectedSortType;
     if (this.searchTerm) queryParams.search = this.searchTerm;
+    if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+    if (this.selectedProductIds) queryParams.productIds = this.selectedProductIds;
 
     this.router.navigate(['/products', 1], { queryParams });
   }
@@ -190,7 +200,7 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   get hasActiveFilters(): boolean {
-    return !!this.selectedCategoryId || !!this.selectedSortType || !!this.searchTerm;
+    return !!this.selectedCategoryId || !!this.selectedSortType || !!this.searchTerm || !!this.selectedBrand || !!this.selectedProductIds;
   }
 
   async addToBasket(product: List_Product) {

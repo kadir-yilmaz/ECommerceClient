@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
+import { Subscription } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base.component';
 import { Campaign } from 'src/app/contracts/campaign/campaign';
 import { CampaignService } from 'src/app/services/common/models/campaign.service';
@@ -8,6 +9,7 @@ import { ProductService } from 'src/app/services/common/models/product.service';
 import { FileService } from 'src/app/services/common/models/file.service';
 import { BaseUrl } from 'src/app/contracts/base_url';
 import { List_Product } from 'src/app/contracts/list_product';
+import { List_Basket_Item } from 'src/app/contracts/basket/list_basket_item';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { BasketService } from 'src/app/services/common/models/basket.service';
 import { FavoriteService } from 'src/app/services/common/models/favorite.service';
@@ -19,11 +21,33 @@ import { Create_Basket_Item } from 'src/app/contracts/basket/create_basket_item'
   templateUrl: './campaign-detail.component.html',
   styleUrls: ['./campaign-detail.component.scss']
 })
-export class CampaignDetailComponent extends BaseComponent implements OnInit {
+export class CampaignDetailComponent extends BaseComponent implements OnInit, OnDestroy {
   campaign: Campaign;
   product: List_Product;
   campaignProducts: List_Product[] = [];
   baseUrl: BaseUrl;
+  basketItems: List_Basket_Item[] = [];
+  private basketSubscription: Subscription;
+
+  // Pagination for campaign products
+  currentProductPage: number = 1;
+  productsPerPage: number = 10; // 2 satır x 5 ürün
+  totalCampaignProducts: number = 0;
+  get paginatedCampaignProducts(): List_Product[] {
+    const startIndex = (this.currentProductPage - 1) * this.productsPerPage;
+    const endIndex = startIndex + this.productsPerPage;
+    return this.campaignProducts.slice(startIndex, endIndex);
+  }
+  get totalProductPages(): number {
+    return Math.ceil(this.totalCampaignProducts / this.productsPerPage);
+  }
+  get productPageNumbers(): number[] {
+    const pages: number[] = [];
+    for (let i = 1; i <= this.totalProductPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
 
   constructor(
     spinner: NgxSpinnerService,
@@ -47,6 +71,15 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.showSpinner(SpinnerType.BallAtom);
+    
+    // Subscribe to basket changes
+    this.basketSubscription = this.basketService.basketItems$.subscribe(items => {
+      this.basketItems = items;
+    });
+    
+    // Load basket items
+    await this.basketService.get();
+    
     try {
       this.baseUrl = await this.fileService.getBaseStorageUrl();
       const id = this.route.snapshot.paramMap.get('id');
@@ -80,8 +113,15 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    if (this.basketSubscription) {
+      this.basketSubscription.unsubscribe();
+    }
+  }
+
   async loadCampaignProducts() {
     this.campaignProducts = [];
+    this.currentProductPage = 1;
     if (!this.campaign) return;
 
     let categoryId = this.campaign.categoryId;
@@ -90,28 +130,45 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit {
 
     try {
       if (this.campaign.ruleType === 'BrandDiscount' && brand) {
-        const res = await this.productService.read(0, 100, categoryId || undefined, undefined, undefined, false, undefined, undefined, brand);
+        const res = await this.productService.read(0, 1000, categoryId || undefined, undefined, undefined, false, undefined, undefined, brand);
         this.campaignProducts = res.products.map(p => this.mapProduct(p));
+        this.totalCampaignProducts = res.products.length;
       } else if ((this.campaign.ruleType === 'CategoryDiscount' || this.campaign.ruleType === 'CheapestItemDiscount') && categoryId) {
-        const res = await this.productService.read(0, 100, categoryId, undefined, undefined, false, undefined, undefined, brand || undefined);
+        const res = await this.productService.read(0, 1000, categoryId, undefined, undefined, false, undefined, undefined, brand || undefined);
         this.campaignProducts = res.products.map(p => this.mapProduct(p));
+        this.totalCampaignProducts = res.products.length;
       } else if (this.campaign.ruleType === 'SelectedProductsDiscount' && productIds) {
-        const res = await this.productService.read(0, 100, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
+        const res = await this.productService.read(0, 1000, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
         this.campaignProducts = res.products.map(p => this.mapProduct(p));
+        this.totalCampaignProducts = res.products.length;
       } else if (this.campaign.ruleType === 'TotalAmountDiscount') {
         if (productIds) {
-          const res = await this.productService.read(0, 100, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
+          const res = await this.productService.read(0, 1000, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
           this.campaignProducts = res.products.map(p => this.mapProduct(p));
+          this.totalCampaignProducts = res.products.length;
         } else if (categoryId) {
-          const res = await this.productService.read(0, 100, categoryId, undefined, undefined, false, undefined, undefined, brand || undefined);
+          const res = await this.productService.read(0, 1000, categoryId, undefined, undefined, false, undefined, undefined, brand || undefined);
           this.campaignProducts = res.products.map(p => this.mapProduct(p));
+          this.totalCampaignProducts = res.products.length;
         }
       } else if (this.campaign.ruleType === 'FreeItem' && productIds) {
-        const res = await this.productService.read(0, 100, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
+        const res = await this.productService.read(0, 1000, undefined, undefined, undefined, false, undefined, undefined, undefined, productIds);
         this.campaignProducts = res.products.map(p => this.mapProduct(p));
+        this.totalCampaignProducts = res.products.length;
       }
     } catch (e) {
       console.error('Error loading products for campaign:', e);
+    }
+  }
+
+  goToProductPage(page: number): void {
+    if (page >= 1 && page <= this.totalProductPages) {
+      this.currentProductPage = page;
+      // Scroll to products section
+      const productsSection = document.querySelector('.campaign-product-section');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }
   }
 
@@ -142,7 +199,20 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
+  isProductInBasket(productId: string): boolean {
+    return this.basketItems.some(item => item.productId === productId);
+  }
+
   async addToBasket(product: List_Product): Promise<void> {
+    // Check if product is already in basket
+    if (this.isProductInBasket(product.id)) {
+      this.toastrService.message('Bu ürün zaten sepetinizde.', 'Ürün Sepette', {
+        messageType: ToastrMessageType.Info,
+        position: ToastrPosition.BottomRight
+      });
+      return;
+    }
+
     this.showSpinner(SpinnerType.BallAtom);
     try {
       const basketItem: Create_Basket_Item = new Create_Basket_Item();
@@ -186,4 +256,7 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit {
   isProductFavorite(productId: string): boolean {
     return this.favoriteService.isFavorite(productId);
   }
+
+  // Template helper
+  Math = Math;
 }

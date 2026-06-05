@@ -133,6 +133,14 @@ const routes: Routes = [
     loadChildren: () => import("./ui/components/campaign-detail/campaign-detail.module").then(module => module.CampaignDetailModule) 
   },
   { 
+    path: "coupons", 
+    loadChildren: () => import("./ui/components/public-coupons/public-coupons.module").then(module => module.PublicCouponsModule) 
+  },
+  { 
+    path: "rewards", 
+    loadChildren: () => import("./ui/components/rewards/rewards.module").then(module => module.RewardsModule) 
+  },
+  { 
     path: "", 
     pathMatch: "full", 
     loadChildren: () => import("./ui/components/home/home.module").then(module => module.HomeModule) 

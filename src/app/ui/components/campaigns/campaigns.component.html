@@ -13,7 +13,7 @@
         
         <div class="card-left">
           <div class="card-icon">
-             <i class="fa-solid" [ngClass]="campaign.ruleType === 'FreeShipping' ? 'fa-truck-fast' : 'fa-tags'"></i>
+             <i class="fa-solid fa-tags"></i>
           </div>
           
           <div class="card-content">
@@ -43,83 +43,6 @@
       <p class="text-muted">Şu an yayında olan aktif bir kampanya bulunmuyor. Yeni fırsatlar için takipte kalın!</p>
     </div>
   </ng-template>
-
-  <!-- REWARD RULES SECTION -->
-  <div class="reward-rules-section mt-5" *ngIf="rewardRules && rewardRules.length > 0">
-    <div class="header text-center mb-4">
-      <span class="badge-tag" style="background: #e91e63; color: #fff;">KAZANMA FIRSATLARI</span>
-      <h2>Harcadıkça Kazan!</h2>
-      <p class="text-muted">Alışveriş yaptıkça aşağıdaki hedeflere ulaşın, sürpriz kuponları anında kazanın.</p>
-    </div>
-
-    <div class="row g-4 justify-content-center">
-      <div class="col-12 col-md-6 col-lg-4" *ngFor="let rule of rewardRules">
-        <div class="reward-card shadow-sm h-100 d-flex flex-column" style="border: 2px solid #f8bbd0; border-radius: 12px; padding: 20px; background: #fff; text-align: center; position: relative;">
-          <div style="background: #e91e63; color: #fff; display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-            ÖDÜL KURALI
-          </div>
-          
-          <h3 style="font-size: 20px; color: #333; margin-top: 15px; font-weight: bold;">{{ rule.name }}</h3>
-          
-          <div style="margin: 15px 0;">
-            <p style="margin: 0; font-size: 15px;">
-              <strong>{{ rule.periodInDays }} Gün</strong> içinde 
-              <strong style="color: #d81b60;">{{ rule.minTotalSpent }} TL</strong> alışveriş yapın,
-            </p>
-          </div>
-
-          <div class="mt-auto" style="background: #fce4ec; border-radius: 8px; padding: 15px;">
-            <p style="margin: 0; font-size: 14px; font-weight: bold; color: #880e4f;">KAZANACAĞINIZ KUPON:</p>
-            <h4 style="margin: 5px 0 0; color: #e91e63; font-size: 22px; font-weight: 900;">
-              <ng-container *ngIf="rule.rewardDiscountType === 'Amount'">{{ rule.rewardDiscountValue }} TL İndirim</ng-container>
-              <ng-container *ngIf="rule.rewardDiscountType === 'Percentage'">%{{ rule.rewardDiscountValue }} İndirim</ng-container>
-              <ng-container *ngIf="rule.rewardDiscountType === 'FreeShipping'">Kargo Bedava</ng-container>
-            </h4>
-            <p style="margin: 5px 0 0; font-size: 12px; color: #c2185b;" *ngIf="rule.rewardMaxDiscountAmount && rule.rewardDiscountType === 'Percentage'">
-              (Maks. {{ rule.rewardMaxDiscountAmount }} TL)
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- PUBLIC COUPONS SECTION -->
-  <div class="public-coupons-section mt-5" *ngIf="publicCoupons && publicCoupons.length > 0">
-    <div class="header text-center mb-4">
-      <span class="badge-tag" style="background: #2e7d32; color: #fff;">İNDİRİM KUPONLARI</span>
-      <h2>Herkese Açık İndirim Kodları</h2>
-      <p class="text-muted">Aşağıdaki kodları sepetinizde kullanarak anında indirim kazanabilirsiniz.</p>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-12 col-md-6 col-lg-4" *ngFor="let coupon of publicCoupons">
-        <div class="coupon-card shadow-sm" style="border: 1px dashed #ccc; padding: 20px; border-radius: 8px; text-align: center; background: #fafafa; position: relative; overflow: hidden;">
-          <div style="position: absolute; top: 0; left: 0; width: 5px; height: 100%; background: #f27a1a;"></div>
-          
-          <h3 style="font-size: 24px; color: #f27a1a; margin-bottom: 5px; font-weight: bold; letter-spacing: 2px;">{{ coupon.code }}</h3>
-          
-          <div style="font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #333;">
-            <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
-            <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
-            <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
-          </div>
-
-          <p class="text-muted" style="font-size: 14px; margin-bottom: 5px;" *ngIf="coupon.minCartAmount > 0">
-            Alt Limit: {{ coupon.minCartAmount }} TL
-          </p>
-
-          <p class="text-muted" style="font-size: 14px; margin-bottom: 5px;" *ngIf="coupon.maxDiscountAmount && coupon.discountType === 'Percentage'">
-            Maks. İndirim: {{ coupon.maxDiscountAmount }} TL
-          </p>
-          
-          <p class="text-muted" style="font-size: 12px; margin-bottom: 0;" *ngIf="coupon.expirationDate">
-            Son Kullanma: {{ coupon.expirationDate | date:'dd.MM.yyyy HH:mm' }}
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="text-center mt-5">
     <button class="btn btn-primary px-4 py-2" routerLink="/products" style="border-radius: 30px; background-color: #f27a1a; border: none; font-size: 16px; font-weight: bold;">

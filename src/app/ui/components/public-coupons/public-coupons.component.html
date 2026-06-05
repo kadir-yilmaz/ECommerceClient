@@ -1,0 +1,99 @@
+<div class="public-coupons-page-container container py-5">
+  <div class="header text-center mb-5">
+    <span class="badge-tag" style="background: #2e7d32; color: #fff;">İNDİRİM KUPONLARI</span>
+    <h1 class="page-title">Herkese Açık Kuponlar</h1>
+    <p class="lead text-muted">Aşağıdaki kupon kodlarını sepetinizde kullanarak anında indirim kazanabilirsiniz!</p>
+  </div>
+
+  <div class="row g-4" *ngIf="publicCoupons && publicCoupons.length > 0; else noCoupons">
+    <div class="col-12 col-md-6 col-lg-4" *ngFor="let coupon of publicCoupons">
+      <div class="coupon-card shadow-sm h-100" style="border: 2px solid #4caf50; border-radius: 12px; padding: 25px; text-align: center; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2f1 100%); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease; cursor: pointer;" 
+           (click)="copyCouponCode(coupon.code)"
+           onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.15)';"
+           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+        
+        <!-- Decorative corner -->
+        <div style="position: absolute; top: -30px; right: -30px; width: 80px; height: 80px; background: rgba(76, 175, 80, 0.1); border-radius: 50%;"></div>
+        
+        <!-- Icon -->
+        <div style="display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; background: linear-gradient(135deg, #66bb6a 0%, #2e7d32 100%); border-radius: 50%; margin: 0 auto 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.15);">
+          <i class="fa-solid fa-ticket" style="color: white; font-size: 28px;"></i>
+        </div>
+
+        <!-- Coupon Code -->
+        <div style="background: white; border: 2px dashed #4caf50; border-radius: 8px; padding: 12px; margin-bottom: 15px; position: relative;">
+          <div style="position: absolute; top: 5px; right: 5px; background: #4caf50; color: white; border-radius: 4px; padding: 2px 8px; font-size: 10px; font-weight: bold;">
+            KOPYALA
+          </div>
+          <h3 style="font-size: 26px; color: #2e7d32; margin: 0; font-weight: bold; letter-spacing: 3px; font-family: 'Courier New', monospace;">
+            {{ coupon.code }}
+          </h3>
+        </div>
+
+        <!-- Discount Info -->
+        <div style="margin-bottom: 15px;">
+          <div style="font-size: 22px; font-weight: bold; color: #1b5e20; margin-bottom: 8px;">
+            <ng-container *ngIf="coupon.discountType === 'Amount'">
+              <i class="fa-solid fa-tag" style="color: #4caf50; margin-right: 5px;"></i>
+              {{ coupon.discountValue }} TL İndirim
+            </ng-container>
+            <ng-container *ngIf="coupon.discountType === 'Percentage'">
+              <i class="fa-solid fa-percent" style="color: #4caf50; margin-right: 5px;"></i>
+              %{{ coupon.discountValue }} İndirim
+            </ng-container>
+            <ng-container *ngIf="coupon.discountType === 'FreeShipping'">
+              <i class="fa-solid fa-truck-fast" style="color: #4caf50; margin-right: 5px;"></i>
+              Kargo Bedava
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div style="background: white; border-radius: 8px; padding: 15px; text-align: left;">
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #555; display: flex; align-items: center;" *ngIf="coupon.minCartAmount > 0">
+            <i class="fa-solid fa-shopping-cart" style="color: #4caf50; margin-right: 8px; width: 16px;"></i>
+            <span><strong>Minimum Sepet:</strong> {{ coupon.minCartAmount }} TL</span>
+          </p>
+
+          <p style="margin: 0 0 8px 0; font-size: 13px; color: #555; display: flex; align-items: center;" *ngIf="coupon.maxDiscountAmount && coupon.discountType === 'Percentage'">
+            <i class="fa-solid fa-chart-line" style="color: #4caf50; margin-right: 8px; width: 16px;"></i>
+            <span><strong>Maksimum İndirim:</strong> {{ coupon.maxDiscountAmount }} TL</span>
+          </p>
+          
+          <p style="margin: 0; font-size: 13px; color: #555; display: flex; align-items: center;" *ngIf="coupon.expirationDate">
+            <i class="fa-solid fa-calendar-xmark" style="color: #f44336; margin-right: 8px; width: 16px;"></i>
+            <span><strong>Son Kullanma:</strong> {{ coupon.expirationDate | date:'dd.MM.yyyy HH:mm' }}</span>
+          </p>
+
+          <p style="margin: 8px 0 0 0; font-size: 13px; color: #555; display: flex; align-items: center;" *ngIf="!coupon.expirationDate">
+            <i class="fa-solid fa-infinity" style="color: #4caf50; margin-right: 8px; width: 16px;"></i>
+            <span><strong>Süresiz Geçerli</strong></span>
+          </p>
+        </div>
+
+        <!-- Click to Copy Hint -->
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
+          <p style="margin: 0; font-size: 12px; color: #666; font-style: italic;">
+            <i class="fa-solid fa-hand-pointer" style="margin-right: 5px;"></i>
+            Kopyalamak için tıklayın
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noCoupons>
+    <div class="empty-state-content text-center py-5 shadow-sm rounded bg-white">
+      <mat-icon style="font-size: 64px; width: 64px; height: 64px; color: #cbd5e1; margin-bottom: 20px;">confirmation_number</mat-icon>
+      <h3>Aktif Kupon Bulunmamaktadır</h3>
+      <p class="text-muted">Şu an herkese açık bir kupon bulunmuyor. Yeni kuponlar için takipte kalın!</p>
+    </div>
+  </ng-template>
+
+  <div class="text-center mt-5">
+    <button class="btn btn-primary px-4 py-2" routerLink="/products" style="border-radius: 30px; background-color: #4caf50; border: none; font-size: 16px; font-weight: bold;">
+      Alışverişe Başla
+    </button>
+  </div>
+</div>

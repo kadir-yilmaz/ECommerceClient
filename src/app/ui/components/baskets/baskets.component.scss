@@ -81,7 +81,7 @@
 
 .cart-item-card {
   display: grid;
-  grid-template-columns: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
   gap: 20px;
   align-items: center;
   background: #ffffff;
@@ -96,23 +96,6 @@
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
     border-color: #dcdcdc;
-  }
-
-  .cart-item-checkbox-container {
-    display: flex;
-    align-items: center;
-
-    .checked-checkbox {
-      color: #f27a1a;
-      display: flex;
-      align-items: center;
-
-      mat-icon {
-        font-size: 24px;
-        width: 24px;
-        height: 24px;
-      }
-    }
   }
 
   .cart-item-image {
@@ -687,14 +670,9 @@
     grid-template-columns: auto 1fr;
     gap: 16px;
 
-    .cart-item-checkbox-container {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
     .cart-item-image {
       grid-column: 1;
-      grid-row: 2;
+      grid-row: 1;
       width: 70px;
       height: 70px;
 
@@ -707,7 +685,7 @@
 
     .cart-item-content {
       grid-column: 2;
-      grid-row: 1 / span 2;
+      grid-row: 1;
       flex-direction: column;
       align-items: flex-start;
       gap: 12px;

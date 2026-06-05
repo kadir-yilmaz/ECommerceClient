@@ -16,6 +16,8 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { CampaignService } from 'src/app/services/common/models/campaign.service';
 import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
 import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
+import { RewardRuleService } from 'src/app/services/common/models/reward-rule.service';
+import { RewardRule } from 'src/app/contracts/reward-rule/reward-rule';
 
 @Component({
   selector: 'app-home',
@@ -25,6 +27,7 @@ import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupo
 export class HomeComponent extends BaseComponent implements OnInit {
   activeCampaigns: import('src/app/contracts/campaign/campaign').Campaign[] = [];
   publicCoupons: DiscountCoupon[] = [];
+  activeRewards: RewardRule[] = [];
   featuredProducts: List_Product[] = [];
   baseUrl: BaseUrl;
 
@@ -47,7 +50,8 @@ export class HomeComponent extends BaseComponent implements OnInit {
     private customToastrService: CustomToastrService,
     private campaignService: CampaignService,
     private categoryService: CategoryService,
-    private discountCouponService: DiscountCouponService
+    private discountCouponService: DiscountCouponService,
+    private rewardRuleService: RewardRuleService
   ) {
     super(spinner);
   }
@@ -95,6 +99,9 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
       // Fetch public coupons
       this.publicCoupons = await this.discountCouponService.getPublicCoupons();
+
+      // Fetch active reward rules
+      this.activeRewards = await this.rewardRuleService.getActiveRewardRules();
 
       // Load homepage showcased categories
       const categoryData = await this.categoryService.getAll();

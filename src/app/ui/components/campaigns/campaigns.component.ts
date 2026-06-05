@@ -5,12 +5,7 @@ import { Campaign } from 'src/app/contracts/campaign/campaign';
 import { CampaignService } from 'src/app/services/common/models/campaign.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { FileService } from 'src/app/services/common/models/file.service';
-import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
-import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
-import { RewardRule } from 'src/app/contracts/reward-rule/reward-rule';
-import { RewardRuleService } from 'src/app/services/common/models/reward-rule.service';
 import { BaseUrl } from 'src/app/contracts/base_url';
-import { List_Product } from 'src/app/contracts/list_product';
 
 @Component({
   selector: 'app-campaigns',
@@ -19,17 +14,13 @@ import { List_Product } from 'src/app/contracts/list_product';
 })
 export class CampaignsComponent extends BaseComponent implements OnInit {
   activeCampaigns: Campaign[] = [];
-  publicCoupons: DiscountCoupon[] = [];
-  rewardRules: RewardRule[] = [];
   baseUrl: BaseUrl;
 
   constructor(
     spinner: NgxSpinnerService,
     private campaignService: CampaignService,
     private productService: ProductService,
-    private fileService: FileService,
-    private discountCouponService: DiscountCouponService,
-    private rewardRuleService: RewardRuleService
+    private fileService: FileService
   ) {
     super(spinner);
   }
@@ -40,8 +31,8 @@ export class CampaignsComponent extends BaseComponent implements OnInit {
       this.baseUrl = await this.fileService.getBaseStorageUrl();
       const allActive = await this.campaignService.getActiveCampaigns();
       
-      this.activeCampaigns = await Promise.all(allActive.map(async (c) => {
-        if (c.productId && !c.productId.includes(',')) { // single product preview
+      this.activeCampaigns = await Promise.all(allActive.filter(c => c.ruleType !== 'FreeShipping').map(async (c) => {
+        if (c.productId && !c.productId.includes(',')) {
           try {
             const p = await this.productService.readById(c.productId);
             if (p) {
@@ -56,9 +47,6 @@ export class CampaignsComponent extends BaseComponent implements OnInit {
         }
         return c;
       }));
-
-      this.publicCoupons = await this.discountCouponService.getPublicCoupons();
-      this.rewardRules = await this.rewardRuleService.getActiveRewardRules();
     } catch (error) {
       console.error('Error loading campaigns list:', error);
     } finally {

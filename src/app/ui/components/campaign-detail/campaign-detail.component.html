@@ -1,151 +1,312 @@
-<div class="container mt-5" *ngIf="campaign">
-  <div class="row justify-content-center">
-    <div class="col-12 col-lg-10 col-xl-9">
+<div class="container-fluid px-3 px-md-4 py-4" *ngIf="campaign">
+  
+  <!-- Campaign expired alert -->
+  <div *ngIf="isCampaignExpired()" class="alert alert-danger d-flex align-items-center p-4 mb-4" style="border-radius: 12px; max-width: 1400px; margin: 0 auto;">
+    <mat-icon style="font-size: 36px; width: 36px; height: 36px; color: #e74c3c; margin-right: 15px;">warning</mat-icon>
+    <div>
+      <h4 class="mb-1" style="color: #c0392b; font-weight: 700;">Kampanya Süresi Dolmuştur</h4>
+      <p class="mb-0 text-muted">Bu kampanya artık aktif değildir.</p>
+    </div>
+  </div>
+
+  <!-- Active Campaign Content -->
+  <div *ngIf="!isCampaignExpired()" style="max-width: 1400px; margin: 0 auto;">
+    
+    <!-- Campaign Header - Full Width -->
+    <div class="campaign-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 16px; padding: 40px; margin-bottom: 40px; color: white;">
       
-      <!-- Expired Campaign Alert -->
-      <div *ngIf="isCampaignExpired()" class="alert alert-danger shadow-sm border-0 d-flex align-items-center p-4 mb-4" style="border-radius: 12px; background: rgba(231, 76, 60, 0.1); border-left: 5px solid #e74c3c !important;">
-        <mat-icon style="font-size: 36px; width: 36px; height: 36px; color: #e74c3c; margin-right: 15px;">warning</mat-icon>
-        <div>
-          <h4 class="alert-heading mb-1" style="color: #c0392b; font-weight: 700; font-family: 'Outfit', sans-serif;">Bu Kampanyanın Süresi Dolmuştur</h4>
-          <p class="mb-0 text-muted" style="font-size: 14px;">Müşterilerimizin yanılmaması için bu kampanya artık aktif değildir. Yeni kampanyaları incelemek için kampanya listesine göz atabilirsiniz.</p>
-        </div>
+      <!-- Badge -->
+      <div style="display: inline-block; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 20px; margin-bottom: 20px; font-size: 13px; font-weight: bold;">
+        <mat-icon class="align-middle me-2" style="font-size: 18px;">{{ campaign.ruleType === 'FreeShipping' ? 'local_shipping' : 'local_offer' }}</mat-icon>
+        {{ campaign.ruleType === 'FreeShipping' ? 'KARGO KAMPANYASI' : 'İNDİRİM KAMPANYASI' }}
       </div>
 
-      <!-- Main Horizontal Campaign Card -->
-      <div *ngIf="!isCampaignExpired()" class="campaign-detail-card shadow-sm border-0">
-        
-        <!-- Left Section: Campaign Info & Rules -->
-        <div class="campaign-info-section">
-          <div class="campaign-badge">
-            <span class="badge-tag">
-              <mat-icon class="align-middle me-1" style="font-size: 18px; width: 18px; height: 18px;">
-                {{ campaign.ruleType === 'FreeShipping' ? 'local_shipping' : 'local_offer' }}
-              </mat-icon>
-              {{ campaign.ruleType === 'FreeShipping' ? 'KARGO KAMPANYASI' : 'İNDİRİM KAMPANYASI' }}
-            </span>
-          </div>
-          
-          <h1 class="campaign-title">{{ campaign.name }}</h1>
-          <p class="campaign-desc">{{ campaign.description }}</p>
-          
-          <div class="campaign-rules-box">
-            <h3 class="rules-title">KURAL ÖZETİ</h3>
-            <ul class="rules-list">
-              <li *ngIf="campaign.minAmount" class="rule-item">
-                <mat-icon class="align-middle text-success">check_circle</mat-icon>
-                <span class="rule-label">Minimum Sepet Tutarı:</span>
-                <strong class="rule-val">{{ campaign.minAmount }} TL</strong>
-              </li>
-              <li *ngIf="campaign.discountRate" class="rule-item">
-                <mat-icon class="align-middle text-success">check_circle</mat-icon>
-                <span class="rule-label">İndirim Oranı:</span>
-                <strong class="rule-val">%{{ campaign.discountRate }}</strong>
-              </li>
-              <li *ngIf="campaign.minQuantity" class="rule-item">
-                <mat-icon class="align-middle text-success">check_circle</mat-icon>
-                <span class="rule-label">Alınması Gereken Adet:</span>
-                <strong class="rule-val">{{ campaign.minQuantity }} Adet</strong>
-              </li>
-              <li *ngIf="campaign.freeQuantity" class="rule-item">
-                <mat-icon class="align-middle text-success">check_circle</mat-icon>
-                <span class="rule-label">Bedava Verilecek Adet:</span>
-                <strong class="rule-val">{{ campaign.freeQuantity }} Adet</strong>
-              </li>
-            </ul>
-          </div>
-        </div>
+      <!-- Title -->
+      <h1 style="font-size: 36px; font-weight: 800; margin-bottom: 15px;">{{ campaign.name }}</h1>
 
-        <!-- Right Section: Products Grid / Product Card -->
-        <div class="campaign-product-section" *ngIf="campaignProducts && campaignProducts.length > 0">
-          <h3 class="product-section-title text-center mb-4">KAMPANYAYA DAHİL ÜRÜNLER</h3>
-          <div class="product-grid">
-            <app-product-card
-              *ngFor="let prod of campaignProducts"
-              [product]="prod"
-              [baseUrl]="baseUrl?.url"
-              variant="compact"
-              [showAddToCart]="true"
-              [isFavorite]="isProductFavorite(prod.id)"
-              (addToCart)="addToBasket(prod)"
-              (toggleFavorite)="onToggleFavorite(prod)">
-            </app-product-card>
-          </div>
-        </div>
+      <!-- Description -->
+      <p style="font-size: 18px; margin-bottom: 25px; opacity: 0.95;">{{ campaign.description }}</p>
 
-        <div class="campaign-product-section" *ngIf="product && (!campaignProducts || campaignProducts.length === 0)">
-          <h3 class="product-section-title">KAMPANYAYA DAHİL OLAN ÜRÜN</h3>
+      <!-- Rules Pills -->
+      <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <div *ngIf="campaign.minAmount" style="background: rgba(255,255,255,0.25); padding: 10px 20px; border-radius: 30px;">
+          <mat-icon class="align-middle me-2" style="font-size: 20px;">shopping_cart</mat-icon>
+          Min. {{ campaign.minAmount }} TL
+        </div>
+        <div *ngIf="campaign.discountRate" style="background: rgba(255,255,255,0.25); padding: 10px 20px; border-radius: 30px;">
+          <mat-icon class="align-middle me-2" style="font-size: 20px;">percent</mat-icon>
+          %{{ campaign.discountRate }} İndirim
+        </div>
+        <div *ngIf="totalCampaignProducts > 0" style="background: rgba(255,255,255,0.25); padding: 10px 20px; border-radius: 30px;">
+          <mat-icon class="align-middle me-2" style="font-size: 20px;">category</mat-icon>
+          {{ totalCampaignProducts }} Ürün
+        </div>
+      </div>
+    </div>
+
+    <!-- Products Section - Full Width -->
+    <div class="products-section" *ngIf="campaignProducts && campaignProducts.length > 0">
+      
+      <!-- Section Title -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="font-size: 28px; font-weight: 700; color: #333;">Kampanyaya Dahil Ürünler</h2>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid">
+        <div *ngFor="let prod of paginatedCampaignProducts" class="product-item" [routerLink]="['/products/detail', prod.id]">
           
-          <!-- Clickable Product Card -->
-          <div class="premium-product-card" (click)="goToProduct()">
-            <div class="product-img-wrapper">
-              <img *ngIf="product.imagePath" [src]="getProductImage(product.imagePath)" [alt]="product.name" class="product-img">
-              <mat-icon *ngIf="!product.imagePath" style="font-size: 80px; width: 80px; height: 80px; color: #ccc;">image</mat-icon>
-              
-              <!-- Badges on Image -->
-              <span class="stock-badge" [ngClass]="product.stock < 10 ? 'stock-low' : 'stock-good'">
-                <mat-icon class="align-middle" style="font-size: 14px; width: 14px; height: 14px;">
-                  {{ product.stock < 10 ? 'warning' : 'inventory_2' }}
-                </mat-icon>
-                {{ product.stock > 0 ? 'Stokta ' + product.stock + ' adet' : 'Tükendi' }}
-              </span>
-            </div>
+          <!-- Image -->
+          <div class="product-image">
+            <img [src]="getProductImage(prod.imagePath)" [alt]="prod.name">
             
-            <div class="product-info-wrapper">
-              <div class="product-brand-row" *ngIf="product.brand">
-                <span class="product-brand">{{ product.brand }}</span>
-                <i class="fa-solid fa-circle-check brand-tick"></i>
-              </div>
-              
-              <h2 class="product-name">{{ product.name }}</h2>
-              
-              <!-- Review/Rating Info (Visual simulation of ratings) -->
-              <div class="product-rating-row">
-                <div class="stars">
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star"></i>
-                  <i class="fa-solid fa-star-half-stroke"></i>
-                </div>
-                <span class="rating-val">4.5</span>
-                <span class="rating-count">(128 Değerlendirme)</span>
-              </div>
-              
-              <div class="product-price-row">
-                <div class="price-container">
-                  <span class="price-label">FİYAT</span>
-                  <span class="price-val">{{ product.price }} TL</span>
-                </div>
-                
-                <span class="explore-hint">
-                  İncele <mat-icon class="align-middle ms-1">arrow_forward</mat-icon>
-                </span>
-              </div>
+            <!-- Favorite -->
+            <button class="favorite-btn" (click)="onToggleFavorite(prod); $event.stopPropagation(); $event.preventDefault();">
+              <i class="fa-solid fa-heart" [style.color]="isProductFavorite(prod.id) ? '#e74c3c' : '#ccc'"></i>
+            </button>
+
+            <!-- Badge -->
+            <div class="discount-badge">%{{ campaign.discountRate || 10 }}</div>
+          </div>
+
+          <!-- Info -->
+          <div class="product-info">
+            <div *ngIf="prod.brand" class="product-brand">{{ prod.brand }}</div>
+            <h4 class="product-name">{{ prod.name }}</h4>
+            
+            <div class="product-price">
+              <div *ngIf="campaign.discountRate" class="old-price">{{ (prod.price / (1 - campaign.discountRate / 100)).toFixed(2) }} TL</div>
+              <div class="current-price">{{ prod.price }} TL</div>
             </div>
-          </div>
-        </div>
 
-        <!-- Right Section: Alternative if no product is loaded yet -->
-        <div class="campaign-product-section empty-product" *ngIf="!product && (campaign.productId || campaign.categoryId || campaign.brand) && (!campaignProducts || campaignProducts.length === 0)">
-          <div class="empty-product-card text-center py-5">
-            <div class="spinner-border text-danger mx-auto mb-3" role="status" style="width: 40px; height: 40px;"></div>
-            <p class="text-muted">Ürün bilgileri yükleniyor...</p>
-          </div>
-        </div>
-
-        <!-- Right Section: Alternative if no product is linked to the campaign -->
-        <div class="campaign-product-section empty-product" *ngIf="!campaign.productId && !campaign.categoryId && !campaign.brand">
-          <div class="empty-product-card text-center py-5">
-            <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8; margin-bottom: 15px;">storefront</mat-icon>
-            <p class="text-muted mb-4">Bu kampanya genel bir tekliftir ve belirli bir ürünle sınırlı değildir.</p>
-            <button class="btn btn-danger px-4 py-2" style="border-radius: 30px; font-weight: 600;" routerLink="/products">
-              Alışverişe Başla <mat-icon class="align-middle ms-1">arrow_forward</mat-icon>
+            <button class="add-cart-btn" 
+                    [class.in-basket]="isProductInBasket(prod.id)"
+                    [disabled]="isProductInBasket(prod.id)"
+                    (click)="addToBasket(prod); $event.stopPropagation(); $event.preventDefault();">
+              <i class="fa-solid me-2" [ngClass]="isProductInBasket(prod.id) ? 'fa-check' : 'fa-cart-plus'"></i>
+              {{ isProductInBasket(prod.id) ? 'Sepette' : 'Sepete Ekle' }}
             </button>
           </div>
         </div>
-
       </div>
 
+      <!-- Pagination -->
+      <div class="pagination" *ngIf="totalProductPages > 1">
+        <button (click)="goToProductPage(currentProductPage - 1)" [disabled]="currentProductPage === 1" class="page-btn">
+          <i class="fa-solid fa-chevron-left"></i>
+        </button>
+
+        <button *ngFor="let page of productPageNumbers" (click)="goToProductPage(page)" 
+                [class.active]="page === currentProductPage" class="page-num">
+          {{ page }}
+        </button>
+
+        <button (click)="goToProductPage(currentProductPage + 1)" [disabled]="currentProductPage === totalProductPages" class="page-btn">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+      </div>
+
+      <!-- Page Info -->
+      <div *ngIf="totalProductPages > 1" class="page-info">
+        Sayfa {{ currentProductPage }} / {{ totalProductPages }}
+      </div>
     </div>
+
   </div>
 </div>
+
+<!-- Styles -->
+<style>
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.product-item {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.product-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-color: #667eea;
+}
+
+.product-image {
+  position: relative;
+  padding-top: 100%;
+  background: #fafafa;
+}
+
+.product-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 15px;
+}
+
+.favorite-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  cursor: pointer;
+  z-index: 2;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: #e74c3c;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.product-info {
+  padding: 16px;
+}
+
+.product-brand {
+  font-size: 11px;
+  color: #667eea;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.product-name {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+  height: 40px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-weight: 600;
+}
+
+.product-price {
+  margin-bottom: 12px;
+}
+
+.old-price {
+  font-size: 13px;
+  color: #999;
+  text-decoration: line-through;
+  margin-bottom: 4px;
+}
+
+.current-price {
+  font-size: 20px;
+  font-weight: 800;
+  color: #e74c3c;
+}
+
+.add-cart-btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #f27a1a 0%, #d66a0a 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-cart-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(242, 122, 26, 0.4);
+}
+
+.add-cart-btn.in-basket {
+  background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+  cursor: default;
+}
+
+.add-cart-btn:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 40px 0 20px;
+}
+
+.page-btn, .page-num {
+  padding: 10px 16px;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-num.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.page-info {
+  text-align: center;
+  color: #666;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .products-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .products-grid { grid-template-columns: repeat(3, 1fr); }
+  .campaign-header { padding: 30px 20px !important; }
+  .campaign-header h1 { font-size: 28px !important; }
+}
+
+@media (max-width: 768px) {
+  .products-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+  .campaign-header { padding: 25px 15px !important; }
+  .campaign-header h1 { font-size: 24px !important; }
+}
+
+@media (max-width: 480px) {
+  .products-grid { grid-template-columns: repeat(1, 1fr); }
+}
+</style>
