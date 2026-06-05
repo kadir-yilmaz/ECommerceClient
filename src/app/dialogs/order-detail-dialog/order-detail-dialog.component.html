@@ -16,7 +16,7 @@
         <strong>{{singleOrder.createdDate | date:'dd.MM.yyyy HH:mm'}}</strong>
       </div>
       <div>
-        <span>Toplam Tutar</span>
+        <span>Ödenecek Tutar</span>
         <strong class="total-price">{{totalPrice | turkishCurrency}}</strong>
       </div>
       <div *ngIf="singleOrder.status >= 4 && singleOrder.cargoCompany">
@@ -47,6 +47,28 @@
       </div>
     </section>
 
+    <!-- İndirim Detayları -->
+    <section class="discount-section" *ngIf="discountDataSource && discountDataSource.length > 0">
+      <div class="section-title">
+        <mat-icon>local_offer</mat-icon>
+        <span>Uygulanan İndirimler</span>
+      </div>
+      <div class="discount-table">
+        <div class="discount-row" *ngFor="let discount of discountDataSource">
+          <div class="discount-info">
+            <span class="discount-type-badge"
+                  [class.badge-campaign]="discount.discountType === 'Campaign'"
+                  [class.badge-coupon]="discount.discountType === 'Coupon'"
+                  [class.badge-shipping]="discount.discountType === 'FreeShipping'">
+              {{discount.discountType === 'Campaign' ? 'Kampanya' : discount.discountType === 'Coupon' ? 'Kupon' : 'Kargo'}}
+            </span>
+            <span class="discount-name">{{discount.discountName}}</span>
+          </div>
+          <span class="discount-amount">-{{discount.discountAmount | turkishCurrency}}</span>
+        </div>
+      </div>
+    </section>
+
     <div class="detail-grid">
       <section class="info-block">
         <span>Teslimat Adresi</span>
@@ -63,3 +85,4 @@
     <button class="close-btn" mat-dialog-close>Kapat</button>
   </mat-dialog-actions>
 </div>
+

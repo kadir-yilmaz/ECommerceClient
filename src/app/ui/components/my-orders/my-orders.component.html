@@ -14,6 +14,9 @@
         </div>
         <div class="order-total">
           <span class="price">{{order.totalPrice | turkishCurrency}}</span>
+          <span class="discount-saved" *ngIf="order.totalDiscount && order.totalDiscount > 0">
+            <i class="fa-solid fa-tag"></i> {{order.totalDiscount | turkishCurrency}} tasarruf
+          </span>
         </div>
       </div>
 

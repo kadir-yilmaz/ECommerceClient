@@ -31,6 +31,7 @@ export class OrderDetailDialogComponent extends BaseDialog<OrderDetailDialogComp
 
   displayedColumns: string[] = ['name', 'price', 'quantity', 'totalPrice'];
   dataSource = [];
+  discountDataSource: { discountName: string; discountType: string; discountAmount: number }[] = [];
   clickedRows = new Set<any>();
   totalPrice: number;
 
@@ -38,8 +39,16 @@ export class OrderDetailDialogComponent extends BaseDialog<OrderDetailDialogComp
     this.singleOrder = await this.orderService.getOrderById(this.data as string)
     
     this.dataSource = this.singleOrder.basketItems;
+    this.discountDataSource = this.singleOrder.orderDiscounts || [];
 
-    this.totalPrice = this.singleOrder.basketItems.map((basketItem: any, index: number) => basketItem.price * basketItem.quantity).reduce((price: number, current: number) => price + current);
+    // Backend'den gelen net fiyatı kullan; yoksa ham hesapla
+    if (this.singleOrder.totalPrice && this.singleOrder.totalPrice > 0) {
+      this.totalPrice = this.singleOrder.totalPrice;
+    } else {
+      this.totalPrice = this.singleOrder.basketItems
+        .map((basketItem: any) => basketItem.price * basketItem.quantity)
+        .reduce((price: number, current: number) => price + current, 0);
+    }
   }
 
 
