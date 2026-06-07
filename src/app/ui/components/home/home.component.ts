@@ -38,6 +38,7 @@ export class HomeComponent extends BaseComponent implements OnInit {
 
   @ViewChild('productsScroll', { static: false }) productsScroll: ElementRef;
   @ViewChild('campaignsScroll', { static: false }) campaignsScroll: ElementRef;
+  @ViewChild('rewardsScroll', { static: false }) rewardsScroll: ElementRef;
 
   constructor(
     spinner: NgxSpinnerService,
@@ -151,6 +152,18 @@ export class HomeComponent extends BaseComponent implements OnInit {
   scrollCampaigns(direction: 'left' | 'right') {
     if (this.campaignsScroll) {
       const container = this.campaignsScroll.nativeElement;
+      const scrollAmount = 400;
+      if (direction === 'left') {
+        container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  }
+
+  scrollRewards(direction: 'left' | 'right') {
+    if (this.rewardsScroll) {
+      const container = this.rewardsScroll.nativeElement;
       const scrollAmount = 400;
       if (direction === 'left') {
         container.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
