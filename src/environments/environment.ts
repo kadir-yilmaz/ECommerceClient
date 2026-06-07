@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   // Local .NET API (Visual Studio'da F5 ile çalışırken)
-  baseUrl: 'http://localhost:5025/api'
+  baseUrl: 'http://localhost:5025/api',
+  baseSignalRUrl: 'http://localhost:5025/'
   // PHP API (XAMPP ile test ederken):
   // baseUrl: 'http://localhost/api'
 };

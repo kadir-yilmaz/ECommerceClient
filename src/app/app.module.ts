@@ -62,7 +62,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
   ],
   providers: [
     { provide: "baseUrl", useValue: environment.baseUrl },
-    { provide: "baseSignalRUrl", useValue: "/" },
+    { provide: "baseSignalRUrl", useValue: environment.baseSignalRUrl },
     {
       provide: "SocialAuthServiceConfig",
       useValue: {
