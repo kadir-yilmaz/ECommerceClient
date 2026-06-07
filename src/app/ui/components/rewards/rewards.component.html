@@ -7,95 +7,56 @@
 
   <div class="row g-4" *ngIf="activeRewards && activeRewards.length > 0; else noRewards">
     <div class="col-12 col-md-6 col-lg-4" *ngFor="let reward of activeRewards; let i = index">
-      <div class="reward-card h-100" 
-           [style.background]="'linear-gradient(135deg, ' + getGradientColors(i)[0] + ' 0%, ' + getGradientColors(i)[1] + ' 100%)'"
-           style="border-radius: 16px; padding: 30px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2); position: relative; overflow: hidden; transition: transform 0.3s ease, box-shadow 0.3s ease;"
-           onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 15px 40px rgba(0,0,0,0.3)';"
-           onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(0,0,0,0.2)';">
+      <div class="reward-mission-card">
         
-        <!-- Decorative circles -->
-        <div style="position: absolute; top: -40px; right: -40px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
-        <div style="position: absolute; bottom: -60px; left: -60px; width: 200px; height: 200px; background: rgba(255,255,255,0.05); border-radius: 50%;"></div>
-
-        <!-- Badge -->
-        <div style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.3); backdrop-filter: blur(10px); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">
-          Aktif
-        </div>
-
-        <!-- Icon -->
-        <div style="display: flex; align-items: center; justify-content: center; width: 70px; height: 70px; background: rgba(255,255,255,0.25); backdrop-filter: blur(10px); border-radius: 50%; margin-bottom: 20px; box-shadow: 0 8px 16px rgba(0,0,0,0.1);">
-          <i class="fa-solid fa-gift" style="font-size: 32px;"></i>
-        </div>
-
-        <!-- Title -->
-        <h2 style="font-size: 24px; font-weight: bold; margin-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          {{ reward.name }}
-        </h2>
-
-        <!-- Requirement Box -->
-        <div style="background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.3);">
-          <div style="display: flex; align-items: center; margin-bottom: 12px;">
-            <i class="fa-solid fa-calendar-days" style="font-size: 20px; margin-right: 10px;"></i>
-            <div>
-              <p style="margin: 0; font-size: 14px; opacity: 0.9;">Süre</p>
-              <p style="margin: 0; font-size: 20px; font-weight: bold;">{{ reward.periodInDays }} Gün</p>
-            </div>
+        <!-- Üst kısım: Görev açıklaması -->
+        <div class="mission-header">
+          <div class="mission-icon" [style.background]="'linear-gradient(135deg, ' + getGradientColors(i)[0] + ' 0%, ' + getGradientColors(i)[1] + ' 100%)'">
+            <i class="fa-solid fa-gift"></i>
           </div>
+          <span class="badge-active">Aktif</span>
+          <h3 class="mission-title">{{ reward.name }}</h3>
+        </div>
 
-          <div style="display: flex; align-items: center;">
-            <i class="fa-solid fa-shopping-cart" style="font-size: 20px; margin-right: 10px;"></i>
-            <div>
-              <p style="margin: 0; font-size: 14px; opacity: 0.9;">Hedef Alışveriş</p>
-              <p style="margin: 0; font-size: 20px; font-weight: bold;">{{ reward.minTotalSpent }} TL</p>
-            </div>
+        <div class="mission-requirement">
+          <p class="req-text">
+            <i class="fa-solid fa-calendar-days"></i>
+            <strong>{{ reward.periodInDays }}</strong> gün içinde 
+            <strong>{{ reward.minTotalSpent }} TL</strong> alışveriş yap
+          </p>
+          <div class="arrow-down">
+            <i class="fa-solid fa-arrow-down"></i>
           </div>
         </div>
 
-        <!-- Reward Badge -->
-        <div style="background: rgba(255,255,255,0.95); color: #333; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 8px 16px rgba(0,0,0,0.15);">
-          <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #666;">
-            Kazanacağınız Kupon
+        <!-- Alt kısım: Kazanılacak kupon -->
+        <div class="earned-coupon" [attr.data-color]="i % 3">
+          <div class="coupon-stripe" [style.background]="getGradientColors(i)[0]"></div>
+          
+          <h4 class="coupon-code" [style.color]="getGradientColors(i)[0]">
+            <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">KAZAN{{ reward.rewardDiscountValue }}</ng-container>
+            <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">INDIRIM{{ reward.rewardDiscountValue }}</ng-container>
+            <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">KARGOBEDAVA</ng-container>
+          </h4>
+          
+          <div class="coupon-value">
+            <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">{{ reward.rewardDiscountValue }} TL İndirim</ng-container>
+            <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">%{{ reward.rewardDiscountValue }} İndirim</ng-container>
+            <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">Kargo Bedava</ng-container>
+          </div>
+
+          <p class="coupon-limit" *ngIf="reward.couponMinCartAmount > 0">
+            Alt Limit: {{ reward.couponMinCartAmount }} TL
           </p>
-          <p style="margin: 0; font-size: 32px; font-weight: 900; color: #764ba2; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">{{ reward.rewardDiscountValue }} TL</ng-container>
-            <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">%{{ reward.rewardDiscountValue }}</ng-container>
-            <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">
-              <i class="fa-solid fa-truck-fast"></i> Kargo
-            </ng-container>
+
+          <p class="coupon-expiry">
+            <i class="fa-solid fa-clock"></i>
+            Kupon {{ reward.couponValidityDays }} gün geçerli
           </p>
-          <p style="margin: 5px 0 0 0; font-size: 14px; color: #666;">
-            <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">İndirim Kuponu</ng-container>
-            <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">İndirim Kuponu</ng-container>
-            <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">Bedava</ng-container>
-          </p>
-          <p style="margin: 8px 0 0 0; font-size: 12px; color: #999;" *ngIf="reward.rewardMaxDiscountAmount && reward.rewardDiscountType === 'Percentage'">
+
+          <p class="coupon-max" *ngIf="reward.rewardMaxDiscountAmount && reward.rewardDiscountType === 'Percentage'">
             Maks. {{ reward.rewardMaxDiscountAmount }} TL
           </p>
-        </div>
-
-        <!-- Coupon Details -->
-        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span style="font-size: 13px; opacity: 0.9;">
-              <i class="fa-solid fa-clock" style="margin-right: 5px;"></i>
-              Kupon Süresi
-            </span>
-            <span style="font-size: 13px; font-weight: bold;">{{ reward.couponValidityDays }} Gün</span>
-          </div>
-
-          <div style="display: flex; justify-content: space-between;" *ngIf="reward.couponMinCartAmount > 0">
-            <span style="font-size: 13px; opacity: 0.9;">
-              <i class="fa-solid fa-tag" style="margin-right: 5px;"></i>
-              Min. Sepet
-            </span>
-            <span style="font-size: 13px; font-weight: bold;">{{ reward.couponMinCartAmount }} TL</span>
-          </div>
-        </div>
-
-        <!-- Progress hint -->
-        <div style="margin-top: 20px; text-align: center; padding: 15px; background: rgba(0,0,0,0.1); border-radius: 8px;">
-          <i class="fa-solid fa-star" style="margin-right: 8px;"></i>
-          <span style="font-size: 13px; font-weight: 600;">Hemen alışverişe başlayın ve hediyenizi kazanın!</span>
         </div>
 
       </div>

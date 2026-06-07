@@ -580,188 +580,183 @@
       display: none;
     }
 
-    .reward-card {
+    .reward-mission-card {
       flex: 0 0 calc((100% - 3rem) / 3);
-      min-width: 320px;
+      min-width: 300px;
       scroll-snap-align: start;
       background: white;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      position: relative;
-      overflow: hidden;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
       transition: all 0.3s ease;
-      border: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
 
       &:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.15);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.12);
       }
 
-      &::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
+      .mission-header {
+        text-align: center;
+        
+        .mission-icon {
+          width: 56px;
+          height: 56px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0 auto 12px;
+          
+          i {
+            font-size: 26px;
+            color: white;
+          }
+        }
 
-      &.gradient-0::before {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      }
-
-      &.gradient-1::before {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-      }
-
-      &.gradient-2::before {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-      }
-
-      .reward-icon {
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
-
-        i {
-          font-size: 26px;
-          color: white;
+        .mission-title {
+          font-size: 17px;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0;
+          line-height: 1.3;
         }
       }
 
-      &:hover .reward-icon {
-        transform: scale(1.1) rotate(5deg);
-      }
-
-      .reward-title {
-        font-size: 19px;
-        font-weight: 700;
-        color: #1e293b;
-        margin: 0 0 18px 0;
-        line-height: 1.3;
-      }
-
-      .requirement-box {
+      .mission-requirement {
+        text-align: center;
+        padding: 14px;
         background: #f8fafc;
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 18px;
-        border-left: 4px solid #667eea;
+        border-radius: 10px;
+        border: 2px dashed #e2e8f0;
 
-        .requirement-item {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          color: #64748b;
+        .req-text {
+          margin: 0 0 10px 0;
+          color: #475569;
           font-size: 14px;
-          margin-bottom: 8px;
-
-          &:last-child {
-            margin-bottom: 0;
-          }
-
-          &.highlight {
-            color: #667eea;
-            font-size: 15px;
-            font-weight: 600;
-          }
+          line-height: 1.5;
 
           i {
-            font-size: 16px;
-            width: 18px;
-            text-align: center;
+            color: #667eea;
+            margin-right: 4px;
           }
 
           strong {
+            color: #667eea;
             font-weight: 700;
           }
         }
+
+        .arrow-down {
+          color: #94a3b8;
+          font-size: 18px;
+          animation: bounce 2s infinite;
+        }
       }
 
-      .reward-prize {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 12px;
-        padding: 20px;
+      .earned-coupon {
+        background: #fafafa;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+        padding: 18px;
         text-align: center;
-        color: white;
-        margin-bottom: 18px;
+        position: relative;
+        overflow: hidden;
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
 
-        .prize-label {
-          display: block;
-          font-size: 12px;
-          opacity: 0.9;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+        &.coupon-color-0 .coupon-stripe {
+          background: #667eea;
+        }
+        
+        &.coupon-color-1 .coupon-stripe {
+          background: #f5576c;
+        }
+        
+        &.coupon-color-2 .coupon-stripe {
+          background: #00f2fe;
         }
 
-        .prize-value {
-          display: block;
-          font-size: 32px;
+        &.coupon-color-0 .coupon-code {
+          color: #667eea;
+        }
+        
+        &.coupon-color-1 .coupon-code {
+          color: #f5576c;
+        }
+        
+        &.coupon-color-2 .coupon-code {
+          color: #00f2fe;
+        }
+
+        .coupon-stripe {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 5px;
+          height: 100%;
+        }
+
+        .coupon-code {
+          font-size: 24px;
           font-weight: 800;
-          line-height: 1;
-          margin-bottom: 4px;
+          letter-spacing: 2px;
+          margin: 0 0 8px 0;
         }
 
-        .prize-max {
-          display: block;
-          font-size: 11px;
-          opacity: 0.8;
-        }
-      }
-
-      .reward-details {
-        padding-top: 18px;
-        border-top: 1px dashed #e2e8f0;
-
-        .detail-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #64748b;
-          font-size: 13px;
+        .coupon-value {
+          font-size: 16px;
+          font-weight: bold;
+          color: #333;
           margin-bottom: 8px;
+        }
 
-          &:last-child {
-            margin-bottom: 0;
-          }
+        .coupon-limit {
+          font-size: 13px;
+          color: #777;
+          margin: 8px 0;
+        }
+
+        .coupon-expiry {
+          font-size: 12px;
+          color: #999;
+          margin: 8px 0 0 0;
 
           i {
-            font-size: 14px;
-            width: 16px;
-            text-align: center;
-            color: #94a3b8;
-          }
-
-          strong {
-            font-weight: 600;
-            color: #475569;
+            margin-right: 4px;
           }
         }
       }
+    }
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(4px);
     }
   }
 
   @media (max-width: 1200px) {
     .rewards-slider {
-      .reward-card {
+      .reward-mission-card {
         flex: 0 0 calc((100% - 1.5rem) / 2);
       }
     }
   }
 
-  @media (max-width: 680px) {
+  @media (max-width: 768px) {
     .rewards-slider {
-      .reward-card {
+      .reward-mission-card {
         flex: 0 0 calc(100% - 1rem);
+        min-width: 280px;
       }
     }
   }

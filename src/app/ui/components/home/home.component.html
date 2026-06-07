@@ -116,47 +116,51 @@
       
       <div class="rewards-slider" #rewardsScroll>
         <article *ngFor="let reward of activeRewards; let rIndex = index" 
-                 class="reward-card"
-                 [ngClass]="'gradient-' + (rIndex % 3)">
+                 class="reward-mission-card">
           
-          <div class="reward-icon">
-            <i class="fa-solid fa-gift"></i>
+          <!-- Üst kısım: Görev açıklaması -->
+          <div class="mission-header">
+            <div class="mission-icon">
+              <i class="fa-solid fa-gift"></i>
+            </div>
+            <h3 class="mission-title">{{ reward.name }}</h3>
           </div>
 
-          <h3 class="reward-title">{{ reward.name }}</h3>
-
-          <div class="requirement-box">
-            <div class="requirement-item">
+          <div class="mission-requirement">
+            <p class="req-text">
               <i class="fa-solid fa-calendar-days"></i>
-              <span><strong>{{ reward.periodInDays }}</strong> gün içinde</span>
-            </div>
-            <div class="requirement-item highlight">
-              <i class="fa-solid fa-shopping-cart"></i>
-              <span><strong>{{ reward.minTotalSpent }} TL</strong> alışveriş yap</span>
+              <strong>{{ reward.periodInDays }}</strong> gün içinde 
+              <strong>{{ reward.minTotalSpent }} TL</strong> alışveriş yap
+            </p>
+            <div class="arrow-down">
+              <i class="fa-solid fa-arrow-down"></i>
             </div>
           </div>
 
-          <div class="reward-prize">
-            <span class="prize-label">Kazanacağınız İndirim</span>
-            <span class="prize-value">
-              <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">{{ reward.rewardDiscountValue }} TL</ng-container>
-              <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">%{{ reward.rewardDiscountValue }}</ng-container>
-              <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">Ücretsiz Kargo</ng-container>
-            </span>
-            <span class="prize-max" *ngIf="reward.rewardMaxDiscountAmount">
-              (Maksimum {{ reward.rewardMaxDiscountAmount }} TL)
-            </span>
-          </div>
+          <!-- Alt kısım: Kazanılacak kupon -->
+          <div class="earned-coupon" [ngClass]="'coupon-color-' + (rIndex % 3)">
+            <div class="coupon-stripe"></div>
+            
+            <h4 class="coupon-code">
+              <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">KAZAN{{ reward.rewardDiscountValue }}</ng-container>
+              <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">INDIRIM{{ reward.rewardDiscountValue }}</ng-container>
+              <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">KARGOBEDAVA</ng-container>
+            </h4>
+            
+            <div class="coupon-value">
+              <ng-container *ngIf="reward.rewardDiscountType === 'Amount'">{{ reward.rewardDiscountValue }} TL İndirim</ng-container>
+              <ng-container *ngIf="reward.rewardDiscountType === 'Percentage'">%{{ reward.rewardDiscountValue }} İndirim</ng-container>
+              <ng-container *ngIf="reward.rewardDiscountType === 'FreeShipping'">Kargo Bedava</ng-container>
+            </div>
 
-          <div class="reward-details">
-            <div class="detail-item">
+            <p class="coupon-limit" *ngIf="reward.couponMinCartAmount > 0">
+              Alt Limit: {{ reward.couponMinCartAmount }} TL
+            </p>
+
+            <p class="coupon-expiry">
               <i class="fa-solid fa-clock"></i>
-              <span>Kupon geçerlilik: <strong>{{ reward.couponValidityDays }} gün</strong></span>
-            </div>
-            <div class="detail-item" *ngIf="reward.couponMinCartAmount > 0">
-              <i class="fa-solid fa-tag"></i>
-              <span>Min. sepet: <strong>{{ reward.couponMinCartAmount }} TL</strong></span>
-            </div>
+              Kupon {{ reward.couponValidityDays }} gün geçerli
+            </p>
           </div>
 
         </article>
