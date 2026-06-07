@@ -1,226 +1,235 @@
 <section class="cart-page">
-  <div class="cart-header-container">
+  <div class="cart-header">
     <h1 class="cart-title">Sepetim <span class="cart-count">({{ itemCount }} Ürün)</span></h1>
   </div>
 
-  <!-- Auth Warning Banner -->
-  <div class="auth-warning-banner" *ngIf="!authService.isAuthenticated">
-    <mat-icon class="warning-icon">info</mat-icon>
-    <div class="warning-text">
-      <span>Alışverişini daha hızlı tamamlamak için</span>
-      <a routerLink="/login" [queryParams]="{ returnUrl: '/basket' }" class="login-link">Giriş Yap</a>
-    </div>
+  <div class="auth-banner" *ngIf="!authService.isAuthenticated">
+    <i class="ti ti-info-circle"></i>
+    <span>Alışverişini daha hızlı tamamlamak için
+      <a routerLink="/login" [queryParams]="{ returnUrl: '/basket' }">Giriş Yap</a>
+    </span>
   </div>
 
   <ng-container *ngIf="basketItems.length; else emptyBasket">
-    <div class="cart-split-layout">
-      <!-- Left Side: Basket Items -->
-      <section class="cart-items-section">
-        <article class="cart-item-card" *ngFor="let basketItem of basketItems; let i = index">
-          <div class="cart-item-image">
-            <img [src]="getProductImage(basketItem.imagePath)" [alt]="basketItem.name">
-          </div>
+    <div class="cart-layout">
 
-          <div class="cart-item-content">
-            <div class="cart-item-details">
-              <h2>
-                <span class="cart-item-brand" *ngIf="basketItem.brand">{{ basketItem.brand }} <i class="fa-solid fa-circle-check brand-tick"></i></span>
-                {{ basketItem.name }}
-              </h2>
-              <p class="unit-price">Birim Fiyat: <strong>{{ basketItem.price | turkishCurrency }}</strong></p>
+      <section class="cart-items">
+        <article class="item-card" *ngFor="let item of basketItems">
 
-              <!-- Sepette Getir tarzı kampanya ve miktar uyarıları -->
-              <div class="basket-item-campaign-container" *ngIf="basketItem.campaigns && basketItem.campaigns.length > 0">
-                <div class="basket-campaign-badge">
-                  <i class="fa-solid fa-gift"></i>
-                  <span>{{ basketItem.campaigns[0].name }}</span>
-                </div>
-                
-                <!-- 1. FreeItem (Buy X Get Y Free) Rule Type -->
-                <ng-container *ngIf="basketItem.campaigns[0].ruleType === 'FreeItem'">
-                  <div class="basket-campaign-alert" *ngIf="!isCampaignConditionMet(basketItem.campaigns[0])">
-                    <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
-                    <span class="alert-text">Bu kampanyaya dahil ürünlerden <strong>{{ getRemainingQuantityForCampaign(basketItem.campaigns[0]) }} adet daha</strong> ekleyin, 1 tanesini hediye kazanın!</span>
-                  </div>
-                  <div class="basket-campaign-success" *ngIf="isCampaignConditionMet(basketItem.campaigns[0])">
-                    <span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>
-                    <span class="success-text">Kampanya uygulandı! En ucuz ürün hediye edildi.</span>
-                  </div>
-                </ng-container>
-
-                <!-- 2. CheapestItemDiscount Rule Type -->
-                <ng-container *ngIf="basketItem.campaigns[0].ruleType === 'CheapestItemDiscount'">
-                  <div class="basket-campaign-alert" *ngIf="!isCampaignConditionMet(basketItem.campaigns[0])">
-                    <span class="alert-icon"><i class="fa-solid fa-circle-info"></i></span>
-                    <span class="alert-text">Bu kampanyaya dahil ürünlerden <strong>{{ getRemainingQuantityForCampaign(basketItem.campaigns[0]) }} adet daha</strong> ekleyin, en ucuzuna %{{ basketItem.campaigns[0].discountRate }} indirim kazanın!</span>
-                  </div>
-                  <ng-container *ngIf="isCampaignConditionMet(basketItem.campaigns[0])">
-                    <div class="basket-campaign-success" *ngIf="isCheapestItemInCampaign(basketItem, basketItem.campaigns[0])">
-                      <span class="success-icon"><i class="fa-solid fa-circle-check"></i></span>
-                      <span class="success-text">Kampanya uygulandı! En ucuz telefon olduğu için bu ürüne %{{ basketItem.campaigns[0].discountRate }} indirim yansıtıldı.</span>
-                    </div>
-                    <div class="basket-campaign-info" *ngIf="!isCheapestItemInCampaign(basketItem, basketItem.campaigns[0])">
-                      <span class="info-icon"><i class="fa-solid fa-circle-info"></i></span>
-                      <span class="info-text">Kampanya uygulandı! En ucuz olan diğer telefona %{{ basketItem.campaigns[0].discountRate }} indirim yansıtıldı.</span>
-                    </div>
-                  </ng-container>
-                </ng-container>
-              </div>
-
-              <p class="delivery-tag">
-                <mat-icon>local_shipping</mat-icon> Tahmini Kargoya Teslim: 3 iş günü içinde
-              </p>
-            </div>
-
-            <div class="cart-item-actions">
-              <!-- Pill-shaped quantity selector -->
-              <div class="quantity-selector">
-                <button 
-                  type="button" 
-                  (click)="decrementQuantity(basketItem)" 
-                  [disabled]="basketItem.quantity <= 1"
-                  class="qty-btn qty-minus">
-                  <mat-icon>remove</mat-icon>
-                </button>
-                <span class="qty-val">{{ basketItem.quantity }}</span>
-                <button 
-                  type="button" 
-                  (click)="incrementQuantity(basketItem)" 
-                  class="qty-btn qty-plus">
-                  <mat-icon>add</mat-icon>
-                </button>
-              </div>
-
-              <div class="cart-item-price-block">
-                <div class="original-price" *ngIf="getItemDiscountAmount(basketItem) > 0" style="text-decoration: line-through; color: #7f8c8d; font-size: 14px; text-align: right; margin-bottom: 2px;">
-                  {{ basketItem.price * basketItem.quantity | turkishCurrency }}
-                </div>
-                <div class="subtotal-price">
-                  {{ (basketItem.price * basketItem.quantity) - getItemDiscountAmount(basketItem) | turkishCurrency }}
-                </div>
-                <div class="discount-amount-label" *ngIf="getItemDiscountAmount(basketItem) > 0" style="color: #2e7d32; font-size: 12px; font-weight: 600; text-align: right; margin-top: 2px;">
-                  -{{ getItemDiscountAmount(basketItem) | turkishCurrency }} indirim
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <button type="button" class="remove-item-btn" (click)="removeBasketItem(basketItem.basketItemId)" title="Ürünü Sil">
-            <mat-icon>delete_outline</mat-icon> Sil
+          <button
+            type="button"
+            class="delete-btn"
+            (click)="removeBasketItem(item.basketItemId)"
+            aria-label="Ürünü kaldır">
+            <i class="ti ti-trash"></i>
           </button>
+
+          <div class="item-img">
+            <img [src]="getProductImage(item.imagePath)" [alt]="item.name">
+          </div>
+
+          <div class="item-body">
+            <div class="item-brand" *ngIf="item.brand">
+              <i class="ti ti-rosette-discount-check"></i>
+              {{ item.brand }}
+            </div>
+            <h2 class="item-name">{{ item.name }}</h2>
+            <p class="item-unit">Birim fiyat: <strong>{{ item.price | turkishCurrency }}</strong></p>
+
+            <div class="campaign-area" *ngIf="item.campaigns && item.campaigns.length > 0">
+              <div class="campaign-badge">
+                <i class="ti ti-gift"></i>
+                {{ item.campaigns[0].name }}
+              </div>
+
+              <ng-container *ngIf="item.campaigns[0].ruleType === 'FreeItem'">
+                <div class="campaign-alert" *ngIf="!isCampaignConditionMet(item.campaigns[0])">
+                  <i class="ti ti-info-circle"></i>
+                  <span>Bu kampanyaya dahil ürünlerden
+                    <strong>{{ getRemainingQuantityForCampaign(item.campaigns[0]) }} adet daha</strong>
+                    ekleyin, 1 tanesini hediye kazanın!</span>
+                </div>
+                <div class="campaign-success" *ngIf="isCampaignConditionMet(item.campaigns[0])">
+                  <i class="ti ti-circle-check"></i>
+                  <span>Kampanya uygulandı! En ucuz ürün hediye edildi.</span>
+                </div>
+              </ng-container>
+
+              <ng-container *ngIf="item.campaigns[0].ruleType === 'CheapestItemDiscount'">
+                <div class="campaign-alert" *ngIf="!isCampaignConditionMet(item.campaigns[0])">
+                  <i class="ti ti-info-circle"></i>
+                  <span>Bu kampanyaya dahil ürünlerden
+                    <strong>{{ getRemainingQuantityForCampaign(item.campaigns[0]) }} adet daha</strong>
+                    ekleyin, en ucuzuna %{{ item.campaigns[0].discountRate }} indirim kazanın!</span>
+                </div>
+                <ng-container *ngIf="isCampaignConditionMet(item.campaigns[0])">
+                  <div class="campaign-success" *ngIf="isCheapestItemInCampaign(item, item.campaigns[0])">
+                    <i class="ti ti-circle-check"></i>
+                    <span>Kampanya uygulandı! En ucuz telefon olduğu için bu ürüne
+                      %{{ item.campaigns[0].discountRate }} indirim yansıtıldı.</span>
+                  </div>
+                  <div class="campaign-info" *ngIf="!isCheapestItemInCampaign(item, item.campaigns[0])">
+                    <i class="ti ti-info-circle"></i>
+                    <span>Kampanya uygulandı! En ucuz olan diğer telefona
+                      %{{ item.campaigns[0].discountRate }} indirim yansıtıldı.</span>
+                  </div>
+                </ng-container>
+              </ng-container>
+            </div>
+
+            <p class="delivery-tag">
+              <i class="ti ti-truck-delivery"></i>
+              Tahmini kargoya teslim: 3 iş günü içinde
+            </p>
+
+            <div class="item-footer">
+              <div class="qty-selector">
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="decrementQuantity(item)"
+                  [disabled]="item.quantity <= 1"
+                  aria-label="Azalt">
+                  <i class="ti ti-minus"></i>
+                </button>
+                <span class="qty-val">{{ item.quantity }}</span>
+                <button
+                  type="button"
+                  class="qty-btn"
+                  (click)="incrementQuantity(item)"
+                  aria-label="Artır">
+                  <i class="ti ti-plus"></i>
+                </button>
+              </div>
+
+              <div class="price-block">
+                <div class="price-original" *ngIf="getItemDiscountAmount(item) > 0">
+                  {{ item.price * item.quantity | turkishCurrency }}
+                </div>
+                <div class="price-main">
+                  {{ (item.price * item.quantity) - getItemDiscountAmount(item) | turkishCurrency }}
+                </div>
+                <div class="price-discount" *ngIf="getItemDiscountAmount(item) > 0">
+                  -{{ getItemDiscountAmount(item) | turkishCurrency }} indirim
+                </div>
+              </div>
+            </div>
+          </div>
+
         </article>
       </section>
 
-      <!-- Right Side: Sticky Order Summary -->
-      <aside class="cart-summary-section">
-        <div class="summary-sticky-card">
-          <h2>Sepet Özeti</h2>
+      <aside class="cart-summary">
+        <div class="summary-card">
+          <h2>Sepet özeti</h2>
 
-          <!-- Free Shipping Warning Bar -->
-          <div class="free-shipping-banner" *ngIf="shippingFee > 0 && shippingThreshold > 0 && totalPrice < shippingThreshold">
-            <p class="shipping-warning-text">
-              Kargonun bedava olması için <strong>{{ shippingThreshold - totalPrice | turkishCurrency }}</strong> daha ürün ekleyin!
-            </p>
-            <div class="progress-bar-bg">
-              <div class="progress-bar-fill" [style.width.%]="(totalPrice / shippingThreshold) * 100"></div>
+          <div class="ship-warning"
+            *ngIf="shippingFee > 0 && shippingThreshold > 0 && totalPrice < shippingThreshold">
+            <p>Kargo bedava için
+              <strong>{{ shippingThreshold - totalPrice | turkishCurrency }}</strong> daha ekleyin</p>
+            <div class="progress-bg">
+              <div class="progress-fill" [style.width.%]="(totalPrice / shippingThreshold) * 100"></div>
             </div>
           </div>
 
-          <!-- Free Shipping Success Banner -->
-          <div class="free-shipping-success-banner" *ngIf="shippingFee === 0">
-            <mat-icon>check_circle</mat-icon>
-            <span>Tebrikler! Kargonuz bedava.</span>
+          <div class="ship-success" *ngIf="shippingFee === 0">
+            <i class="ti ti-circle-check"></i>
+            <span>Kargonuz bedava!</span>
           </div>
 
           <div class="summary-rows">
-            <!-- Kargo Ücreti (Sadece ücretli olduğunda en başta gösterilir) -->
             <div class="summary-row" *ngIf="shippingFee > 0">
-              <span>Kargo Ücreti</span>
+              <span>Kargo ücreti</span>
               <strong>{{ shippingFee | turkishCurrency }}</strong>
             </div>
-
             <div class="summary-row">
-              <span>Ara Toplam</span>
+              <span>Ara toplam</span>
               <strong>{{ totalPrice | turkishCurrency }}</strong>
             </div>
-
-            <!-- Uygulanan Indirimleri Listeleme (FreeShipping hariç) -->
-            <ng-container *ngIf="discountResponse?.appliedDiscounts?.length">
-              <ng-container *ngFor="let discount of discountResponse.appliedDiscounts">
-                <div class="summary-row discount-row"
-                     [ngClass]="{
-                       'coupon-row': discount.discountType === 'Coupon',
-                       'campaign-row': discount.discountType === 'Campaign',
-                       'free-shipping-row': discount.discountType === 'FreeShipping'
-                     }">
-                    <div class="discount-content">
-                      <span class="discount-title">{{ discount.discountName }}</span>
-                      <span class="discount-description">{{ getDiscountDescription(discount) }}</span>
-                    </div>
-                  <strong *ngIf="discount.discountAmount > 0; else freeShippingTxt">-{{ discount.discountAmount | turkishCurrency }}</strong>
-                  <ng-template #freeShippingTxt><strong>Bedava</strong></ng-template>
-                </div>
-              </ng-container>
-            </ng-container>
+            <div class="summary-row campaign" *ngIf="getTotalCampaignDiscount() > 0">
+              <span>Kampanya indirimi</span>
+              <strong>-{{ getTotalCampaignDiscount() | turkishCurrency }}</strong>
+            </div>
+            <div class="summary-row coupon" *ngIf="getCouponDiscount() > 0">
+              <span>Kupon indirimi</span>
+              <strong>-{{ getCouponDiscount() | turkishCurrency }}</strong>
+            </div>
           </div>
 
           <div class="summary-divider"></div>
 
-          <div class="summary-total-row">
+          <div class="summary-total">
             <span>Toplam</span>
-            <strong class="total-price">{{ grandTotal | turkishCurrency }}</strong>
+            <strong>{{ grandTotal | turkishCurrency }}</strong>
           </div>
 
-          <div class="coupon-code-container">
-            <div class="my-coupons-dropdown-container" *ngIf="authService.isAuthenticated && myCoupons && myCoupons.length > 0">
-              <label for="couponSelect" class="my-coupons-label">
-                <mat-icon>local_offer</mat-icon>
-                <span>Kullanılabilir Kuponlarım</span>
-              </label>
-              <select id="couponSelect" class="my-coupons-select" [value]="hasCouponApplied ? couponCodeInput : ''" (change)="selectCoupon($event)">
-                <option value="">Kupon Seçin</option>
-                <option *ngFor="let coupon of myCoupons" [value]="coupon.code">
-                  {{ coupon.code }} - 
-                  <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
-                  <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
-                  <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
-                  <ng-container *ngIf="coupon.minCartAmount > 0"> (Min: {{ coupon.minCartAmount }} TL)</ng-container>
-                </option>
-              </select>
-            </div>
+          <div class="my-coupons"
+            *ngIf="authService.isAuthenticated && myCoupons && myCoupons.length > 0">
+            <label class="field-label">
+              <i class="ti ti-tag"></i> Kuponlarım
+            </label>
+            <select
+              class="coupon-select"
+              [value]="hasCouponApplied ? couponCodeInput : ''"
+              (change)="selectCoupon($event)">
+              <option value="">Kupon seçin</option>
+              <option *ngFor="let c of myCoupons" [value]="c.code">
+                {{ c.code }} —
+                <ng-container *ngIf="c.discountType === 'Amount'">{{ c.discountValue }} TL indirim</ng-container>
+                <ng-container *ngIf="c.discountType === 'Percentage'">%{{ c.discountValue }} indirim</ng-container>
+                <ng-container *ngIf="c.discountType === 'FreeShipping'">Kargo bedava</ng-container>
+                <ng-container *ngIf="c.minCartAmount > 0"> (Min: {{ c.minCartAmount }} TL)</ng-container>
+              </option>
+            </select>
+          </div>
 
-            <div class="coupon-input-group" *ngIf="!hasCouponApplied; else appliedCouponTpl">
-              <input type="text" [(ngModel)]="couponCodeInput" class="coupon-input" placeholder="İndirim Kodu Gir" (input)="onCouponInput($event)">
-              <button type="button" class="coupon-btn" (click)="applyCoupon()">
+          <div class="coupon-area">
+            <label class="field-label">
+              <i class="ti ti-discount"></i> İndirim kodu
+            </label>
+            <div class="coupon-input-row" *ngIf="!hasCouponApplied; else appliedCouponTpl">
+              <input
+                type="text"
+                [(ngModel)]="couponCodeInput"
+                class="coupon-input"
+                placeholder="Kodu girin"
+                (input)="onCouponInput($event)">
+              <button type="button" class="coupon-apply-btn" (click)="applyCoupon()">
                 Uygula
               </button>
             </div>
             <ng-template #appliedCouponTpl>
-              <div class="applied-coupon-box">
-                <span class="coupon-code-label">Kupon: {{ couponCodeInput }}</span>
-                <button type="button" class="coupon-remove-btn" (click)="removeCoupon()">
-                  <mat-icon>close</mat-icon>
+              <div class="coupon-applied">
+                <div class="coupon-applied-code">
+                  <i class="ti ti-discount-check"></i>
+                  {{ couponCodeInput }}
+                </div>
+                <button type="button" class="coupon-remove" (click)="removeCoupon()" aria-label="Kuponu kaldır">
+                  <i class="ti ti-x"></i>
                 </button>
               </div>
             </ng-template>
           </div>
 
-          <button type="button" class="btn-primary-checkout" (click)="proceedToCheckout()">
-            Sepeti Onayla
+          <button type="button" class="checkout-btn" (click)="proceedToCheckout()">
+            Sepeti onayla <i class="ti ti-arrow-right"></i>
           </button>
         </div>
       </aside>
+
     </div>
   </ng-container>
 
   <ng-template #emptyBasket>
-    <section class="empty-cart-state">
-      <div class="empty-cart-panel">
-        <mat-icon class="empty-icon">shopping_cart</mat-icon>
-        <h2>Sepetinizde ürün bulunmamaktadır.</h2>
+    <div class="empty-state">
+      <div class="empty-card">
+        <i class="ti ti-shopping-cart-off empty-icon"></i>
+        <h2>Sepetiniz boş</h2>
         <p>Hemen ürünlerimizi inceleyip sepetinizi doldurmaya başlayabilirsiniz!</p>
-        <button type="button" class="btn-primary-checkout" (click)="continueShopping()">Ürünlere Göz At</button>
+        <button type="button" class="checkout-btn" (click)="continueShopping()">
+          Ürünlere göz at
+        </button>
       </div>
-    </section>
+    </div>
   </ng-template>
 </section>

@@ -2,9 +2,131 @@
   <div class="checkout-shell">
     <form class="checkout-grid" [formGroup]="checkoutForm" (ngSubmit)="completeOrder()" autocomplete="on">
       <div class="checkout-main">
-        <section class="panel">
+        <!-- Address Selection Section -->
+        <section class="panel" *ngIf="deliveryAddresses.length > 0 || invoiceAddresses.length > 0">
+          <div class="panel-header">
+            <h2>Kayıtlı Adreslerim</h2>
+          </div>
+
+          <div class="address-selection-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Delivery Addresses -->
+            <div class="address-type-section">
+              <h3 style="font-size: 16px; margin-bottom: 12px; color: #333;">
+                <i class="fa-solid fa-truck" style="margin-right: 8px; color: #3498db;"></i>
+                Teslimat Adresi
+              </h3>
+              <div class="address-cards">
+                <div 
+                  *ngFor="let address of deliveryAddresses" 
+                  class="address-card"
+                  [class.selected]="selectedDeliveryAddressId === address.id"
+                  (click)="onDeliveryAddressChange(address.id)"
+                  style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;"
+                  [style.border-color]="selectedDeliveryAddressId === address.id ? '#3498db' : '#e0e0e0'"
+                  [style.background]="selectedDeliveryAddressId === address.id ? '#f0f8ff' : '#fff'">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                      <strong>{{ address.title }}</strong>
+                      <span *ngIf="address.isDefault" style="background: #3498db; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">Varsayılan</span>
+                    </div>
+                    <i *ngIf="selectedDeliveryAddressId === address.id" class="fa-solid fa-check-circle" style="color: #3498db;"></i>
+                  </div>
+                  <p style="margin: 8px 0 4px; font-size: 13px; color: #555;">
+                    {{ address.firstName }} {{ address.lastName }} - {{ address.phoneNumber }}
+                  </p>
+                  <p style="margin: 0; font-size: 12px; color: #666;">
+                    {{ address.neighborhood }}, {{ address.district }}/{{ address.province }}
+                  </p>
+                </div>
+              </div>
+              <button type="button" class="add-address-btn" (click)="openNewAddressForm(AddressType.Delivery)" style="width: 100%; padding: 10px; margin-top: 8px; border: 1px dashed #3498db; background: #fff; color: #3498db; border-radius: 6px; cursor: pointer;">
+                <i class="fa-solid fa-plus"></i> Yeni Teslimat Adresi Ekle
+              </button>
+              
+              <!-- Düzenle butonu - Eğer adres seçiliyse göster -->
+              <button 
+                type="button" 
+                *ngIf="selectedDeliveryAddressId"
+                (click)="editDeliveryDetails = true"
+                style="width: 100%; padding: 10px; margin-top: 8px; border: 1px solid #3498db; background: #3498db; color: white; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                <i class="fa-solid fa-edit"></i> Seçili Adresi Düzenle
+              </button>
+            </div>
+
+            <!-- Invoice Addresses -->
+            <div class="address-type-section">
+              <h3 style="font-size: 16px; margin-bottom: 12px; color: #333;">
+                <i class="fa-solid fa-file-invoice" style="margin-right: 8px; color: #9b59b6;"></i>
+                Fatura Adresi
+              </h3>
+              
+              <!-- Checkbox: Fatura adresi teslimat ile aynı -->
+              <div style="margin-bottom: 12px; padding: 12px; background: #f8f9fa; border-radius: 6px;">
+                <label style="display: flex; align-items: center; cursor: pointer; font-size: 14px;">
+                  <input 
+                    type="checkbox" 
+                    [checked]="useSameAddressForInvoice" 
+                    (change)="onToggleSameAddress()"
+                    style="margin-right: 8px; cursor: pointer; width: 18px; height: 18px;">
+                  <span>Fatura adresim teslimat adresi ile aynı</span>
+                </label>
+              </div>
+
+              <!-- Fatura adresi seçimi (sadece farklıysa göster) -->
+              <div class="address-cards" *ngIf="!useSameAddressForInvoice">
+                <div 
+                  *ngFor="let address of invoiceAddresses" 
+                  class="address-card"
+                  [class.selected]="selectedInvoiceAddressId === address.id"
+                  (click)="onInvoiceAddressChange(address.id)"
+                  style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s;"
+                  [style.border-color]="selectedInvoiceAddressId === address.id ? '#9b59b6' : '#e0e0e0'"
+                  [style.background]="selectedInvoiceAddressId === address.id ? '#f5f0ff' : '#fff'">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div>
+                      <strong>{{ address.title }}</strong>
+                      <span *ngIf="address.isDefault" style="background: #9b59b6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 8px;">Varsayılan</span>
+                    </div>
+                    <i *ngIf="selectedInvoiceAddressId === address.id" class="fa-solid fa-check-circle" style="color: #9b59b6;"></i>
+                  </div>
+                  <p style="margin: 8px 0 4px; font-size: 13px; color: #555;">
+                    {{ address.firstName }} {{ address.lastName }} - {{ address.phoneNumber }}
+                  </p>
+                  <p style="margin: 0; font-size: 12px; color: #666;">
+                    {{ address.neighborhood }}, {{ address.district }}/{{ address.province }}
+                  </p>
+                </div>
+              </div>
+              
+              <button 
+                type="button" 
+                class="add-address-btn" 
+                (click)="openNewAddressForm(AddressType.Invoice)" 
+                *ngIf="!useSameAddressForInvoice"
+                style="width: 100%; padding: 10px; margin-top: 8px; border: 1px dashed #9b59b6; background: #fff; color: #9b59b6; border-radius: 6px; cursor: pointer;">
+                <i class="fa-solid fa-plus"></i> Yeni Fatura Adresi Ekle
+              </button>
+
+              <!-- Teslimat ile aynı ise bilgilendirme -->
+              <div *ngIf="useSameAddressForInvoice" style="padding: 12px; background: #f0f8ff; border: 1px solid #bfdbfe; border-radius: 6px; font-size: 13px; color: #1e40af;">
+                <i class="fa-solid fa-info-circle" style="margin-right: 6px;"></i>
+                Fatura adresiniz teslimat adresinizle aynı olacak
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Teslimat Bilgileri - Sadece adres seçili değilse veya düzenleme modundaysa göster -->
+        <section class="panel" *ngIf="!selectedDeliveryAddressId || editDeliveryDetails">
           <div class="panel-header">
             <h2>Teslimat Bilgileri</h2>
+            <small *ngIf="selectedDeliveryAddressId && editDeliveryDetails" style="color: #f97316; font-weight: 500;">
+              <i class="fa-solid fa-edit"></i> Düzenleme modu
+            </small>
+          </div>
+
+          <div *ngIf="editDeliveryDetails" style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 13px; color: #856404;">
+            <i class="fa-solid fa-exclamation-triangle"></i> Teslimat bilgilerini düzenleyebilirsiniz. Değişiklikler sadece bu sipariş için geçerli olacak.
           </div>
 
           <!-- Invisible inputs to capture browser autofill for İl / İlçe -->
@@ -68,7 +190,20 @@
             </label>
           </div>
 
-
+          <div *ngIf="editDeliveryDetails" style="display: flex; gap: 12px; margin-top: 12px;">
+            <button 
+              type="button" 
+              (click)="editDeliveryDetails = false"
+              style="flex: 1; padding: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">
+              <i class="fa-solid fa-times"></i> İptal
+            </button>
+            <button 
+              type="button" 
+              (click)="editDeliveryDetails = false"
+              style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600;">
+              <i class="fa-solid fa-check"></i> Kaydet
+            </button>
+          </div>
         </section>
 
         <section class="panel">
@@ -184,40 +319,38 @@
             <div class="summary-divider" style="margin: 15px 0; border-top: 1px solid #eee;"></div>
             
             <div class="summary-totals-area">
-              <div class="summary-row shipping-row">
-                <span>Kargo</span>
-                <b *ngIf="shippingFee > 0; else freeShippingText">{{ shippingFee | turkishCurrency }}</b>
-                <ng-template #freeShippingText><b>Ücretsiz</b></ng-template>
-              </div>
-
               <div class="summary-row">
                 <span>Ara Toplam</span>
                 <b>{{ basePrice | turkishCurrency }}</b>
               </div>
 
-              <!-- Uygulanan Indirimleri Listeleme (FreeShipping hariç) -->
-              <ng-container *ngIf="discountResponse?.appliedDiscounts?.length">
-                <ng-container *ngFor="let discount of discountResponse.appliedDiscounts">
-                  <div class="summary-row discount-row"
-                       [ngClass]="{
-                         'coupon-row': discount.discountType === 'Coupon',
-                         'campaign-row': discount.discountType === 'Campaign',
-                         'free-shipping-row': discount.discountType === 'FreeShipping'
-                       }">
-                    <div class="discount-content">
-                      <span class="discount-title">{{ discount.discountName }}</span>
-                      <span class="discount-description">{{ getDiscountDescription(discount) }}</span>
-                    </div>
-                    <b *ngIf="discount.discountAmount > 0; else freeShippingTxt">-{{ discount.discountAmount | turkishCurrency }}</b>
-                    <ng-template #freeShippingTxt><b>Bedava</b></ng-template>
-                  </div>
-                </ng-container>
+              <div class="summary-row summary-row-shipping">
+                <span>Kargo</span>
+                <b *ngIf="shippingFee > 0; else freeShippingText">{{ shippingFee | turkishCurrency }}</b>
+                <ng-template #freeShippingText><b>Ücretsiz</b></ng-template>
+              </div>
+
+              <!-- Kampanya İndirimi (Toplam) -->
+              <ng-container *ngIf="getTotalCampaignDiscount() > 0">
+                <div class="summary-row summary-row-campaign">
+                  <span>Kampanya İndirimi</span>
+                  <b>-{{ getTotalCampaignDiscount() | turkishCurrency }}</b>
+                </div>
+              </ng-container>
+
+              <!-- Kupon İndirimi -->
+              <ng-container *ngIf="getCouponDiscount() > 0">
+                <div class="summary-row summary-row-coupon">
+                  <span>Kupon İndirimi</span>
+                  <b>-{{ getCouponDiscount() | turkishCurrency }}</b>
+                </div>
               </ng-container>
             </div>
           </div>
 
-          <div class="summary-total" style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #ddd; margin-bottom: 15px;">
-            <span>Genel Toplam</span>
+          <!-- Büyük Turuncu Toplam -->
+          <div class="summary-total-big">
+            <span>TOPLAM</span>
             <strong>{{ totalPrice | turkishCurrency }}</strong>
           </div>
 
@@ -265,3 +398,31 @@
     </form>
   </div>
 </section>
+
+<!-- Address Form Modal -->
+<div class="address-modal-overlay" *ngIf="showNewAddressForm" (click)="closeNewAddressForm()">
+  <div class="address-modal-content" (click)="$event.stopPropagation()">
+    <div class="address-modal-header">
+      <h3>
+        <i [class]="addressTypeToCreate === AddressType.Delivery ? 'fa-solid fa-truck' : 'fa-solid fa-file-invoice'"></i>
+        {{ addressTypeToCreate === AddressType.Delivery ? 'Yeni Teslimat Adresi' : 'Yeni Fatura Adresi' }}
+      </h3>
+      <button type="button" class="modal-close-btn" (click)="closeNewAddressForm()">
+        <i class="fa-solid fa-times"></i>
+      </button>
+    </div>
+    <div class="address-modal-body">
+      <p style="margin: 0 0 16px; color: #666; font-size: 14px;">
+        Lütfen {{ addressTypeToCreate === AddressType.Delivery ? 'teslimat' : 'fatura' }} adresinizi ekleyin.
+        Bu bilgiler adres defterinize kaydedilecek ve daha sonra da kullanabilirsiniz.
+      </p>
+      <!-- Address Form Component -->
+      <app-address-form 
+        [addressType]="addressTypeToCreate"
+        [isModal]="true"
+        (addressCreated)="onAddressCreated()"
+        (cancelled)="closeNewAddressForm()">
+      </app-address-form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,206 @@
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      
+      <div class="card shadow-sm border-0">
+        <div class="card-header text-white" style="background-color: #7c3aed;">
+          <h5 class="mb-0">Adreslerim</h5>
+        </div>
+        <div class="card-body">
+
+          <!-- Tab Navigation -->
+          <ul class="nav nav-tabs mb-4" id="addressTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button 
+                class="nav-link" 
+                [class.active]="activeTab === AddressType.Delivery"
+                (click)="setActiveTab(AddressType.Delivery)"
+                type="button">
+                <i class="fa-solid fa-truck me-1"></i> Teslimat Adreslerim
+                <span class="badge bg-secondary ms-1">{{ deliveryAddresses.length }}</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button 
+                class="nav-link" 
+                [class.active]="activeTab === AddressType.Invoice"
+                (click)="setActiveTab(AddressType.Invoice)"
+                type="button">
+                <i class="fa-solid fa-file-invoice me-1"></i> Fatura Adreslerim
+                <span class="badge bg-secondary ms-1">{{ invoiceAddresses.length }}</span>
+              </button>
+            </li>
+          </ul>
+
+          <!-- Tab Content -->
+          <div class="tab-content" id="addressTabsContent">
+            
+            <!-- Teslimat Adresleri -->
+            <div class="tab-pane fade" [class.show]="activeTab === AddressType.Delivery" [class.active]="activeTab === AddressType.Delivery">
+              
+              <div class="alert alert-info mb-4">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                Bu sayfada yapacağınız adres değişiklikleri, daha önce vermiş olduğunuz siparişleri etkilemez.
+              </div>
+
+              <button 
+                class="btn btn-primary mb-4"
+                (click)="navigateToCreate(AddressType.Delivery)">
+                <i class="fa-solid fa-plus me-1"></i> Yeni adres
+              </button>
+
+              <div class="row" *ngIf="deliveryAddresses.length > 0; else noDeliveryAddresses">
+                <div class="col-md-6 mb-3" *ngFor="let address of deliveryAddresses">
+                  <div 
+                    class="card h-100 border-2 address-card-hover" 
+                    [class.border-light]="!address.isDefault"
+                    [style.border-color]="address.isDefault ? '#7c3aed' : ''"
+                    [style.background-color]="address.isDefault ? '#f5f3ff' : ''">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #7c3aed;"></i>
+                          <strong>{{ address.title }}</strong>
+                          <span class="text-warning ms-1" *ngIf="address.isDefault" title="Varsayılan adres">
+                            <i class="fa-solid fa-star"></i>
+                          </span>
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <button class="dropdown-item" (click)="navigateToEdit(address.id)">
+                                <i class="fa-solid fa-pen me-2"></i> Düzenle
+                              </button>
+                            </li>
+                            <li *ngIf="!address.isDefault">
+                              <button class="dropdown-item" (click)="setDefault(address.id, address.addressType)">
+                                <i class="fa-regular fa-star me-2"></i> Varsayılan yap
+                              </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <button class="dropdown-item text-danger" (click)="deleteAddress(address.id, address.addressType)">
+                                <i class="fa-solid fa-trash me-2"></i> Sil
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <p class="card-text text-muted small mb-1">
+                        {{ address.firstName }} {{ address.lastName }}
+                      </p>
+                      <p class="card-text small mb-1">
+                        {{ address.neighborhood }}, {{ address.district }} / {{ address.province }}
+                      </p>
+                      <p class="card-text small text-truncate" [title]="address.addressDetail">
+                        {{ address.addressDetail }}
+                      </p>
+                      
+                      <p class="card-text small text-muted mt-2" *ngIf="address.category === AddressCategory.Workplace && address.closedDays">
+                        <i class="fa-solid fa-calendar-xmark me-1"></i> Kapalı: {{ address.closedDays }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noDeliveryAddresses>
+                <div class="text-center text-muted py-5">
+                  <i class="fa-solid fa-location-dot fa-3x mb-3"></i>
+                  <p>Henüz teslimat adresi eklememişsiniz.</p>
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Fatura Adresleri -->
+            <div class="tab-pane fade" [class.show]="activeTab === AddressType.Invoice" [class.active]="activeTab === AddressType.Invoice">
+              
+              <div class="alert alert-info mb-4">
+                <i class="fa-solid fa-circle-info me-1"></i>
+                Fatura için seçilen adres sadece bilgi amaçlıdır. Ürünlerimiz "Teslimat adresi" bölümünde seçtiğiniz adrese teslim edilir.
+              </div>
+
+              <button 
+                class="btn btn-primary mb-4"
+                (click)="navigateToCreate(AddressType.Invoice)">
+                <i class="fa-solid fa-plus me-1"></i> Yeni adres
+              </button>
+
+              <div class="row" *ngIf="invoiceAddresses.length > 0; else noInvoiceAddresses">
+                <div class="col-md-6 mb-3" *ngFor="let address of invoiceAddresses">
+                  <div 
+                    class="card h-100 border-2 address-card-hover" 
+                    [class.border-light]="!address.isDefault"
+                    [style.border-color]="address.isDefault ? '#7c3aed' : ''"
+                    [style.background-color]="address.isDefault ? '#f5f3ff' : ''">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #7c3aed;"></i>
+                          <strong>{{ address.title }}</strong>
+                          <span class="text-warning ms-1" *ngIf="address.isDefault" title="Varsayılan adres">
+                            <i class="fa-solid fa-star"></i>
+                          </span>
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-sm btn-link text-muted p-0" type="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-ellipsis-vertical"></i>
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                              <button class="dropdown-item" (click)="navigateToEdit(address.id)">
+                                <i class="fa-solid fa-pen me-2"></i> Düzenle
+                              </button>
+                            </li>
+                            <li *ngIf="!address.isDefault">
+                              <button class="dropdown-item" (click)="setDefault(address.id, address.addressType)">
+                                <i class="fa-regular fa-star me-2"></i> Varsayılan yap
+                              </button>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                              <button class="dropdown-item text-danger" (click)="deleteAddress(address.id, address.addressType)">
+                                <i class="fa-solid fa-trash me-2"></i> Sil
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                      
+                      <p class="card-text text-muted small mb-1">
+                        {{ address.firstName }} {{ address.lastName }}
+                      </p>
+                      <p class="card-text small mb-1">
+                        {{ address.neighborhood }}, {{ address.district }} / {{ address.province }}
+                      </p>
+                      <p class="card-text small text-truncate" [title]="address.addressDetail">
+                        {{ address.addressDetail }}
+                      </p>
+                      
+                      <p class="card-text small text-muted mt-2" *ngIf="address.category === AddressCategory.Workplace && address.closedDays">
+                        <i class="fa-solid fa-calendar-xmark me-1"></i> Kapalı: {{ address.closedDays }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <ng-template #noInvoiceAddresses>
+                <div class="text-center text-muted py-5">
+                  <i class="fa-solid fa-file-invoice fa-3x mb-3"></i>
+                  <p>Henüz fatura adresi eklememişsiniz.</p>
+                </div>
+              </ng-template>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

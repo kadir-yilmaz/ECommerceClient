@@ -1,0 +1,19 @@
+.address-card-hover { 
+  transition: all 0.2s; 
+  border-radius: 12px; 
+}
+
+.address-card-hover:hover { 
+  border-color: #adb5bd !important; 
+  transform: translateY(-2px); 
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05); 
+}
+
+.nav-link {
+  color: #6c757d;
+  
+  &.active {
+    color: #7c3aed;
+    border-bottom-color: #7c3aed;
+  }
+}

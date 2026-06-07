@@ -77,6 +77,11 @@ const routes: Routes = [
     canActivate: [AuthGuard]
   },
   { 
+    path: "addresses", 
+    loadChildren: () => import("./ui/components/addresses/addresses.module").then(module => module.AddressesModule),
+    canActivate: [AuthGuard]
+  },
+  { 
     path: "basket", 
     loadChildren: () => import("./ui/components/baskets/baskets.module").then(module => module.BasketsModule) 
   },

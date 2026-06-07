@@ -1,0 +1,232 @@
+<div [class.container]="!isModal" [class.my-5]="!isModal">
+  <div [class.row]="!isModal" [class.justify-content-center]="!isModal">
+    <div [class.col-lg-8]="!isModal">
+      
+      <div class="card shadow-sm border-0" [class.modal-card]="isModal">
+        <div class="card-header text-white" style="background-color: #7c3aed;" *ngIf="!isModal">
+          <h5 class="mb-0">
+            <i class="fa-solid fa-location-dot me-2"></i>
+            {{ isEditMode ? 'Adresi Düzenle' : 'Yeni Adres Ekle' }}
+          </h5>
+        </div>
+        <div class="card-body" [class.modal-body-padding]="isModal">
+          
+          <form [formGroup]="addressForm" (ngSubmit)="onSubmit()">
+            
+            <!-- Adres Tipi ve Kategori -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Adres Tipi <span class="text-danger">*</span></label>
+                <select class="form-select" formControlName="addressType">
+                  <option [value]="AddressType.Delivery">Teslimat Adresi</option>
+                  <option [value]="AddressType.Invoice">Fatura Adresi</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Kategori <span class="text-danger">*</span></label>
+                <div class="btn-group w-100" role="group">
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    name="category" 
+                    id="categoryHome"
+                    [value]="AddressCategory.Home"
+                    formControlName="category">
+                  <label class="btn btn-outline-primary" for="categoryHome">
+                    <i class="fa-solid fa-house me-1"></i> Ev
+                  </label>
+
+                  <input 
+                    type="radio" 
+                    class="btn-check" 
+                    name="category" 
+                    id="categoryWorkplace"
+                    [value]="AddressCategory.Workplace"
+                    formControlName="category">
+                  <label class="btn btn-outline-primary" for="categoryWorkplace">
+                    <i class="fa-solid fa-building me-1"></i> İş Yeri
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Adres Başlığı -->
+            <div class="mb-3">
+              <label class="form-label">Adres Başlığı <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="title"
+                placeholder="Örn: Ev Adresim, İş Yerim"
+                [class.is-invalid]="f['title'].invalid && f['title'].touched">
+              <div class="invalid-feedback" *ngIf="f['title'].invalid && f['title'].touched">
+                Adres başlığı zorunludur
+              </div>
+            </div>
+
+            <!-- Ad Soyad -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Ad <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="firstName"
+                  [class.is-invalid]="f['firstName'].invalid && f['firstName'].touched">
+                <div class="invalid-feedback" *ngIf="f['firstName'].invalid && f['firstName'].touched">
+                  Ad zorunludur
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Soyad <span class="text-danger">*</span></label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  formControlName="lastName"
+                  [class.is-invalid]="f['lastName'].invalid && f['lastName'].touched">
+                <div class="invalid-feedback" *ngIf="f['lastName'].invalid && f['lastName'].touched">
+                  Soyad zorunludur
+                </div>
+              </div>
+            </div>
+
+            <!-- Telefon -->
+            <div class="mb-3">
+              <label class="form-label">Telefon <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="phoneNumber"
+                placeholder="5xxxxxxxxx (10 haneli)"
+                maxlength="10"
+                [class.is-invalid]="f['phoneNumber'].invalid && f['phoneNumber'].touched">
+              <div class="invalid-feedback" *ngIf="f['phoneNumber'].invalid && f['phoneNumber'].touched">
+                <span *ngIf="f['phoneNumber'].errors?.['required']">Telefon numarası zorunludur</span>
+                <span *ngIf="f['phoneNumber'].errors?.['pattern']">Geçerli bir telefon numarası giriniz (10 haneli)</span>
+              </div>
+            </div>
+
+            <!-- İl İlçe Mahalle -->
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <label class="form-label">İl <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  formControlName="province"
+                  [class.is-invalid]="f['province'].invalid && f['province'].touched">
+                  <option value="">Seçiniz</option>
+                  <option *ngFor="let province of provinces" [value]="province.name">
+                    {{ province.name }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="f['province'].invalid && f['province'].touched">
+                  İl seçimi zorunludur
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">İlçe <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  formControlName="district"
+                  [class.is-invalid]="f['district'].invalid && f['district'].touched"
+                  [disabled]="districts.length === 0">
+                  <option value="">Seçiniz</option>
+                  <option *ngFor="let district of districts" [value]="district.name">
+                    {{ district.name }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="f['district'].invalid && f['district'].touched">
+                  İlçe seçimi zorunludur
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Mahalle <span class="text-danger">*</span></label>
+                <select 
+                  class="form-select" 
+                  formControlName="neighborhood"
+                  [class.is-invalid]="f['neighborhood'].invalid && f['neighborhood'].touched"
+                  [disabled]="neighborhoods.length === 0">
+                  <option value="">Seçiniz</option>
+                  <option *ngFor="let neighborhood of neighborhoods" [value]="neighborhood">
+                    {{ neighborhood }}
+                  </option>
+                </select>
+                <div class="invalid-feedback" *ngIf="f['neighborhood'].invalid && f['neighborhood'].touched">
+                  Mahalle seçimi zorunludur
+                </div>
+              </div>
+            </div>
+
+            <!-- Posta Kodu -->
+            <div class="mb-3">
+              <label class="form-label">Posta Kodu <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="postalCode"
+                placeholder="34000"
+                maxlength="5"
+                [class.is-invalid]="f['postalCode'].invalid && f['postalCode'].touched">
+              <div class="invalid-feedback" *ngIf="f['postalCode'].invalid && f['postalCode'].touched">
+                <span *ngIf="f['postalCode'].errors?.['required']">Posta kodu zorunludur</span>
+                <span *ngIf="f['postalCode'].errors?.['pattern']">Geçerli bir posta kodu giriniz (5 haneli)</span>
+              </div>
+            </div>
+
+            <!-- Adres Detayı -->
+            <div class="mb-3">
+              <label class="form-label">Adres Detayı <span class="text-danger">*</span></label>
+              <textarea 
+                class="form-control" 
+                formControlName="addressDetail"
+                rows="3"
+                placeholder="Sokak, cadde, apartman, daire no vb."
+                [class.is-invalid]="f['addressDetail'].invalid && f['addressDetail'].touched"></textarea>
+              <div class="invalid-feedback" *ngIf="f['addressDetail'].invalid && f['addressDetail'].touched">
+                Adres detayı zorunludur
+              </div>
+            </div>
+
+            <!-- Kapalı Günler (Sadece İş Yeri için) -->
+            <div class="mb-3" *ngIf="addressForm.get('category')?.value === AddressCategory.Workplace">
+              <label class="form-label">Kapalı Günler</label>
+              <input 
+                type="text" 
+                class="form-control" 
+                formControlName="closedDays"
+                placeholder="Örn: Pazar">
+              <small class="text-muted">İş yerinizin kapalı olduğu günleri belirtiniz (opsiyonel)</small>
+            </div>
+
+            <!-- Varsayılan Adres -->
+            <div class="form-check mb-4">
+              <input 
+                class="form-check-input" 
+                type="checkbox" 
+                id="isDefault"
+                formControlName="isDefault">
+              <label class="form-check-label" for="isDefault">
+                Varsayılan adres olarak ayarla
+              </label>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="addressForm.invalid">
+                <i class="fa-solid fa-save me-1"></i>
+                {{ isEditMode ? 'Güncelle' : 'Kaydet' }}
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="cancel()">
+                <i class="fa-solid fa-times me-1"></i>
+                İptal
+              </button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

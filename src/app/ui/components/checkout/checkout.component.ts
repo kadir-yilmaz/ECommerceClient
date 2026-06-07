@@ -13,6 +13,9 @@ import { HttpClient } from '@angular/common/http';
 import { FileService } from 'src/app/services/common/models/file.service';
 import { DiscountCoupon } from 'src/app/contracts/discount-coupon/discount-coupon';
 import { DiscountCouponService } from 'src/app/services/common/models/discount-coupon.service';
+import { AddressService } from 'src/app/services/common/models/address.service';
+import { Address } from 'src/app/contracts/address/address';
+import { AddressType } from 'src/app/contracts/address/address-type.enum';
 
 
 @Component({
@@ -42,6 +45,17 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
 
   baseUrl: string;
 
+  // Address management
+  deliveryAddresses: Address[] = [];
+  invoiceAddresses: Address[] = [];
+  selectedDeliveryAddressId: string = '';
+  selectedInvoiceAddressId: string = '';
+  showNewAddressForm: boolean = false;
+  addressTypeToCreate: AddressType = AddressType.Delivery;
+  AddressType = AddressType; // Expose enum to template
+  useSameAddressForInvoice: boolean = true; // Default: fatura adresi = teslimat adresi
+  editDeliveryDetails: boolean = false; // Kullanıcı detayları düzenlemek isterse
+
   constructor(
     spinner: NgxSpinnerService,
     private formBuilder: UntypedFormBuilder,
@@ -51,7 +65,8 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     private router: Router,
     private httpClient: HttpClient,
     private fileService: FileService,
-    private discountCouponService: DiscountCouponService
+    private discountCouponService: DiscountCouponService,
+    private addressService: AddressService
   ) {
     super(spinner);
   }
@@ -99,6 +114,7 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     this.couponCodeInput = localStorage.getItem('appliedCoupon') || '';
     this.buildForm();
     await this.loadBasket();
+    await this.loadAddresses();
     this.loadLocationData();
     await this.loadMyCoupons();
     try {
@@ -107,6 +123,116 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     } catch (err) {
       console.error('Base storage url load error', err);
     }
+  }
+
+  async loadAddresses(): Promise<void> {
+    try {
+      this.deliveryAddresses = await this.addressService.getUserAddresses(AddressType.Delivery);
+      this.invoiceAddresses = await this.addressService.getUserAddresses(AddressType.Invoice);
+      
+      // Eğer hiç adres yoksa, modal açarak adres ekletmeliyiz
+      if (this.deliveryAddresses.length === 0) {
+        this.toastrService.message(
+          'Ödeme yapmak için en az bir teslimat adresi eklemeniz gerekiyor.',
+          'Adres Gerekli',
+          {
+            messageType: ToastrMessageType.Info,
+            position: ToastrPosition.BottomRight
+          }
+        );
+        this.openNewAddressForm(AddressType.Delivery);
+        return;
+      }
+      
+      // Auto-select default addresses
+      const defaultDelivery = this.deliveryAddresses.find(a => a.isDefault);
+      if (defaultDelivery) {
+        this.selectedDeliveryAddressId = defaultDelivery.id;
+        this.fillFormWithAddress(defaultDelivery);
+      } else if (this.deliveryAddresses.length > 0) {
+        // Varsayılan yoksa ilk adresi seç
+        this.selectedDeliveryAddressId = this.deliveryAddresses[0].id;
+        this.fillFormWithAddress(this.deliveryAddresses[0]);
+      }
+      
+      // Fatura adresi kontrolü
+      if (this.useSameAddressForInvoice) {
+        this.selectedInvoiceAddressId = this.selectedDeliveryAddressId;
+      } else {
+        const defaultInvoice = this.invoiceAddresses.find(a => a.isDefault);
+        if (defaultInvoice) {
+          this.selectedInvoiceAddressId = defaultInvoice.id;
+        } else if (this.invoiceAddresses.length > 0) {
+          this.selectedInvoiceAddressId = this.invoiceAddresses[0].id;
+        }
+      }
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+    }
+  }
+
+  onDeliveryAddressChange(addressId: string): void {
+    this.selectedDeliveryAddressId = addressId;
+    const address = this.deliveryAddresses.find(a => a.id === addressId);
+    if (address) {
+      this.fillFormWithAddress(address);
+    }
+    
+    // Eğer fatura adresi teslimat ile aynıysa, otomatik güncelle
+    if (this.useSameAddressForInvoice) {
+      this.selectedInvoiceAddressId = addressId;
+    }
+  }
+
+  onInvoiceAddressChange(addressId: string): void {
+    this.selectedInvoiceAddressId = addressId;
+  }
+
+  onToggleSameAddress(): void {
+    this.useSameAddressForInvoice = !this.useSameAddressForInvoice;
+    
+    if (this.useSameAddressForInvoice) {
+      // Fatura adresini teslimat adresi ile aynı yap
+      this.selectedInvoiceAddressId = this.selectedDeliveryAddressId;
+    } else {
+      // Farklı fatura adresi seçilecek
+      const defaultInvoice = this.invoiceAddresses.find(a => a.isDefault);
+      if (defaultInvoice) {
+        this.selectedInvoiceAddressId = defaultInvoice.id;
+      } else if (this.invoiceAddresses.length > 0) {
+        this.selectedInvoiceAddressId = this.invoiceAddresses[0].id;
+      } else {
+        // Fatura adresi yoksa ekletmeliyiz
+        this.openNewAddressForm(AddressType.Invoice);
+      }
+    }
+  }
+
+  fillFormWithAddress(address: Address): void {
+    this.checkoutForm.patchValue({
+      contactName: `${address.firstName} ${address.lastName}`,
+      phoneNumber: address.phoneNumber,
+      city: address.province,
+      district: address.district,
+      neighborhood: address.neighborhood,
+      postalCode: address.postalCode,
+      addressLine: address.addressDetail
+    });
+  }
+
+  openNewAddressForm(type: AddressType): void {
+    this.addressTypeToCreate = type;
+    this.showNewAddressForm = true;
+  }
+
+  closeNewAddressForm(): void {
+    this.showNewAddressForm = false;
+    this.addressTypeToCreate = AddressType.Delivery;
+  }
+
+  async onAddressCreated(): Promise<void> {
+    await this.loadAddresses();
+    this.showNewAddressForm = false;
   }
 
   async loadMyCoupons(): Promise<void> {
@@ -761,6 +887,41 @@ export class CheckoutComponent extends BaseComponent implements OnInit {
     }
 
     return Math.round(totalItemDiscount * 100) / 100;
+  }
+
+  getTotalDiscountAmount(): number {
+    if (!this.discountResponse) return 0;
+    
+    return this.discountResponse.appliedDiscounts.reduce((total, discount) => {
+      return total + (discount.discountAmount || 0);
+    }, 0);
+  }
+
+  // Tüm kampanya indirimlerini topla
+  getTotalCampaignDiscount(): number {
+    if (!this.discountResponse?.appliedDiscounts) return 0;
+    
+    return this.discountResponse.appliedDiscounts
+      .filter(d => d.discountType === 'Campaign')
+      .reduce((total, discount) => total + (discount.discountAmount || 0), 0);
+  }
+
+  // Kupon indirimini al
+  getCouponDiscount(): number {
+    if (!this.discountResponse?.appliedDiscounts) return 0;
+    
+    const couponDiscount = this.discountResponse.appliedDiscounts
+      .find(d => d.discountType === 'Coupon');
+    
+    return couponDiscount?.discountAmount || 0;
+  }
+
+  // Bedava kargo var mı kontrol et
+  hasFreeShippingDiscount(): boolean {
+    if (!this.discountResponse?.appliedDiscounts) return false;
+    
+    return this.discountResponse.appliedDiscounts
+      .some(d => d.discountType === 'FreeShipping');
   }
 
   getProductImage(path?: string): string {

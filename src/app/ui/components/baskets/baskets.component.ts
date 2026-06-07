@@ -419,4 +419,31 @@ export class BasketsComponent extends BaseComponent implements OnInit, OnDestroy
     if (normalizedPath.startsWith('/')) return `${sanitizedBaseUrl}${normalizedPath}`;
     return `${sanitizedBaseUrl}/${normalizedPath}`;
   }
+
+  // Tüm kampanya indirimlerini topla
+  getTotalCampaignDiscount(): number {
+    if (!this.discountResponse?.appliedDiscounts) return 0;
+    
+    return this.discountResponse.appliedDiscounts
+      .filter(d => d.discountType === 'Campaign')
+      .reduce((total, discount) => total + (discount.discountAmount || 0), 0);
+  }
+
+  // Kupon indirimini al
+  getCouponDiscount(): number {
+    if (!this.discountResponse?.appliedDiscounts) return 0;
+    
+    const couponDiscount = this.discountResponse.appliedDiscounts
+      .find(d => d.discountType === 'Coupon');
+    
+    return couponDiscount?.discountAmount || 0;
+  }
+
+  // Bedava kargo var mı kontrol et
+  hasFreeShippingDiscount(): boolean {
+    if (!this.discountResponse?.appliedDiscounts) return false;
+    
+    return this.discountResponse.appliedDiscounts
+      .some(d => d.discountType === 'FreeShipping');
+  }
 }
