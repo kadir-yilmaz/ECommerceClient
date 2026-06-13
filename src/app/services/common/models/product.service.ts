@@ -97,8 +97,8 @@ export class ProductService {
       controller: "products"
     }, id).toPromise();
 
-    promiseData.then(() => successCallBack())
-      .catch((errorResponse: HttpErrorResponse) => errorCallBack(errorResponse.message));
+    promiseData.then(() => { if (successCallBack) successCallBack(); })
+      .catch((errorResponse: HttpErrorResponse) => { if (errorCallBack) errorCallBack(errorResponse.message); });
 
     return await promiseData;
   }
@@ -118,7 +118,7 @@ export class ProductService {
     }, id);
 
     const images: List_Product_Image[] = await firstValueFrom(getObservable);
-    successCallBack();
+    if (successCallBack) successCallBack();
     return images;
   }
 
