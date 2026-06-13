@@ -1,15 +1,7 @@
 name: Deploy Angular to InfinityFree
 
 on:
-  push:
-    branches:
-      - main  # Tetiklenecek ana dal (master ise master yapabilirsiniz)
-    paths:
-      - 'src/**'
-      - 'angular.json'
-      - 'package.json'
-      - 'tsconfig.json'
-      - '.github/workflows/deploy.yml'
+  workflow_dispatch: # Adds the manual "Run workflow" button in GitHub Actions UI
 
 jobs:
   web-deploy:
