@@ -1,0 +1,107 @@
+<div class="admin-reviews-page">
+  <div class="page-header">
+    <h1><i class="fa-solid fa-comments"></i> Yorum Yönetimi</h1>
+    <span class="total-badge">Toplam: {{ totalCount }}</span>
+  </div>
+
+  <!-- Status Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="filter-tab" [class.active]="selectedStatus === null" (click)="filterByStatus(null)">
+      <i class="fa-solid fa-list"></i> Tümü
+    </button>
+    <button class="filter-tab pending" [class.active]="selectedStatus === 0" (click)="filterByStatus(0)">
+      <i class="fa-solid fa-clock"></i> Bekleyenler
+    </button>
+    <button class="filter-tab approved" [class.active]="selectedStatus === 1" (click)="filterByStatus(1)">
+      <i class="fa-solid fa-check-circle"></i> Onaylananlar
+    </button>
+    <button class="filter-tab rejected" [class.active]="selectedStatus === 2" (click)="filterByStatus(2)">
+      <i class="fa-solid fa-times-circle"></i> Reddedilenler
+    </button>
+  </div>
+
+  <!-- Reviews Table -->
+  <div class="reviews-table-container">
+    <table class="reviews-table">
+      <thead>
+        <tr>
+          <th>Kullanıcı</th>
+          <th>Ürün</th>
+          <th>Puan</th>
+          <th>Yorum</th>
+          <th>Durum</th>
+          <th>Tarih</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let review of reviews" 
+            [class.flagged-row]="isFlagged(review)"
+            [class.profanity-row]="review.hasProfanity"
+            [class.price-row]="review.hasPriceInfo && !review.hasProfanity">
+          <td class="user-cell">
+            <div class="user-info">
+              <span class="user-name">{{ review.userName }}</span>
+              <span class="user-email">{{ review.userEmail }}</span>
+            </div>
+          </td>
+          <td class="product-cell">
+            <span class="product-name">{{ review.productName }}</span>
+          </td>
+          <td class="rating-cell">
+            <div class="stars-small">
+              <i class="fa-solid fa-star" *ngFor="let s of getStarArray(review.rating)"></i>
+            </div>
+          </td>
+          <td class="comment-cell">
+            <div class="comment-content">
+              <div class="flag-badges" *ngIf="isFlagged(review)">
+                <span class="flag-badge profanity" *ngIf="review.hasProfanity">
+                  <i class="fa-solid fa-triangle-exclamation"></i> Küfür Tespit Edildi
+                </span>
+                <span class="flag-badge price" *ngIf="review.hasPriceInfo">
+                  <i class="fa-solid fa-coins"></i> Fiyat Bilgisi
+                </span>
+              </div>
+              <p class="comment-text" [innerHTML]="highlightComment(review.comment, review)"></p>
+            </div>
+          </td>
+          <td class="status-cell">
+            <span class="status-badge" [ngClass]="getStatusClass(review.status)">
+              {{ getStatusText(review.status) }}
+            </span>
+          </td>
+          <td class="date-cell">
+            {{ review.createdDate | date:'dd.MM.yyyy HH:mm' }}
+          </td>
+          <td class="actions-cell">
+            <div class="action-btns">
+              <button class="btn-approve" *ngIf="review.status !== 1" (click)="approveReview(review.id)" title="Onayla">
+                <i class="fa-solid fa-check"></i>
+              </button>
+              <button class="btn-reject" *ngIf="review.status !== 2" (click)="rejectReview(review.id)" title="Reddet">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="empty-state" *ngIf="reviews.length === 0">
+      <i class="fa-regular fa-comment-dots"></i>
+      <p>Yorum bulunamadı.</p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-bar" *ngIf="totalPages > 1">
+    <button class="page-btn" [disabled]="page === 0" (click)="prevPage()">
+      <i class="fa-solid fa-chevron-left"></i> Önceki
+    </button>
+    <span class="page-info">Sayfa {{ page + 1 }} / {{ totalPages }}</span>
+    <button class="page-btn" [disabled]="(page + 1) * pageSize >= totalCount" (click)="nextPage()">
+      Sonraki <i class="fa-solid fa-chevron-right"></i>
+    </button>
+  </div>
+</div>

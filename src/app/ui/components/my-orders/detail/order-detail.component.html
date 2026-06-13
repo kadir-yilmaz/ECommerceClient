@@ -1,0 +1,158 @@
+<div class="order-detail-container container-xl">
+  <div class="my-orders-layout">
+    
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'orders'"></app-account-sidebar>
+
+    <!-- Main Content Area -->
+    <div class="orders-main-content">
+      
+      <div class="detail-back-bar">
+        <a routerLink="/orders" class="btn-back">
+          <i class="fa-solid fa-arrow-left"></i> Siparişlerime Dön
+        </a>
+      </div>
+
+      <div class="order-detail-card" *ngIf="order">
+        
+        <!-- Header -->
+        <div class="page-header">
+          <div class="header-main">
+            <h1>Sipariş Detayı <span class="code">#{{ order.orderCode }}</span></h1>
+            <span class="order-date">{{ order.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+          </div>
+          <p>Siparişiniz ile ilgili detaylı fatura, teslimat ve kargo bilgilerini aşağıda bulabilirsiniz.</p>
+        </div>
+
+        <!-- Stepper (İptal edilmemişse) -->
+        <div class="order-tracking-section" *ngIf="order.status !== 2">
+          <h3>Sipariş Durumu</h3>
+          <ul class="steps">
+            <li class="step" [class.completed]="isStepCompleted(order.status, 1)" [class.active]="isStepActive(order.status, 1)">
+              <div class="step-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div class="step-label">Sipariş Alındı</div>
+            </li>
+            <li class="step" [class.completed]="isStepCompleted(order.status, 2)" [class.active]="isStepActive(order.status, 2)">
+              <div class="step-icon"><i class="fa-solid fa-cog" [class.fa-spin]="isStepActive(order.status, 2)"></i></div>
+              <div class="step-label">Hazırlanıyor</div>
+            </li>
+            <li class="step" [class.completed]="isStepCompleted(order.status, 3)" [class.active]="isStepActive(order.status, 3)">
+              <div class="step-icon"><i class="fa-solid fa-truck" [class.truck-move]="isStepActive(order.status, 3)"></i></div>
+              <div class="step-label">Kargoda</div>
+            </li>
+            <li class="step" [class.completed]="isStepCompleted(order.status, 4)" [class.active]="isStepActive(order.status, 4)">
+              <div class="step-icon">
+                <i class="fa-solid fa-box-open" *ngIf="!isStepActive(order.status, 4) && !isStepCompleted(order.status, 4)"></i>
+                <i class="fa-solid fa-check" *ngIf="isStepActive(order.status, 4) || isStepCompleted(order.status, 4)"></i>
+              </div>
+              <div class="step-label">Teslim Edildi</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- İptal Durumu -->
+        <div class="cancel-alert" *ngIf="order.status === 2">
+          <i class="fa-solid fa-circle-xmark"></i> Bu sipariş iptal edilmiştir.
+        </div>
+
+        <!-- Cargo & Delivery Grid -->
+        <div class="info-grid">
+          
+          <!-- Fatura/Teslimat Adresi -->
+          <div class="info-box">
+            <div class="info-box-header">
+              <i class="fa-solid fa-location-dot"></i>
+              <span>Adres Bilgileri</span>
+            </div>
+            <div class="info-box-body">
+              <p><strong>Adres:</strong> {{ order.address }}</p>
+              <p *ngIf="order.description"><strong>Açıklama/Not:</strong> {{ order.description }}</p>
+            </div>
+          </div>
+
+          <!-- Kargo Bilgileri -->
+          <div class="info-box">
+            <div class="info-box-header">
+              <i class="fa-solid fa-truck-fast"></i>
+              <span>Kargo Bilgileri</span>
+            </div>
+            <div class="info-box-body">
+              <div *ngIf="order.cargoCompany; else noCargo">
+                <p><strong>Kargo Firması:</strong> {{ order.cargoCompany }}</p>
+                <p><strong>Takip Numarası:</strong> <span class="tracking-code">{{ order.trackingNumber }}</span></p>
+              </div>
+              <ng-template #noCargo>
+                <p class="text-muted">Kargo bilgisi henüz girilmemiştir.</p>
+              </ng-template>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Products List -->
+        <div class="products-section">
+          <h3>Satın Alınan Ürünler</h3>
+          <div class="products-table">
+            <div class="product-row" *ngFor="let item of order.basketItems">
+              <div class="product-main">
+                <span class="product-icon"><i class="fa-solid fa-box"></i></span>
+                <div class="product-info">
+                  <a [routerLink]="['/products/detail', item.productId]" class="product-link">
+                    {{ item.name }}
+                  </a>
+                  <span class="qty-price">{{ item.quantity }} adet x {{ item.price | turkishCurrency }}</span>
+                </div>
+              </div>
+              <div class="product-right">
+                <span class="item-total">{{ (item.price * item.quantity) | turkishCurrency }}</span>
+                <a *ngIf="(order.status === 5 || order.completed) && item.productId"
+                   [routerLink]="['/my-reviews']"
+                   [queryParams]="{productId: item.productId}"
+                   class="btn-write-review">
+                  <i class="fa-solid fa-pen-to-square"></i> Yorum Yap
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Summary & Discounts -->
+        <div class="summary-section">
+          <div class="summary-card">
+            <h3>Ödeme Detayları</h3>
+            
+            <div class="summary-row">
+              <span>Ürün Toplamı</span>
+              <span>{{ order.basePrice | turkishCurrency }}</span>
+            </div>
+
+            <!-- Uygulanan İndirimler Listesi -->
+            <div class="discounts-list" *ngIf="order.orderDiscounts && order.orderDiscounts.length > 0">
+              <div class="discount-item-row" *ngFor="let disc of order.orderDiscounts">
+                <span class="disc-name">
+                  <i class="fa-solid fa-tag"></i> {{ disc.discountName }} ({{ disc.discountType === 'Percentage' ? '%' + disc.discountAmount + ' İndirim' : disc.discountType }})
+                </span>
+                <span class="disc-amount">-{{ disc.discountAmount | turkishCurrency }}</span>
+              </div>
+            </div>
+
+            <div class="summary-row total-discount-row" *ngIf="order.totalDiscount > 0">
+              <span>Toplam İndirim</span>
+              <span class="text-success">-{{ order.totalDiscount | turkishCurrency }}</span>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-row final-total-row">
+              <span>Toplam Tutar</span>
+              <span class="final-price">{{ order.totalPrice | turkishCurrency }}</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>

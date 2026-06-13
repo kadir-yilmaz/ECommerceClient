@@ -5,6 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { AddressesRoutingModule } from './addresses-routing.module';
 import { AddressesComponent } from './addresses.component';
 import { AddressFormComponent } from './address-form/address-form.component';
+import { SharedUiModule } from '../shared/shared-ui.module';
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import { AddressFormComponent } from './address-form/address-form.component';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    AddressesRoutingModule
+    AddressesRoutingModule,
+    SharedUiModule
   ],
   exports: [
     AddressFormComponent // Export ediyoruz

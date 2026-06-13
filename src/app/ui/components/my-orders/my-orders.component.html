@@ -1,15 +1,25 @@
 <div class="my-orders-container container-xl">
-  <div class="page-header">
-    <h1>Geçmiş Siparişlerim</h1>
-    <p>Tüm siparişlerinizi buradan takip edebilirsiniz.</p>
-  </div>
+  <div class="my-orders-layout">
+    
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'orders'"></app-account-sidebar>
+
+    <!-- Main Content Area -->
+    <div class="orders-main-content">
+      <div class="page-header">
+        <h1>Geçmiş Siparişlerim</h1>
+        <p>Tüm siparişlerinizi buradan takip edebilirsiniz.</p>
+      </div>
 
   <div class="orders-list" *ngIf="orders.length > 0; else noOrders">
     <div class="order-card" *ngFor="let order of orders">
       
       <div class="order-header">
         <div class="order-info">
-          <span class="order-code">#{{order.orderCode}}</span>
+          <a [routerLink]="['/orders', order.id]" class="order-code-link" style="color: #ff6000; font-weight: 800; font-size: 1.1rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
+            #{{order.orderCode}}
+            <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+          </a>
           <span class="order-date">{{order.createdDate | date:'dd.MM.yyyy HH:mm'}}</span>
         </div>
         <div class="order-total">
@@ -30,12 +40,24 @@
         <div class="product-row" *ngFor="let item of order.orderItems">
           <div class="product-main">
             <span class="product-icon"><i class="fa-solid fa-box"></i></span>
-            <div>
-              <strong>{{ item.productName }}</strong>
-              <span>{{ item.quantity }} adet x {{ item.unitPrice | turkishCurrency }}</span>
+            <div style="display: flex; flex-direction: column; gap: 2px;">
+              <a *ngIf="item.productId" [routerLink]="['/products/detail', item.productId]" class="order-product-link" style="color: #0f172a; font-weight: 700; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6000'" onmouseout="this.style.color='#0f172a'">
+                {{ item.productName }}
+              </a>
+              <span *ngIf="!item.productId" style="color: #0f172a; font-weight: 700;">{{ item.productName }}</span>
+              <span style="font-size: 0.8rem; color: #64748b;">{{ item.quantity }} adet x {{ item.unitPrice | turkishCurrency }}</span>
             </div>
           </div>
-          <b>{{ item.totalPrice | turkishCurrency }}</b>
+          <div class="product-right" style="display: flex; align-items: center; gap: 16px;">
+            <b>{{ item.totalPrice | turkishCurrency }}</b>
+            <a *ngIf="(order.status === 5 || order.completed) && item.productId"
+               [routerLink]="['/my-reviews']"
+               [queryParams]="{productId: item.productId}"
+               class="btn-write-review"
+               style="font-size: 0.75rem; font-weight: 700; border: 1px solid #ff6000; color: #ff6000; background: #ffffff; padding: 6px 12px; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; cursor: pointer;">
+              <i class="fa-solid fa-pen-to-square"></i> Yorum Yap
+            </a>
+          </div>
         </div>
       </div>
 
@@ -112,4 +134,6 @@
       <a routerLink="/products" class="btn-primary">Alışverişe Başla</a>
     </div>
   </ng-template>
+    </div>
+  </div>
 </div>

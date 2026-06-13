@@ -115,12 +115,25 @@ export class ProductCardComponent implements OnChanges, OnInit, OnDestroy {
 
   get reviewCount(): number {
     if(!this.product) return 0;
-    return (this.product.name.length * 87) % 15000 + 150;
+    return this.product.reviewCount ?? 0;
   }
 
   get rating(): number {
     if(!this.product) return 0;
-    return 4 + (this.product.name.length % 10) / 10;
+    return this.product.averageRating ?? 0;
+  }
+
+  getStarArray(rating: number): number[] {
+    return Array.from({ length: Math.floor(rating) }, (_, i) => i);
+  }
+
+  hasHalfStar(rating: number): boolean {
+    return rating % 1 >= 0.25 && rating % 1 < 0.75;
+  }
+
+  getEmptyStarArray(rating: number): number[] {
+    const filled = Math.floor(rating) + (this.hasHalfStar(rating) ? 1 : 0);
+    return Array.from({ length: Math.max(0, 5 - filled) }, (_, i) => i);
   }
 
   get brandName(): string {

@@ -11,9 +11,10 @@
 
 .nav-link {
   color: #6c757d;
+  font-weight: 600;
   
   &.active {
-    color: #7c3aed;
-    border-bottom-color: #7c3aed;
+    color: #ff6000 !important;
+    border-bottom-color: #ff6000 !important;
   }
 }

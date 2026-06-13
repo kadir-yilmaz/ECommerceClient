@@ -1,12 +1,17 @@
 <div class="container my-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      
-      <div class="card shadow-sm border-0">
-        <div class="card-header text-white" style="background-color: #7c3aed;">
-          <h5 class="mb-0">Adreslerim</h5>
+  <div style="display: flex; gap: 30px; align-items: flex-start;" class="my-orders-layout">
+    
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'addresses'"></app-account-sidebar>
+
+    <!-- Main Content Area -->
+    <div style="flex-grow: 1;">
+      <div class="card shadow-sm border-0" style="border-radius: 16px; padding: 30px; background: #fff; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);">
+        <div class="page-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 16px; margin-bottom: 24px;">
+          <h1 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin: 0;">Adreslerim</h1>
+          <p style="font-size: 0.9rem; color: #64748b; margin: 6px 0 0 0;">Teslimat ve fatura adreslerinizi buradan yönetebilirsiniz.</p>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="padding: 0;">
 
           <!-- Tab Navigation -->
           <ul class="nav nav-tabs mb-4" id="addressTabs" role="tablist">
@@ -54,12 +59,12 @@
                   <div 
                     class="card h-100 border-2 address-card-hover" 
                     [class.border-light]="!address.isDefault"
-                    [style.border-color]="address.isDefault ? '#7c3aed' : ''"
-                    [style.background-color]="address.isDefault ? '#f5f3ff' : ''">
+                    [style.border-color]="address.isDefault ? '#ff6000' : ''"
+                    [style.background-color]="address.isDefault ? '#fff5eb' : ''">
                     <div class="card-body">
                       <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #7c3aed;"></i>
+                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #ff6000;"></i>
                           <strong>{{ address.title }}</strong>
                           <span class="text-warning ms-1" *ngIf="address.isDefault" title="Varsayılan adres">
                             <i class="fa-solid fa-star"></i>
@@ -135,12 +140,12 @@
                   <div 
                     class="card h-100 border-2 address-card-hover" 
                     [class.border-light]="!address.isDefault"
-                    [style.border-color]="address.isDefault ? '#7c3aed' : ''"
-                    [style.background-color]="address.isDefault ? '#f5f3ff' : ''">
+                    [style.border-color]="address.isDefault ? '#ff6000' : ''"
+                    [style.background-color]="address.isDefault ? '#fff5eb' : ''">
                     <div class="card-body">
                       <div class="d-flex justify-content-between align-items-start mb-2">
                         <div>
-                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #7c3aed;"></i>
+                          <i class="fa-solid {{ getCategoryIcon(address.category) }} me-1" style="color: #ff6000;"></i>
                           <strong>{{ address.title }}</strong>
                           <span class="text-warning ms-1" *ngIf="address.isDefault" title="Varsayılan adres">
                             <i class="fa-solid fa-star"></i>
@@ -200,7 +205,6 @@
           </div>
         </div>
       </div>
-      
     </div>
   </div>
 </div>

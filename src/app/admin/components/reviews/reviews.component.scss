@@ -1,0 +1,294 @@
+.admin-reviews-page {
+  padding: 24px;
+
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      i { color: #f27a1a; }
+    }
+
+    .total-badge {
+      background: #f1f5f9;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+    }
+  }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+
+    .filter-tab {
+      padding: 8px 18px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+
+      &:hover { background: #f8fafc; }
+      &.active {
+        background: #f27a1a;
+        color: #fff;
+        border-color: #f27a1a;
+      }
+      &.pending.active { background: #f59e0b; border-color: #f59e0b; }
+      &.approved.active { background: #10b981; border-color: #10b981; }
+      &.rejected.active { background: #ef4444; border-color: #ef4444; }
+    }
+  }
+
+  .reviews-table-container {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+
+    .reviews-table {
+      width: 100%;
+      border-collapse: collapse;
+
+      thead {
+        background: #f8fafc;
+        th {
+          padding: 14px 16px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #64748b;
+          text-align: left;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+      }
+
+      tbody {
+        tr {
+          border-bottom: 1px solid #f1f5f9;
+          transition: background 0.2s;
+
+          &:hover { background: #f8fafc; }
+          &:last-child { border-bottom: none; }
+
+          /* 🔴 Küfür tespit edilen satır — KIRMIZI */
+          &.profanity-row {
+            background: #fef2f2 !important;
+            border-left: 4px solid #ef4444;
+
+            &:hover { background: #fee2e2 !important; }
+          }
+
+          /* 🟡 Fiyat bilgisi tespit edilen satır */
+          &.price-row {
+            background: #fffbeb !important;
+            border-left: 4px solid #f59e0b;
+
+            &:hover { background: #fef3c7 !important; }
+          }
+        }
+
+        td {
+          padding: 14px 16px;
+          font-size: 13px;
+          color: #334155;
+          vertical-align: top;
+        }
+      }
+
+      .user-cell {
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+
+          .user-name { font-weight: 600; color: #1e293b; }
+          .user-email { font-size: 11px; color: #94a3b8; }
+        }
+      }
+
+      .product-cell {
+        .product-name {
+          font-weight: 500;
+          color: #3b82f6;
+        }
+      }
+
+      .rating-cell {
+        .stars-small {
+          color: #fca311;
+          font-size: 13px;
+          i { margin-right: 1px; }
+        }
+      }
+
+      .comment-cell {
+        max-width: 400px;
+
+        .comment-content {
+          .flag-badges {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+
+            .flag-badge {
+              font-size: 10px;
+              font-weight: 700;
+              padding: 3px 8px;
+              border-radius: 4px;
+              display: flex;
+              align-items: center;
+              gap: 4px;
+
+              &.profanity {
+                background: #ef4444;
+                color: #fff;
+              }
+
+              &.price {
+                background: #f59e0b;
+                color: #fff;
+              }
+            }
+          }
+
+          .comment-text {
+            margin: 0;
+            line-height: 1.5;
+            word-break: break-word;
+          }
+        }
+      }
+
+      .status-cell {
+        .status-badge {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: 20px;
+          white-space: nowrap;
+
+          &.badge-warning { background: #fef3c7; color: #92400e; }
+          &.badge-success { background: #d1fae5; color: #065f46; }
+          &.badge-danger { background: #fee2e2; color: #991b1b; }
+        }
+      }
+
+      .date-cell {
+        font-size: 12px;
+        color: #94a3b8;
+        white-space: nowrap;
+      }
+
+      .actions-cell {
+        .action-btns {
+          display: flex;
+          gap: 6px;
+
+          .btn-approve, .btn-reject {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.2s;
+          }
+
+          .btn-approve {
+            background: #d1fae5;
+            color: #065f46;
+            &:hover { background: #a7f3d0; }
+          }
+
+          .btn-reject {
+            background: #fee2e2;
+            color: #991b1b;
+            &:hover { background: #fecaca; }
+          }
+        }
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+      i { font-size: 48px; margin-bottom: 12px; display: block; }
+      p { font-size: 14px; margin: 0; }
+    }
+  }
+
+  .pagination-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+
+    .page-btn {
+      padding: 8px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled) { background: #f8fafc; color: #f27a1a; border-color: #f27a1a; }
+      &:disabled { opacity: 0.4; cursor: not-allowed; }
+    }
+
+    .page-info {
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 600;
+    }
+  }
+}
+
+/* Global highlight classes for profanity/price in comments */
+::ng-deep .highlight-profanity {
+  background: #ef4444;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+
+::ng-deep .highlight-price {
+  background: #f59e0b;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 700;
+}

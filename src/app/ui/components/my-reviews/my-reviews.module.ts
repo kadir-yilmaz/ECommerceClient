@@ -1,22 +1,21 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MyOrdersComponent } from './my-orders.component';
-import { OrderDetailComponent } from './detail/order-detail.component';
+import { MyReviewsComponent } from './my-reviews.component';
 import { RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SharedUiModule } from '../shared/shared-ui.module';
 
 @NgModule({
   declarations: [
-    MyOrdersComponent,
-    OrderDetailComponent
+    MyReviewsComponent
   ],
   imports: [
     CommonModule,
+    FormsModule,
     SharedUiModule,
     RouterModule.forChild([
-      { path: "", component: MyOrdersComponent },
-      { path: ":id", component: OrderDetailComponent }
+      { path: "", component: MyReviewsComponent }
     ])
   ]
 })
-export class MyOrdersModule { }
+export class MyReviewsModule { }

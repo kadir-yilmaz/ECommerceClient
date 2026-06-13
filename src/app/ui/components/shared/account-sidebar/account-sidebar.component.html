@@ -1,0 +1,43 @@
+<aside class="reviews-sidebar">
+  <div class="profile-card-summary">
+    <div class="avatar-circle">
+      <i class="fa-solid fa-user"></i>
+    </div>
+    <div class="profile-meta">
+      <span class="user-fullname" style="word-break: break-all; font-size: 0.85rem;">{{ authService.userName$ | async }}</span>
+      <span class="user-badge"><i class="fa-solid fa-crown"></i> E-Commerce Üyesi</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-menu">
+    <a routerLink="/orders" class="menu-item" [class.active]="activeTab === 'orders'">
+      <i class="fa-solid fa-box"></i>
+      <span>Siparişlerim</span>
+    </a>
+    <a routerLink="/my-reviews" class="menu-item" [class.active]="activeTab === 'reviews'">
+      <i class="fa-solid fa-star"></i>
+      <span>Değerlendirmelerim</span>
+    </a>
+    <a routerLink="/addresses" class="menu-item" [class.active]="activeTab === 'addresses'">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Adreslerim</span>
+    </a>
+    <a routerLink="/profile" class="menu-item" [class.active]="activeTab === 'profile'">
+      <i class="fa-solid fa-user"></i>
+      <span>Profilim</span>
+    </a>
+    <a routerLink="/my-coupons" class="menu-item" [class.active]="activeTab === 'coupons'">
+      <i class="fa-solid fa-ticket"></i>
+      <span>Kuponlarım</span>
+    </a>
+    <a routerLink="/admin" target="_blank" class="menu-item admin-item" *ngIf="authService.hasAdminAccess$ | async">
+      <i class="fa-solid fa-lock"></i>
+      <span>Yönetim Paneli</span>
+    </a>
+    <div class="menu-divider"></div>
+    <a class="menu-item logout-item" (click)="signOut()">
+      <i class="fa-solid fa-right-from-bracket"></i>
+      <span>Çıkış Yap</span>
+    </a>
+  </nav>
+</aside>

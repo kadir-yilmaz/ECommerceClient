@@ -1,0 +1,12 @@
+name: Deploy ECommerce Client (Local Dokploy)
+
+on:
+  workflow_dispatch: # Adds the manual "Run workflow" button in GitHub Actions UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Dokploy Deployment via Webhook
+        run: |
+          curl -X POST "${{ secrets.DOKPLOY_WEBHOOK_URL }}"

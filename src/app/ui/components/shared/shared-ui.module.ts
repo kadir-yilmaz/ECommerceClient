@@ -4,12 +4,14 @@ import { RouterModule } from '@angular/router';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { ProductShowcaseComponent } from './product-showcase/product-showcase.component';
 import { TurkishCurrencyPipe } from '../../../pipes/turkish-currency.pipe';
+import { AccountSidebarComponent } from './account-sidebar/account-sidebar.component';
 
 @NgModule({
   declarations: [
     ProductCardComponent,
     ProductShowcaseComponent,
-    TurkishCurrencyPipe
+    TurkishCurrencyPipe,
+    AccountSidebarComponent
   ],
   imports: [
     CommonModule,
@@ -18,7 +20,8 @@ import { TurkishCurrencyPipe } from '../../../pipes/turkish-currency.pipe';
   exports: [
     ProductCardComponent,
     ProductShowcaseComponent,
-    TurkishCurrencyPipe
+    TurkishCurrencyPipe,
+    AccountSidebarComponent
   ]
 })
 export class SharedUiModule { }

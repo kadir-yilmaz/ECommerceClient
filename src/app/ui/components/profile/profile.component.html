@@ -1,6 +1,13 @@
-<div class="profile-container">
-  <div class="profile-card">
-    <h1 class="profile-title">Profilim</h1>
+<div class="profile-container container-xl">
+  <div style="display: flex; gap: 30px; align-items: flex-start; width: 100%;" class="my-orders-layout">
+    
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'profile'"></app-account-sidebar>
+
+    <!-- Main Content Area -->
+    <div style="flex-grow: 1;">
+      <div class="profile-card" style="max-width: 100%;">
+        <h1 class="profile-title" style="text-align: left;">Profilim</h1>
 
     <form class="profile-form">
       <div class="form-group">
@@ -72,5 +79,7 @@
         </button>
       </div>
     </form>
+      </div>
+    </div>
   </div>
 </div>

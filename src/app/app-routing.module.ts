@@ -68,6 +68,11 @@ const routes: Routes = [
         path: "shippings",
         loadChildren: () => import("./admin/components/shippings/shippings.module").then(module => module.ShippingsModule),
         canActivate: [AuthGuard]
+      },
+      {
+        path: "reviews",
+        loadChildren: () => import("./admin/components/reviews/reviews.module").then(module => module.ReviewsModule),
+        canActivate: [AuthGuard]
       }
     ]
   },
@@ -122,6 +127,11 @@ const routes: Routes = [
   { 
     path: "profile", 
     loadChildren: () => import("./ui/components/profile/profile.module").then(module => module.ProfileModule),
+    canActivate: [AuthGuard]
+  },
+  { 
+    path: "my-reviews", 
+    loadChildren: () => import("./ui/components/my-reviews/my-reviews.module").then(module => module.MyReviewsModule),
     canActivate: [AuthGuard]
   },
   {

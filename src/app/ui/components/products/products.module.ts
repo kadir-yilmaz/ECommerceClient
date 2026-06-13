@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { ListComponent } from './list/list.component';
 import { DetailComponent } from './detail/detail.component';
 import { SharedUiModule } from '../shared/shared-ui.module';
+import { FormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -16,6 +17,7 @@ import { SharedUiModule } from '../shared/shared-ui.module';
   imports: [
     CommonModule,
     SharedUiModule,
+    FormsModule,
     RouterModule.forChild([
       { path: "", component: ProductsComponent },
       { path: "detail/:id", component: DetailComponent }

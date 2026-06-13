@@ -211,14 +211,156 @@
 
       <div class="hb-tab-panel" *ngIf="activeTab === 'reviews'">
         <h3>Kullanıcı Değerlendirmeleri</h3>
+
+        <!-- Rating Summary Box -->
         <div class="rating-summary-box">
           <div class="rating-big">{{ rating | number:'1.1-1' }}</div>
           <div class="rating-details-col">
             <div class="stars">
-               <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+              <ng-container *ngFor="let star of getStarArray(rating)">
+                <i class="fa-solid fa-star" *ngIf="star === 'full'"></i>
+                <i class="fa-solid fa-star-half-stroke" *ngIf="star === 'half'"></i>
+                <i class="fa-regular fa-star" *ngIf="star === 'empty'"></i>
+              </ng-container>
             </div>
-            <p>{{ reviewCount }} değerlendirme ve kullanıcı yorumu</p>
+            <p>{{ reviewCount }} değerlendirme</p>
           </div>
+          <div class="rating-distribution">
+            <div class="distribution-row" *ngFor="let star of [5,4,3,2,1]">
+              <span class="dist-label">{{ star }} <i class="fa-solid fa-star"></i></span>
+              <div class="dist-bar-track">
+                <div class="dist-bar-fill" [style.width.%]="getRatingPercentage(star)"></div>
+              </div>
+              <span class="dist-count">{{ ratingDistribution[star] || 0 }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- User's own review -->
+        <div class="user-review-section" *ngIf="hasUserReview && userReview && !isEditMode">
+          <div class="user-review-header">
+            <h4><i class="fa-solid fa-user-pen"></i> Yorumunuz</h4>
+            <span class="review-status-badge" [ngClass]="getStatusClass(userReview.status)">
+              {{ getStatusText(userReview.status) }}
+            </span>
+          </div>
+          <div class="review-card own-review">
+            <div class="review-stars">
+              <ng-container *ngFor="let s of getStarArray(userReview.rating)">
+                <i class="fa-solid fa-star" *ngIf="s === 'full'"></i>
+                <i class="fa-solid fa-star-half-stroke" *ngIf="s === 'half'"></i>
+                <i class="fa-regular fa-star" *ngIf="s === 'empty'"></i>
+              </ng-container>
+            </div>
+            <p class="review-comment">{{ userReview.comment }}</p>
+            <div class="review-meta">
+              <span class="review-date">{{ userReview.createdDate | date:'dd.MM.yyyy' }}</span>
+            </div>
+            <div class="review-actions-row" *ngIf="userReview.status !== 2">
+              <button class="btn-review-edit" (click)="startEditReview()"><i class="fa-solid fa-pen"></i> Düzenle</button>
+              <button class="btn-review-delete" (click)="deleteReview()"><i class="fa-solid fa-trash"></i> Sil</button>
+            </div>
+            <div class="admin-note-box" *ngIf="userReview.adminNote">
+              <i class="fa-solid fa-info-circle"></i> Admin notu: {{ userReview.adminNote }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Form (New or Edit) -->
+        <div class="review-form-section" *ngIf="(canReview && !hasUserReview) || isEditMode">
+          <h4>{{ isEditMode ? 'Yorumunuzu Düzenleyin' : 'Değerlendirme Yazın' }}</h4>
+          <div class="review-form-card">
+            <div class="star-picker">
+              <span class="star-picker-label">Puanınız:</span>
+              <div class="star-picker-stars">
+                <i *ngFor="let s of [1,2,3,4,5]"
+                   class="fa-star star-pick"
+                   [ngClass]="(hoverRating || newRating) >= s ? 'fa-solid active' : 'fa-regular'"
+                   (click)="setRating(s)"
+                   (mouseenter)="setHoverRating(s)"
+                   (mouseleave)="clearHoverRating()">
+                </i>
+              </div>
+              <span class="star-picker-value" *ngIf="newRating">{{ newRating }}/5</span>
+            </div>
+            <textarea
+              class="review-textarea"
+              placeholder="Ürün hakkındaki deneyiminizi paylaşın... (en az 10 karakter)"
+              [(ngModel)]="newComment"
+              rows="4"
+              maxlength="1000">
+            </textarea>
+            <div class="review-form-footer">
+              <span class="char-count">{{ newComment.length }}/1000</span>
+              <div class="review-form-btns">
+                <button class="btn-review-cancel" *ngIf="isEditMode" (click)="cancelEdit()">İptal</button>
+                <button class="btn-review-submit" (click)="submitReview()" [disabled]="isSubmittingReview || newRating === 0 || newComment.length < 10">
+                  <i class="fa-solid fa-paper-plane"></i>
+                  {{ isEditMode ? 'Güncelle' : 'Yorumu Gönder' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cannot review notice -->
+        <div class="cannot-review-notice" *ngIf="!canReview && !hasUserReview && canReviewReason">
+          <i class="fa-solid fa-circle-info"></i> {{ canReviewReason }}
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list" *ngIf="reviews.length > 0">
+          <div class="review-card" *ngFor="let review of reviews">
+            <div class="review-card-header">
+              <div class="reviewer-info">
+                <div class="reviewer-avatar">{{ review.userName?.charAt(0)?.toUpperCase() || 'A' }}</div>
+                <div class="reviewer-meta">
+                  <span class="reviewer-name">{{ review.userName }}</span>
+                  <span class="review-date">{{ review.createdDate | date:'dd.MM.yyyy' }}</span>
+                </div>
+              </div>
+              <div class="review-stars">
+                <ng-container *ngFor="let s of getStarArray(review.rating)">
+                  <i class="fa-solid fa-star" *ngIf="s === 'full'"></i>
+                  <i class="fa-solid fa-star-half-stroke" *ngIf="s === 'half'"></i>
+                  <i class="fa-regular fa-star" *ngIf="s === 'empty'"></i>
+                </ng-container>
+              </div>
+            </div>
+            <p class="review-comment">{{ review.comment }}</p>
+            
+            <div class="review-reactions-bar">
+              <span class="reaction-prompt">Bu değerlendirme yardımcı oldu mu?</span>
+              <div class="reaction-buttons">
+                <button type="button" class="btn-reaction like" 
+                        [class.active]="review.currentUserReaction === 'like'" 
+                        (click)="reactToReview(review.id, true)">
+                  <i class="fa-regular fa-thumbs-up" *ngIf="review.currentUserReaction !== 'like'"></i>
+                  <i class="fa-solid fa-thumbs-up" *ngIf="review.currentUserReaction === 'like'"></i>
+                  <span class="reaction-count" *ngIf="review.likeCount">{{ review.likeCount }}</span>
+                  <span class="reaction-text">Evet</span>
+                </button>
+                <button type="button" class="btn-reaction dislike" 
+                        [class.active]="review.currentUserReaction === 'dislike'" 
+                        (click)="reactToReview(review.id, false)">
+                  <i class="fa-regular fa-thumbs-down" *ngIf="review.currentUserReaction !== 'dislike'"></i>
+                  <i class="fa-solid fa-thumbs-down" *ngIf="review.currentUserReaction === 'dislike'"></i>
+                  <span class="reaction-count" *ngIf="review.dislikeCount">{{ review.dislikeCount }}</span>
+                  <span class="reaction-text">Hayır</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-load-more" *ngIf="hasMoreReviews" (click)="loadMoreReviews()">
+            <i class="fa-solid fa-chevron-down"></i> Daha Fazla Yorum Göster
+          </button>
+        </div>
+
+        <!-- No reviews -->
+        <div class="no-reviews" *ngIf="reviews.length === 0 && !canReview">
+          <i class="fa-regular fa-comment-dots"></i>
+          <p>Henüz değerlendirme yapılmamış. İlk yorumu siz yapın!</p>
         </div>
       </div>
 

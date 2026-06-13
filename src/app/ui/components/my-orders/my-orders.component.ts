@@ -46,7 +46,15 @@ export class MyOrdersComponent extends BaseComponent implements OnInit {
 
         return {
           ...order,
+          basePrice: detail?.basePrice,
+          totalDiscount: detail?.totalDiscount,
+          totalPrice: detail?.totalPrice,
+          orderDiscounts: detail?.orderDiscounts,
+          cargoCompany: detail?.cargoCompany,
+          trackingNumber: detail?.trackingNumber,
+          status: detail?.status ?? order.status,
           orderItems: basketItems.map((item: any) => ({
+            productId: item.productId,
             productName: item.name,
             unitPrice: item.price,
             quantity: item.quantity,

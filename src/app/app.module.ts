@@ -70,7 +70,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
         providers: [
           {
             id: GoogleLoginProvider.PROVIDER_ID,
-            provider: new GoogleLoginProvider("957600947173-p70lrqqhr09h965tdg3590122k70q04c.apps.googleusercontent.com")
+            provider: new GoogleLoginProvider("360140611731-unsu6sk2hvmbftv33ql5knsik2oj8902.apps.googleusercontent.com")
           }
         ],
         onError: err => console.log(err)

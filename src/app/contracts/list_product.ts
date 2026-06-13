@@ -15,6 +15,8 @@ export class List_Product {
   brand?: string;
   campaigns?: ProductCampaign[];
   showOnHomepage?: boolean;
+  averageRating?: number;
+  reviewCount?: number;
 }
 
 

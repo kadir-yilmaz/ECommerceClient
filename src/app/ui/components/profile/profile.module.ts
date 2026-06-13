@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { ProfileComponent } from './profile.component';
 import { ChangePasswordDialogComponent } from './change-password-dialog/change-password-dialog.component';
+import { SharedUiModule } from '../shared/shared-ui.module';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { ChangePasswordDialogComponent } from './change-password-dialog/change-p
     FormsModule,
     MatDialogModule,
     MatButtonModule,
+    SharedUiModule,
     RouterModule.forChild([
       { path: '', component: ProfileComponent }
     ])

@@ -1,19 +1,42 @@
 .my-orders-container {
-  padding: 2rem 0;
-  min-height: 60vh;
+  padding: 40px 0;
+  min-height: 80vh;
+}
+
+.my-orders-layout {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+
+  @media (max-width: 992px) {
+    flex-direction: column;
+  }
+}
+
+.orders-main-content {
+  flex-grow: 1;
+
+  @media (max-width: 992px) {
+    width: 100%;
+  }
 }
 
 .page-header {
-  margin-bottom: 2rem;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
   
   h1 {
-    font-size: 2rem;
-    color: #1e3a8a;
-    margin-bottom: 0.5rem;
+    font-size: 1.75rem;
+    color: #0f172a;
+    font-weight: 700;
+    margin: 0;
   }
   
   p {
+    font-size: 0.9rem;
     color: #64748b;
+    margin: 6px 0 0 0;
   }
 }
 

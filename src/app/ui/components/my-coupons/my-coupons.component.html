@@ -1,42 +1,52 @@
-<div class="my-coupons-container" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-  <div class="profile-card" style="margin-top: 20px; background: #fff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 30px;">
-    <h2 class="profile-title" style="border-bottom: 2px solid #f27a1a; padding-bottom: 10px; display: inline-block;">Kuponlarım</h2>
+<div class="my-coupons-container container-xl">
+  <div class="my-orders-layout">
     
-    <div *ngIf="myCoupons && myCoupons.length > 0; else noCoupons" style="margin-top: 20px;">
-      <div style="display: flex; flex-direction: column; gap: 15px;">
-        <div *ngFor="let coupon of myCoupons" style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; display: flex; align-items: center; justify-content: space-between; background: #fff;">
-          
-          <div style="display: flex; flex-direction: column;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px; font-weight: bold; color: #f27a1a; letter-spacing: 1px;">{{ coupon.code }}</span>
-              <span *ngIf="coupon.isRewardCoupon" style="background: #ffd700; color: #000; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: bold;">Ödül</span>
-            </div>
-            
-            <div style="font-size: 16px; font-weight: 500; color: #333; margin-top: 5px;">
-              <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
-              <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
-              <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
-            </div>
-            
-            <div style="font-size: 13px; color: #757575; margin-top: 5px; display: flex; gap: 15px;">
-              <span *ngIf="coupon.minCartAmount > 0">Min Sepet: {{ coupon.minCartAmount }} TL</span>
-              <span *ngIf="coupon.expirationDate">Son Kullanma: {{ coupon.expirationDate | date:'dd.MM.yyyy' }}</span>
-            </div>
-          </div>
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'coupons'"></app-account-sidebar>
 
-          <div>
-            <button class="btn btn-outline-primary" style="border-color: #f27a1a; color: #f27a1a;" routerLink="/basket">Kullan</button>
+    <!-- Main Content Area -->
+    <div class="coupons-main-content">
+      <div class="coupons-card">
+        <div class="page-header">
+          <h1>Kuponlarım</h1>
+          <p>Size özel indirim ve fırsat kuponlarını buradan görüntüleyebilirsiniz.</p>
+        </div>
+        
+        <div *ngIf="myCoupons && myCoupons.length > 0; else noCoupons" class="coupons-list">
+          <div class="coupon-item" *ngFor="let coupon of myCoupons">
+            
+            <div class="coupon-details">
+              <div class="coupon-header">
+                <span class="coupon-code">{{ coupon.code }}</span>
+                <span *ngIf="coupon.isRewardCoupon" class="badge-reward">Ödül</span>
+              </div>
+              
+              <div class="coupon-value">
+                <ng-container *ngIf="coupon.discountType === 'Amount'">{{ coupon.discountValue }} TL İndirim</ng-container>
+                <ng-container *ngIf="coupon.discountType === 'Percentage'">%{{ coupon.discountValue }} İndirim</ng-container>
+                <ng-container *ngIf="coupon.discountType === 'FreeShipping'">Kargo Bedava</ng-container>
+              </div>
+              
+              <div class="coupon-meta">
+                <span *ngIf="coupon.minCartAmount > 0">Min Sepet: {{ coupon.minCartAmount }} TL</span>
+                <span *ngIf="coupon.expirationDate">Son Kullanma: {{ coupon.expirationDate | date:'dd.MM.yyyy' }}</span>
+              </div>
+            </div>
+
+            <div class="coupon-action">
+              <button class="btn-use-coupon" routerLink="/basket">Kullan</button>
+            </div>
           </div>
         </div>
+
+        <ng-template #noCoupons>
+          <div class="empty-coupons-state">
+            <i class="fa-solid fa-ticket"></i>
+            <h3>Aktif kuponunuz bulunmuyor</h3>
+            <p>Size özel tanımlanmış aktif bir kuponunuz bulunmuyor. Kampanyalarımızı takip ederek kupon kazanabilirsiniz!</p>
+          </div>
+        </ng-template>
       </div>
     </div>
-
-    <ng-template #noCoupons>
-      <div style="text-align: center; padding: 50px 30px; color: #757575;">
-        <i class="fa-solid fa-ticket" style="font-size: 60px; color: #e0e0e0; margin-bottom: 20px;"></i>
-        <p style="margin: 0; font-size: 16px;">Size özel tanımlanmış aktif bir kuponunuz bulunmuyor.</p>
-        <p style="margin-top: 10px; font-size: 14px; color: #999;">Kampanyalarımızı takip ederek kupon kazanabilirsiniz!</p>
-      </div>
-    </ng-template>
   </div>
 </div>

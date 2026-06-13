@@ -1,0 +1,204 @@
+<div class="my-reviews-container container-xl">
+  <div class="my-reviews-layout">
+    
+    <!-- Left Sidebar (Shared UI) -->
+    <app-account-sidebar [activeTab]="'reviews'"></app-account-sidebar>
+
+    <!-- Main Content Area -->
+    <div class="reviews-main-content">
+      <div class="content-header-card">
+        <h1>Değerlendirmelerim</h1>
+      </div>
+
+      <!-- Main Tabs (Ürün / Sipariş) -->
+      <div class="main-tabs">
+        <button class="main-tab-btn" [class.active]="activeMainTab === 'product'" (click)="activeMainTab = 'product'">
+          Ürün Değerlendirme
+        </button>
+        <button class="main-tab-btn" [class.active]="activeMainTab === 'order'" (click)="activeMainTab = 'order'">
+          Sipariş Değerlendirme
+        </button>
+      </div>
+
+      <!-- PRODUCT REVIEWS TAB CONTENT -->
+      <ng-container *ngIf="activeMainTab === 'product'">
+        
+        <!-- Sub Tabs (Filtreler) -->
+        <div class="sub-tabs-container">
+          <button class="sub-tab-btn" [class.active]="activeSubTab === 'unreviewed'" (click)="activeSubTab = 'unreviewed'">
+            Değerlendir <span class="badge">{{ counts.unreviewed }}</span>
+          </button>
+          <button class="sub-tab-btn" [class.active]="activeSubTab === 'pending'" (click)="activeSubTab = 'pending'">
+            Onay Bekleyenler <span class="badge">{{ counts.pending }}</span>
+          </button>
+          <button class="sub-tab-btn" [class.active]="activeSubTab === 'approved'" (click)="activeSubTab = 'approved'">
+            Onaylananlar <span class="badge">{{ counts.approved }}</span>
+          </button>
+          <button class="sub-tab-btn" [class.active]="activeSubTab === 'rejected'" (click)="activeSubTab = 'rejected'">
+            Reddedilenler <span class="badge">{{ counts.rejected }}</span>
+          </button>
+          <button class="sub-tab-btn" [class.active]="activeSubTab === 'deleted'" (click)="activeSubTab = 'deleted'">
+            Gizlediklerim <span class="badge">{{ counts.deleted }}</span>
+          </button>
+        </div>
+
+        <!-- LISTS -->
+        
+        <!-- 1. Unreviewed Products List -->
+        <div class="reviews-list-grid" *ngIf="activeSubTab === 'unreviewed'">
+          <div class="review-item-card" *ngFor="let item of unreviewedProducts">
+            <div class="card-left">
+              <img [src]="getProductImageUrl(item.productImagePath)" [alt]="item.productName" class="product-thumb">
+            </div>
+            <div class="card-middle">
+              <span class="product-brand" *ngIf="item.productBrand">{{ item.productBrand }}</span>
+              <h3 class="product-name">{{ item.productName }}</h3>
+              <span class="delivery-date-text">
+                <i class="fa-solid fa-circle-check"></i> Teslim Tarihi: {{ item.deliveryDate | date:'dd MMM yyyy' }}
+              </span>
+            </div>
+            <div class="card-right">
+              <button class="btn-review-action" (click)="openReviewModal(item, false)">
+                <i class="fa-solid fa-pen-to-square"></i> Ürünü Değerlendir
+              </button>
+            </div>
+          </div>
+          
+          <div class="empty-state-card" *ngIf="unreviewedProducts.length === 0">
+            <i class="fa-solid fa-box-open empty-icon"></i>
+            <h3>Değerlendirilecek ürününüz bulunmamaktadır.</h3>
+            <p>Siparişleriniz teslim edildikten sonra burada listelenecektir.</p>
+          </div>
+        </div>
+
+        <!-- 2. Reviews Lists (Pending, Approved, Rejected, Deleted) -->
+        <div class="reviews-list-grid" *ngIf="activeSubTab !== 'unreviewed'">
+          <div class="review-item-card" *ngFor="let rev of filteredReviews">
+            <div class="card-left">
+              <img [src]="getProductImageUrl(rev.productImagePath)" [alt]="rev.productName" class="product-thumb">
+            </div>
+            <div class="card-middle">
+              <div class="card-middle-header">
+                <span class="product-brand" *ngIf="rev.productBrand">{{ rev.productBrand }}</span>
+                <span class="status-badge" [ngClass]="getStatusClass(rev.status)" *ngIf="!rev.isDeleted">
+                  {{ getStatusText(rev.status) }}
+                </span>
+                <span class="status-badge status-deleted" *ngIf="rev.isDeleted">
+                  Gizlendi (Silindi)
+                </span>
+              </div>
+              <h3 class="product-name">{{ rev.productName }}</h3>
+              
+              <!-- Puan ve Yıldızlar -->
+              <div class="rating-stars-row">
+                <div class="stars-gold">
+                  <i class="fa-solid fa-star" *ngFor="let s of getStarArray(rev.rating)"></i>
+                  <i class="fa-regular fa-star" *ngFor="let s of getEmptyStarArray(rev.rating)"></i>
+                </div>
+                <span class="rating-date">{{ rev.createdDate | date:'dd.MM.yyyy HH:mm' }}</span>
+              </div>
+
+              <!-- Yorum Metni -->
+              <div class="review-comment-box">
+                <p class="comment-text">"{{ rev.comment }}"</p>
+              </div>
+            </div>
+            
+            <!-- Actions (Silinmemişse Düzenle/Sil, Silinmişse Yok) -->
+            <div class="card-right" *ngIf="!rev.isDeleted">
+              <div class="action-buttons-stack">
+                <button class="btn-edit-review" (click)="openReviewModal(rev, true)">
+                  <i class="fa-solid fa-edit"></i> Düzenle
+                </button>
+                <button class="btn-delete-review" (click)="deleteReview(rev.id)">
+                  <i class="fa-solid fa-trash-can"></i> Sil
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-state-card" *ngIf="filteredReviews.length === 0">
+            <i class="fa-regular fa-comment-dots empty-icon"></i>
+            <h3>Bu kategoride değerlendirmeniz bulunmamaktadır.</h3>
+          </div>
+        </div>
+
+      </ng-container>
+
+      <!-- ORDER REVIEWS TAB CONTENT -->
+      <ng-container *ngIf="activeMainTab === 'order'">
+        <div class="empty-state-card">
+          <i class="fa-solid fa-truck-fast empty-icon"></i>
+          <h3>Sipariş Değerlendirme</h3>
+          <p>Çok yakında kargo firması ve paketleme kalitesini de buradan değerlendirebileceksiniz!</p>
+        </div>
+      </ng-container>
+
+    </div>
+  </div>
+</div>
+
+<!-- Custom Premium Review Modal Overlay -->
+<div class="review-modal-overlay" *ngIf="isModalOpen" (click)="closeReviewModal()">
+  <div class="review-modal-card" (click)="$event.stopPropagation()">
+    
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Değerlendirmeyi Düzenle' : 'Ürünü Değerlendir' }}</h2>
+      <button class="close-modal-btn" (click)="closeReviewModal()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Ürün Bilgisi -->
+      <div class="modal-product-summary">
+        <img [src]="getProductImageUrl(activeProductImage)" [alt]="activeProductName" class="modal-product-thumb">
+        <div class="modal-product-meta">
+          <span class="brand" *ngIf="activeProductBrand">{{ activeProductBrand }}</span>
+          <span class="name">{{ activeProductName }}</span>
+        </div>
+      </div>
+
+      <!-- Star Picker -->
+      <div class="star-picker-section">
+        <label>Puanınız:</label>
+        <div class="star-picker">
+          <i class="fa-star"
+             *ngFor="let star of [1, 2, 3, 4, 5]"
+             [class.fa-solid]="star <= (hoverRating || selectedRating)"
+             [class.fa-regular]="star > (hoverRating || selectedRating)"
+             (mouseenter)="hoverRating = star"
+             (mouseleave)="hoverRating = 0"
+             (click)="selectedRating = star">
+          </i>
+        </div>
+        <span class="rating-hint" *ngIf="selectedRating > 0">
+          {{ selectedRating }} / 5 yıldız
+        </span>
+      </div>
+
+      <!-- Yorum Alanı -->
+      <div class="comment-textarea-section">
+        <label for="review-comment">Yorumunuz (En az 10 karakter):</label>
+        <textarea id="review-comment" 
+                  rows="5" 
+                  [(ngModel)]="reviewComment"
+                  placeholder="Ürünün kalitesi, kargolanması ve genel memnuniyetiniz hakkında bilgi verin..."></textarea>
+        <span class="char-counter" [class.valid-counter]="reviewComment.length >= 10">
+          {{ reviewComment.length }} karakter
+        </span>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-modal-cancel" (click)="closeReviewModal()">İptal</button>
+      <button class="btn-modal-submit" 
+              [disabled]="selectedRating === 0 || reviewComment.length < 10 || isSubmittingReview"
+              (click)="submitReview()">
+        <span *ngIf="!isSubmittingReview">Gönder</span>
+        <span *ngIf="isSubmittingReview"><i class="fa-solid fa-spinner fa-spin"></i> Gönderiliyor...</span>
+      </button>
+    </div>
+
+  </div>
+</div>

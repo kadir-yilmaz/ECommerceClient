@@ -55,17 +55,20 @@
     
 
     <!-- Değerlendirme Satırı -->
-    <div class="ty-rating-row">
+    <div class="ty-rating-row" *ngIf="reviewCount > 0; else noRating">
       <span class="rating-score">{{ rating | number:'1.1-1' }}</span>
       <div class="stars">
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star"></i>
-        <i class="fa-solid fa-star-half-stroke"></i>
+        <i class="fa-solid fa-star" *ngFor="let s of getStarArray(rating)"></i>
+        <i class="fa-solid fa-star-half-stroke" *ngIf="hasHalfStar(rating)"></i>
+        <i class="fa-regular fa-star" *ngFor="let s of getEmptyStarArray(rating)"></i>
       </div>
       <span class="rating-text">({{ reviewCount }})</span>
     </div>
+    <ng-template #noRating>
+      <div class="ty-rating-row no-reviews">
+        <span class="no-reviews-text" style="font-size: 0.75rem; color: #94a3b8; font-weight: 500;">Henüz değerlendirilmemiş</span>
+      </div>
+    </ng-template>
     
     <div class="ty-stock-badge" [ngClass]="product.stock < 20 ? 'stock-low' : 'stock-ok'">
       <i class="fa-solid" [ngClass]="product.stock < 20 ? 'fa-triangle-exclamation' : 'fa-box-open'"></i>

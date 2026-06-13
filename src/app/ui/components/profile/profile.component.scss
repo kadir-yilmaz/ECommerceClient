@@ -1,9 +1,6 @@
 .profile-container {
-  min-height: calc(100vh - 200px);
-  padding: 40px 20px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  padding: 40px 0;
+  min-height: 80vh;
 }
 
 .profile-card {
@@ -11,7 +8,6 @@
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   padding: 40px;
-  max-width: 600px;
   width: 100%;
 }
 
@@ -49,8 +45,8 @@
 
     &:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #ff6000;
+      box-shadow: 0 0 0 3px rgba(255, 96, 0, 0.15);
     }
   }
 }
@@ -85,12 +81,12 @@
 
 .verify-btn {
   padding: 10px 16px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #ff8c42 0%, #ff6000 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   display: flex;
@@ -104,7 +100,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 96, 0, 0.3);
   }
 
   &:active {
@@ -131,8 +127,8 @@
 
     &:focus {
       outline: none;
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #ff6000;
+      box-shadow: 0 0 0 3px rgba(255, 96, 0, 0.15);
     }
   }
 
@@ -167,7 +163,7 @@
 
 .submit-btn {
   padding: 14px 24px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #ff6000 0%, #e05300 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -186,7 +182,7 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 96, 0, 0.35);
   }
 
   &:active {
@@ -207,9 +203,9 @@
 
 .password-btn {
   padding: 14px 24px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-  color: white;
-  border: none;
+  background: #ffffff;
+  border: 2px solid #ff6000;
+  color: #ff6000;
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
@@ -226,7 +222,8 @@
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+    background: #fff5eb;
+    box-shadow: 0 6px 20px rgba(255, 96, 0, 0.15);
   }
 
   &:active {
