@@ -55,7 +55,7 @@ import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
     JwtModule.forRoot({
       config: {
         tokenGetter: () => AuthTokenStore.accessToken,
-        allowedDomains: ["localhost:5025", "127.0.0.1:5025", "localhost:7131", "localhost:5131", "localhost:4200", "kadir.tryasp.net", /.*\.trycloudflare\.com/, /.*\.sslip\.io/, /.*\.kadiryilmaz\.online/]
+        allowedDomains: ["localhost:5025", "127.0.0.1:5025", "localhost:7131", "localhost:5131", "localhost:4200", /.*\.trycloudflare\.com/, /.*\.sslip\.io/, /.*\.kadiryilmaz\.online/]
       }
     }),
     SocialLoginModule

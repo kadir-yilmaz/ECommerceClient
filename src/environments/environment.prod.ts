@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  baseUrl: 'https://kadir.tryasp.net/api',
-  baseSignalRUrl: 'https://kadir.tryasp.net/'
+  baseUrl: 'https://ecommerceapi.kadiryilmaz.online/api',
+  baseSignalRUrl: 'https://ecommerceapi.kadiryilmaz.online/'
 };

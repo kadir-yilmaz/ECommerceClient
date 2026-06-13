@@ -14,10 +14,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Replace API URL for Local Server
-        run: |
-          sed -i "s|https://kadir.tryasp.net/api|https://ecommerceapi.kadiryilmaz.online/api|g" src/environments/environment.prod.ts
-          sed -i "s|https://kadir.tryasp.net/|https://ecommerceapi.kadiryilmaz.online/|g" src/environments/environment.prod.ts
+
 
       - name: Log in to GitHub Container Registry (GHCR)
         uses: docker/login-action@v2
