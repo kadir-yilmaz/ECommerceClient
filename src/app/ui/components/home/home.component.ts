@@ -69,19 +69,35 @@ export class HomeComponent extends BaseComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.showSpinner(SpinnerType.BallAtom);
     try {
-      this.baseUrl = await this.fileService.getBaseStorageUrl();
-      
-      const productData = await this.productService.read(0, 20, undefined, undefined, undefined, true, () => { }, () => { });
+      // Core verileri paralel olarak çekiyoruz
+      const [baseUrlObj, productData, allActive, publicCoupons, activeRewards, categoryData] = await Promise.all([
+        this.fileService.getBaseStorageUrl(),
+        this.productService.read(0, 20, undefined, undefined, undefined, true, () => { }, () => { }),
+        this.campaignService.getActiveCampaigns(),
+        this.discountCouponService.getPublicCoupons(),
+        this.rewardRuleService.getActiveRewardRules(),
+        this.categoryService.getAll()
+      ]);
+
+      this.baseUrl = baseUrlObj;
       this.featuredProducts = productData.products.map<List_Product>((product) => ({
         ...product,
         imagePath: product.productImageFiles?.length
           ? (product.productImageFiles.find((image) => image.showcase)?.path ?? product.productImageFiles[0].path)
           : ''
       }));
+      this.publicCoupons = publicCoupons;
+      this.activeRewards = activeRewards;
+      this.showcaseCategories = (categoryData?.categories || [])
+        .filter(c => c.showOnHomepage)
+        .sort((a, b) => (a.homepageOrder || 0) - (b.homepageOrder || 0));
 
-      const allActive = await this.campaignService.getActiveCampaigns();
+      // Core yükleme bittiği için spinner'ı erkenden kapatarak arayüzü kullanıcıya gösteriyoruz
+      this.hideSpinner(SpinnerType.BallAtom);
+
+      // Kampanya detay ürünlerini arka planda asenkron olarak dolduruyoruz
       const campaigns = allActive.filter(c => c.ruleType !== 'FreeShipping');
-      this.activeCampaigns = await Promise.all(campaigns.map(async (c) => {
+      Promise.all(campaigns.map(async (c) => {
         if (c.productId) {
           try {
             const p = await this.productService.readById(c.productId);
@@ -96,27 +112,19 @@ export class HomeComponent extends BaseComponent implements OnInit {
           }
         }
         return c;
-      }));
+      })).then((activeCamps) => {
+        this.activeCampaigns = activeCamps;
+      });
 
-      // Fetch public coupons
-      this.publicCoupons = await this.discountCouponService.getPublicCoupons();
+      // Vitrin kategorilerini (showcase) arka planda yüklüyoruz
+      this.loadNextShowcaseGroup().then(() => {
+        this.loadNextShowcaseGroup();
+      });
 
-      // Fetch active reward rules
-      this.activeRewards = await this.rewardRuleService.getActiveRewardRules();
-
-      // Load homepage showcased categories
-      const categoryData = await this.categoryService.getAll();
-      this.showcaseCategories = (categoryData?.categories || [])
-        .filter(c => c.showOnHomepage)
-        .sort((a, b) => (a.homepageOrder || 0) - (b.homepageOrder || 0));
-
-      // Initially load first 2 showcases
-      await this.loadNextShowcaseGroup();
-      await this.loadNextShowcaseGroup();
-    } catch {
+    } catch (error) {
+      console.error('Home component load error:', error);
       this.featuredProducts = [];
       this.activeCampaigns = [];
-    } finally {
       this.hideSpinner(SpinnerType.BallAtom);
     }
   }
