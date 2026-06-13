@@ -419,7 +419,7 @@
 .summary-totals-area {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 
 .summary-row {
@@ -427,221 +427,169 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.9rem;
-  padding: 0.6rem 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.summary-row:last-child {
-  border-bottom: none;
-}
-
-.summary-row span {
-  color: #6b7280;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.summary-row b {
-  color: #111827;
-  font-weight: 700;
-  font-size: 0.95rem;
+  padding: 0.5rem 0;
+  
+  span {
+    color: #4b5563;
+    font-weight: 500;
+  }
+  
+  b {
+    color: #111827;
+    font-weight: 600;
+  }
 }
 
 .summary-row-shipping {
-  background: #ecfdf5;
-  padding: 0.65rem 0.85rem;
-  border-radius: 6px;
-  border: 1px solid #a7f3d0;
-  margin: 0.3rem 0;
-
-  span {
-    color: #065f46;
-    font-weight: 700;
-  }
-
-  b {
-    color: #047857;
+  .shipping-value {
+    font-weight: 600;
+    color: #1f2937;
+    
+    &.free {
+      color: #10b981;
+      background: #ecfdf5;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
   }
 }
 
 .summary-row-campaign {
-  background: #eff6ff;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #bfdbfe;
-  margin: 4px 0;
-
-  span {
-    color: #1e40af;
-    font-weight: 700;
-  }
-
-  b {
-    color: #1e40af;
-    font-weight: 700;
+  .discount-value {
+    color: #10b981;
+    font-weight: 600;
   }
 }
 
 .summary-row-coupon {
-  background: #fef3c7;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #fbbf24;
-  margin: 4px 0;
-
-  span {
-    color: #92400e;
-    font-weight: 700;
-  }
-
-  b {
-    color: #92400e;
-    font-weight: 700;
+  .discount-value {
+    color: #10b981;
+    font-weight: 600;
   }
 }
 
-.summary-row-free-shipping {
-  background: #ecfdf5;
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #a7f3d0;
-  margin: 4px 0;
-
-  span {
-    color: #065f46;
-    font-weight: 700;
-  }
-
-  b {
-    color: #047857;
-    font-weight: 700;
-  }
-}
-
-// Büyük Turuncu Toplam - Sade Tasarım
+// Büyük Turuncu Toplam - Sade ve Premium Tasarım
 .summary-total-big {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.2rem;
-  padding: 1.2rem 1.1rem;
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+  margin-top: 1rem;
+  padding: 1.2rem 0;
+  border-top: 1px dashed #e5e7eb;
 
   span {
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: #ffffff;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2937;
+    text-transform: capitalize;
   }
 
   strong {
-    font-size: 1.85rem;
-    font-weight: 900;
-    color: #ffffff;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #f27a1a;
     letter-spacing: -0.02em;
   }
 }
 
-  .coupon-code-container {
-    margin-top: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
+.coupon-code-container {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 
-  .coupon-input-group {
-    display: flex;
-    gap: 0.75rem;
-  }
+.coupon-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
 
-  .coupon-input {
-    flex: 1;
-    border: 1px solid #e5e7eb;
-    padding: 10px 12px;
-    border-radius: 8px;
-    font-size: 13px;
-    color: #111827;
-    text-transform: uppercase;
-    outline: none;
-    transition: all 0.2s;
-    font-family: inherit;
+.coupon-input {
+  flex: 1;
+  border: 1px solid #d1d5db;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #111827;
+  text-transform: uppercase;
+  outline: none;
+  transition: all 0.2s;
+  font-family: inherit;
+  
+  &:focus {
+    border-color: #f27a1a;
+    box-shadow: 0 0 0 3px rgba(242, 122, 26, 0.1);
   }
+}
 
-  .coupon-input:focus {
-    border-color: #f97316;
-    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12);
-  }
-
-  .coupon-btn {
-    border: none;
-    background: #16a34a;
+.coupon-btn {
+  border: 1px solid #f27a1a;
+  background: #ffffff;
+  color: #f27a1a;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  
+  &:hover {
+    background: #f27a1a;
     color: #ffffff;
-    padding: 10px 16px;
-    border-radius: 8px;
+  }
+}
+
+.applied-coupon-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 10px 12px;
+  border-radius: 8px;
+
+  .coupon-code-label {
     font-size: 13px;
     font-weight: 700;
-    cursor: pointer;
-    transition: background 0.2s;
-    font-family: inherit;
-  }
-
-  .coupon-btn:hover {
-    background: #15803d;
-  }
-
-  .applied-coupon-box {
+    color: #047857;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    padding: 10px 12px;
-    border-radius: 8px;
+    gap: 6px;
 
-    .coupon-code-label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #047857;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-
-      &::before {
-        content: 'discount';
-        font-family: 'Material Icons';
-        font-size: 18px;
-      }
-    }
-
-    .coupon-remove-btn {
-      background: none;
-      border: none;
-      color: #047857;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 3px;
-      border-radius: 50%;
-      transition: all 0.2s;
-
-      &:hover {
-        background: #dcfce7;
-        color: #065f46;
-      }
-
-      mat-icon {
-        font-size: 18px;
-        width: 18px;
-        height: 18px;
-      }
+    &::before {
+      content: 'discount';
+      font-family: 'Material Icons';
+      font-size: 18px;
     }
   }
+
+  .coupon-remove-btn {
+    background: none;
+    border: none;
+    color: #047857;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    border-radius: 50%;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #dcfce7;
+      color: #065f46;
+    }
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
 
 .server-errors {
   margin-top: 1rem;
