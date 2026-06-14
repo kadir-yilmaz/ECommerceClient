@@ -1,5 +1,5 @@
 import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { async } from 'rxjs';
@@ -17,10 +17,12 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../..
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent extends BaseComponent implements OnInit {
+export class LoginComponent extends BaseComponent implements OnInit, AfterViewInit {
 
   hidePassword = true;
   inlineError: string | null = null;
+
+  @ViewChild('googleBtn', { static: true }) googleBtn!: ElementRef;
 
   constructor(
     private userAuthService: UserAuthService, 
@@ -53,6 +55,22 @@ export class LoginComponent extends BaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit(): void {
+    this.socialAuthService.initState.subscribe(() => {
+      if ((window as any).google?.accounts?.id) {
+        (window as any).google.accounts.id.renderButton(this.googleBtn.nativeElement, {
+          type: 'standard',
+          theme: 'outline',
+          size: 'large',
+          width: 380,
+          text: 'signin_with',
+          shape: 'rectangular',
+          logo_alignment: 'left'
+        });
+      }
+    });
   }
 
   async login(email: string, password: string) {
