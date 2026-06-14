@@ -69,6 +69,7 @@ export class LoginComponent extends BaseComponent implements OnInit, AfterViewIn
           shape: 'rectangular',
           logo_alignment: 'left'
         });
+        (window as any).google.accounts.id.prompt();
       }
     });
   }
