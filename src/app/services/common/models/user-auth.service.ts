@@ -1,4 +1,4 @@
-import { SocialUser } from '@abacritt/angularx-social-login';
+import { SocialAuthService, SocialUser } from '@abacritt/angularx-social-login';
 import { Injectable } from '@angular/core';
 
 import { firstValueFrom, Observable } from 'rxjs';
@@ -13,7 +13,13 @@ import { AuthTokenStore } from '../auth-token-store';
   providedIn: 'root'
 })
 export class UserAuthService {
-  constructor(private httpClientService: HttpClientService, private toastrService: CustomToastrService, private basketService: BasketService, private authService: AuthService) { }
+  constructor(
+    private httpClientService: HttpClientService, 
+    private toastrService: CustomToastrService, 
+    private basketService: BasketService, 
+    private authService: AuthService,
+    private socialAuthService: SocialAuthService
+  ) { }
 
   private async mergeGuestBasket(): Promise<void> {
     const guestBasketId = localStorage.getItem("guest_basket_id");
@@ -99,6 +105,11 @@ export class UserAuthService {
     } finally {
       AuthTokenStore.accessToken = null;
       this.authService.clearAuthentication();
+      try {
+        await this.socialAuthService.signOut();
+      } catch (e) {
+        // Ignore social logout failure (e.g. if the user was not logged in via social providers)
+      }
     }
   }
 
