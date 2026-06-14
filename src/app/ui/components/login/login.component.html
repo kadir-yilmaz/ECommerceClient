@@ -41,7 +41,15 @@
         <div class="social-login">
           <p>Sosyal hesapla giriş yap</p>
           <div class="social-icons">
-            <asl-google-signin-button type="standard" size="large" shape="rectangular" theme="outline" text="signin_with" width="240"></asl-google-signin-button>
+            <div class="custom-google-btn-wrapper">
+              <button type="button" class="custom-google-btn">
+                <i class="fa-brands fa-google"></i>
+                <span>Google ile Giriş Yap</span>
+              </button>
+              <div class="real-google-btn-overlay">
+                <asl-google-signin-button type="standard" shape="rectangular" size="large" width="240"></asl-google-signin-button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
