@@ -12,6 +12,7 @@ import { UserAuthService } from './services/common/models/user-auth.service';
 import { SignalRService } from './services/common/signalr.service';
 import { HubUrls } from './constants/hub-urls';
 import { ReceiveFunctions } from './constants/receive-functions';
+import { generateProductUrl, generateCategoryUrl, generateSearchUrl } from './utils/slug-utils';
 
 @Component({
   selector: 'app-root',
@@ -149,6 +150,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.hoveredCategory = category;
   }
 
+  getCategoryUrl(category: any): string {
+    return generateCategoryUrl(category);
+  }
+
   onMegaMenuHover(open: boolean) {
     if (open) {
       if (this.hoverTimeout) {
@@ -170,14 +175,16 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  navigateToCategory(categoryId: string) {
+  navigateToCategory(category: any) {
     if (this.hoverTimeout) {
       clearTimeout(this.hoverTimeout);
       this.hoverTimeout = null;
     }
     this.megaMenuOpen = false;
     this.hoveredCategory = null;
-    this.router.navigate(['/products', 1], { queryParams: { category: categoryId } });
+    if (!category) return;
+    const catObj = typeof category === 'string' ? (this.categories.find(c => c.id === category) || { id: category }) : category;
+    this.router.navigateByUrl(generateCategoryUrl(catObj));
   }
 
   toggleMegaMenu() {
@@ -209,7 +216,7 @@ export class AppComponent implements OnInit, OnDestroy {
       event.stopPropagation();
       this.hoveredCategory = cat;
     } else {
-      this.navigateToCategory(cat.id);
+      this.navigateToCategory(cat);
     }
   }
 
@@ -276,12 +283,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.searchSuggestions = [];
 
     if (suggestion.type === 'Ürün') {
-      this.router.navigate(['/products/detail', suggestion.targetId]);
+      this.router.navigateByUrl(generateProductUrl({ id: suggestion.targetId, name: suggestion.text }));
     } else if (suggestion.type === 'Kategori') {
-      this.router.navigate(['/products', 1], { queryParams: { category: suggestion.targetId } });
+      this.router.navigateByUrl(generateCategoryUrl({ id: suggestion.targetId, name: suggestion.text }));
     } else {
       // Marka or KategoriCombo
-      this.router.navigate(['/products', 1], { queryParams: { search: suggestion.text } });
+      this.router.navigate(['/ara'], { queryParams: { q: suggestion.text } });
     }
   }
 
@@ -289,7 +296,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.searchQuery && this.searchQuery.trim()) {
       this.showSearchSuggestions = false;
       this.searchSuggestions = [];
-      this.router.navigate(['/products', 1], { queryParams: { search: this.searchQuery.trim() } });
+      this.router.navigate(['/ara'], { queryParams: { q: this.searchQuery.trim() } });
     }
   }
 }

@@ -15,6 +15,7 @@ import { BasketService } from 'src/app/services/common/models/basket.service';
 import { FavoriteService } from 'src/app/services/common/models/favorite.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { Create_Basket_Item } from 'src/app/contracts/basket/create_basket_item';
+import { generateProductUrl } from 'src/app/utils/slug-utils';
 
 @Component({
   selector: 'app-campaign-detail',
@@ -192,10 +193,10 @@ export class CampaignDetailComponent extends BaseComponent implements OnInit, On
   }
 
   goToProduct(): void {
-    if (this.product?.id) {
-      this.router.navigate(['/products/detail', this.product.id]);
+    if (this.product) {
+      this.router.navigateByUrl(generateProductUrl(this.product));
     } else if (this.campaign?.productId) {
-      this.router.navigate(['/products/detail', this.campaign.productId]);
+      this.router.navigateByUrl(generateProductUrl({ id: this.campaign.productId }));
     }
   }
 

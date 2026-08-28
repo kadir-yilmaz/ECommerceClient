@@ -180,8 +180,8 @@
       [title]="group.category.name"
       [products]="group.products"
       [baseUrl]="baseUrl?.url"
-      viewAllRoute="/products"
-      [viewAllParams]="{ category: group.category.id }"
+      [viewAllRoute]="group.category | categoryUrl"
+      [viewAllParams]="{}"
       (addToCart)="addToBasket($event)"
       (toggleFavorite)="onToggleFavorite($event)">
     </app-product-showcase>

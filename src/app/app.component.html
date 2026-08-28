@@ -36,7 +36,21 @@
       <!-- Kullanıcı İşlemleri -->
       <nav class="ty-actions">
         
-        <!-- Auth: Giriş Yap / Dropdown -->
+        <!-- Favorilerim -->
+        <a routerLink="/favorites" class="action-item favorite-item">
+          <i class="fa-regular fa-heart"></i>
+          <span>Favorilerim</span>
+          <div class="badge" *ngIf="(favoriteService.favoriteItemCount$ | async) > 0">{{favoriteService.favoriteItemCount$ | async}}</div>
+        </a>
+
+        <!-- Sepetim -->
+        <a routerLink="/basket" class="action-item basket-item">
+          <i class="fa-solid fa-cart-shopping"></i>
+          <span>Sepetim</span>
+          <div class="badge" *ngIf="(basketService.basketItemCount$ | async) > 0">{{basketService.basketItemCount$ | async}}</div>
+        </a>
+
+        <!-- Auth: Giriş Yap / Dropdown (En Sağda) -->
         <ng-container *ngIf="!(authService.isAuthenticated$ | async)">
           <a routerLink="/login" class="action-item login-link">
             <i class="fa-regular fa-user"></i>
@@ -82,20 +96,6 @@
           </div>
         </ng-container>
 
-        <!-- Favorilerim -->
-        <a routerLink="/favorites" class="action-item favorite-item">
-          <i class="fa-regular fa-heart"></i>
-          <span>Favorilerim</span>
-          <div class="badge" *ngIf="(favoriteService.favoriteItemCount$ | async) > 0">{{favoriteService.favoriteItemCount$ | async}}</div>
-        </a>
-
-        <!-- Sepetim -->
-        <a routerLink="/basket" class="action-item basket-item">
-          <i class="fa-solid fa-cart-shopping"></i>
-          <span>Sepetim</span>
-          <div class="badge" *ngIf="(basketService.basketItemCount$ | async) > 0">{{basketService.basketItemCount$ | async}}</div>
-        </a>
-
       </nav>
     </div>
 
@@ -108,7 +108,7 @@
             <li class="ddb-nav-item" *ngFor="let cat of categoryTree"
                 [class.active]="hoveredCategory?.id === cat.id"
                 (mouseenter)="onHoverCategory(cat)">
-              <a [routerLink]="['/products']" [queryParams]="{category: cat.id}" class="ddb-nav-link">
+              <a [routerLink]="getCategoryUrl(cat)" class="ddb-nav-link">
                 {{ cat.name }}
               </a>
               <!-- Açık olduğunu gösteren yukarı ok (triangle) -->
@@ -123,7 +123,7 @@
         <div class="container-xl">
           <ul class="ddb-sub-nav-list" *ngIf="hoveredCategory">
             <li class="ddb-sub-nav-item" *ngFor="let sub of hoveredCategory.children">
-              <a (click)="navigateToCategory(sub.id)" class="ddb-sub-nav-link">
+              <a (click)="navigateToCategory(sub)" class="ddb-sub-nav-link">
                 {{ sub.name }}
               </a>
             </li>

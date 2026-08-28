@@ -54,7 +54,7 @@
 
       <!-- Products Grid -->
       <div class="products-grid">
-        <div *ngFor="let prod of paginatedCampaignProducts" class="product-item" [routerLink]="['/products/detail', prod.id]">
+        <div *ngFor="let prod of paginatedCampaignProducts" class="product-item" [routerLink]="prod | productUrl">
           
           <!-- Image -->
           <div class="product-image">

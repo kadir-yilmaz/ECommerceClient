@@ -4,6 +4,8 @@ import { RouterModule } from '@angular/router';
 import { ProductCardComponent } from './product-card/product-card.component';
 import { ProductShowcaseComponent } from './product-showcase/product-showcase.component';
 import { TurkishCurrencyPipe } from '../../../pipes/turkish-currency.pipe';
+import { ProductUrlPipe } from '../../../pipes/product-url.pipe';
+import { CategoryUrlPipe } from '../../../pipes/category-url.pipe';
 import { AccountSidebarComponent } from './account-sidebar/account-sidebar.component';
 
 @NgModule({
@@ -11,6 +13,8 @@ import { AccountSidebarComponent } from './account-sidebar/account-sidebar.compo
     ProductCardComponent,
     ProductShowcaseComponent,
     TurkishCurrencyPipe,
+    ProductUrlPipe,
+    CategoryUrlPipe,
     AccountSidebarComponent
   ],
   imports: [
@@ -21,6 +25,8 @@ import { AccountSidebarComponent } from './account-sidebar/account-sidebar.compo
     ProductCardComponent,
     ProductShowcaseComponent,
     TurkishCurrencyPipe,
+    ProductUrlPipe,
+    CategoryUrlPipe,
     AccountSidebarComponent
   ]
 })

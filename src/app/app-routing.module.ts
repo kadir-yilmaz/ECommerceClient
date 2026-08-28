@@ -1,8 +1,22 @@
 import { NgModule } from '@angular/core';
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule, Routes, UrlSegment } from '@angular/router';
 import { DashboardComponent } from './admin/components/dashboard/dashboard.component';
 import { LayoutComponent } from './admin/layout/layout.component';
 import { AuthGuard } from './guards/common/auth.guard';
+
+export function productUrlMatcher(segments: UrlSegment[]) {
+  if (segments.length === 1 && segments[0].path.includes('-p-')) {
+    return { consumed: segments, posParams: { slug: segments[0] } };
+  }
+  return null;
+}
+
+export function categoryUrlMatcher(segments: UrlSegment[]) {
+  if (segments.length === 1 && segments[0].path.includes('-c-')) {
+    return { consumed: segments, posParams: { slug: segments[0] } };
+  }
+  return null;
+}
 
 const routes: Routes = [
   {
@@ -154,6 +168,18 @@ const routes: Routes = [
   { 
     path: "rewards", 
     loadChildren: () => import("./ui/components/rewards/rewards.module").then(module => module.RewardsModule) 
+  },
+  {
+    path: "ara",
+    loadChildren: () => import("./ui/components/products/products.module").then(module => module.ProductsModule)
+  },
+  {
+    matcher: productUrlMatcher,
+    loadChildren: () => import("./ui/components/products/products.module").then(module => module.ProductsModule)
+  },
+  {
+    matcher: categoryUrlMatcher,
+    loadChildren: () => import("./ui/components/products/products.module").then(module => module.ProductsModule)
   },
   { 
     path: "", 

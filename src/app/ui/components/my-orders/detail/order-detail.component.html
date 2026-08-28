@@ -97,7 +97,7 @@
               <div class="product-main">
                 <span class="product-icon"><i class="fa-solid fa-box"></i></span>
                 <div class="product-info">
-                  <a [routerLink]="['/products/detail', item.productId]" class="product-link">
+                  <a [routerLink]="{ id: item.productId, name: item.name } | productUrl" class="product-link">
                     {{ item.name }}
                   </a>
                   <span class="qty-price">{{ item.quantity }} adet x {{ item.price | turkishCurrency }}</span>

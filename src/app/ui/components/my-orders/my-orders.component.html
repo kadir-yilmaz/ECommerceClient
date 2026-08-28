@@ -41,7 +41,7 @@
           <div class="product-main">
             <span class="product-icon"><i class="fa-solid fa-box"></i></span>
             <div style="display: flex; flex-direction: column; gap: 2px;">
-              <a *ngIf="item.productId" [routerLink]="['/products/detail', item.productId]" class="order-product-link" style="color: #0f172a; font-weight: 700; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6000'" onmouseout="this.style.color='#0f172a'">
+              <a *ngIf="item.productId" [routerLink]="{ id: item.productId, name: item.productName } | productUrl" class="order-product-link" style="color: #0f172a; font-weight: 700; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6000'" onmouseout="this.style.color='#0f172a'">
                 {{ item.productName }}
               </a>
               <span *ngIf="!item.productId" style="color: #0f172a; font-weight: 700;">{{ item.productName }}</span>

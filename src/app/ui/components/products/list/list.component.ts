@@ -13,6 +13,7 @@ import { FavoriteService } from '../../../../services/common/models/favorite.ser
 import { FileService } from '../../../../services/common/models/file.service';
 import { ProductService } from '../../../../services/common/models/product.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../../../services/ui/custom-toastr.service';
+import { parseSlug, base62ToUuid, generateCategoryUrl } from '../../../../utils/slug-utils';
 
 @Component({
   selector: 'app-list',
@@ -36,14 +37,14 @@ export class ListComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  currentPageNo: number;
-  totalProductCount: number;
-  totalPageCount: number;
+  currentPageNo: number = 1;
+  totalProductCount: number = 0;
+  totalPageCount: number = 0;
   pageSize: number = 12;
   pageList: number[] = [];
   baseUrl: BaseUrl;
 
-  products: List_Product[];
+  products: List_Product[] = [];
 
   // Filter/Sort state
   categories: Category[] = [];
@@ -70,12 +71,22 @@ export class ListComponent extends BaseComponent implements OnInit {
     await this.loadCategories();
 
     this.activatedRoute.params.subscribe(async params => {
-      this.currentPageNo = parseInt(params['pageNo'] ?? 1, 10);
+      const slug = params['slug'];
+      if (slug) {
+        const parsed = parseSlug(slug);
+        if (parsed.type === 'category' && parsed.id) {
+          this.selectedCategoryId = parsed.id;
+        }
+      }
 
       this.activatedRoute.queryParams.subscribe(async queryParams => {
-        this.selectedCategoryId = queryParams['category'] || '';
+        this.currentPageNo = parseInt(queryParams['page'] ?? params['pageNo'] ?? 1, 10);
+        if (!slug) {
+          const cat = queryParams['category'];
+          this.selectedCategoryId = cat ? (cat.includes('-') ? cat : base62ToUuid(cat)) : '';
+        }
         this.selectedSortType = queryParams['sort'] || '';
-        this.searchTerm = queryParams['search'] || '';
+        this.searchTerm = queryParams['q'] || queryParams['search'] || '';
         this.selectedBrand = queryParams['brand'] || '';
         this.selectedProductIds = queryParams['productIds'] || '';
 
@@ -133,8 +144,10 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   buildTree(categories: Category[], parentId: string = null): any[] {
+    const normalizeId = (id: string | null | undefined) => (id || '').toString().trim().toLowerCase();
+    const normalizedParentId = normalizeId(parentId);
     return categories
-      .filter(c => (c.parentCategoryId || null) === parentId)
+      .filter(c => normalizeId(c.parentCategoryId || null) === normalizedParentId)
       .map(c => ({
         ...c,
         children: this.buildTree(categories, c.id),
@@ -143,15 +156,31 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   onCategorySelect(categoryId: string) {
-    this.selectedCategoryId = categoryId;
-    this.navigateWithFilters();
+    if (!categoryId) {
+      this.selectedCategoryId = '';
+      const queryParams: any = {};
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.searchTerm) queryParams.q = this.searchTerm;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      this.router.navigate(['/products', 1], { queryParams });
+    } else {
+      const cat = this.categories.find(c => (c.id || '').toLowerCase() === categoryId.toLowerCase());
+      const catUrl = generateCategoryUrl(cat || { id: categoryId });
+      this.selectedCategoryId = categoryId;
+      const queryParams: any = {};
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      this.router.navigate([catUrl], { queryParams });
+    }
   }
 
   isParentOfSelected(node: any): boolean {
     if (!this.selectedCategoryId || !node || !node.children) return false;
+    const normalizeId = (id: string | null | undefined) => (id || '').toString().trim().toLowerCase();
+    const selected = normalizeId(this.selectedCategoryId);
     
     // Check if any direct child is selected
-    if (node.children.some((c: any) => c.id === this.selectedCategoryId)) {
+    if (node.children.some((c: any) => normalizeId(c.id) === selected)) {
       return true;
     }
     
@@ -176,18 +205,57 @@ export class ListComponent extends BaseComponent implements OnInit {
     this.searchTerm = '';
     this.selectedBrand = '';
     this.selectedProductIds = '';
-    this.navigateWithFilters();
+    this.router.navigate(['/products', 1]);
   }
 
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
+  onPageChange(page: number) {
+    if (page < 1 || page > this.totalPageCount || page === this.currentPageNo) return;
+    const currentUrl = this.router.url.split('?')[0];
+
+    if (currentUrl.startsWith('/products') && !currentUrl.includes('-c-')) {
+      const queryParams: any = {};
+      if (this.selectedCategoryId) queryParams.category = this.selectedCategoryId;
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.searchTerm) queryParams.search = this.searchTerm;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      if (this.selectedProductIds) queryParams.productIds = this.selectedProductIds;
+      this.router.navigate(['/products', page], { queryParams });
+    } else {
+      const queryParams: any = {};
+      if (page > 1) queryParams.page = page;
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.searchTerm) queryParams.q = this.searchTerm;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      this.router.navigate([currentUrl], { queryParams });
+    }
+  }
+
   private navigateWithFilters() {
+    const currentUrl = this.router.url.split('?')[0];
     const queryParams: any = {};
+
+    if (currentUrl.startsWith('/ara')) {
+      if (this.searchTerm) queryParams.q = this.searchTerm;
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      this.router.navigate(['/ara'], { queryParams });
+      return;
+    }
+
+    if (currentUrl.includes('-c-')) {
+      if (this.selectedSortType) queryParams.sort = this.selectedSortType;
+      if (this.selectedBrand) queryParams.brand = this.selectedBrand;
+      this.router.navigate([currentUrl], { queryParams });
+      return;
+    }
+
     if (this.selectedCategoryId) queryParams.category = this.selectedCategoryId;
     if (this.selectedSortType) queryParams.sort = this.selectedSortType;
-    if (this.searchTerm) queryParams.search = this.searchTerm;
+    if (this.searchTerm) queryParams.q = this.searchTerm;
     if (this.selectedBrand) queryParams.brand = this.selectedBrand;
     if (this.selectedProductIds) queryParams.productIds = this.selectedProductIds;
 
@@ -195,7 +263,7 @@ export class ListComponent extends BaseComponent implements OnInit {
   }
 
   getCategoryName(id: string): string {
-    const cat = this.categories.find(c => c.id === id);
+    const cat = this.categories.find(c => (c.id || '').toLowerCase() === (id || '').toLowerCase());
     return cat ? cat.name : '';
   }
 

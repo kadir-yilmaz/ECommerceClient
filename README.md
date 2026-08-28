@@ -33,7 +33,7 @@ RxJS operatörleri ve reaktif programlama pratikleri üzerine inşa edilmiş Ang
 
 ## Kurulum ve Çalıştırma
 
-1. `ECommerceClient` dizinine gidin.
+1. `ecommerce-angular-client` dizinine gidin.
 2. `npm install` komutu ile bağımlılıkları yükleyin.
 3. Uygulamayı başlatın: `ng serve --proxy-config proxy.conf.json`.
 4. Tarayıcınızda `http://localhost:4200` adresine gidin.

@@ -6,12 +6,12 @@
   <ng-container *ngIf="favoriteItems.length; else emptyFavorites">
     <section class="favorite-items">
       <article class="favorite-card" *ngFor="let item of favoriteItems">
-        <a class="favorite-image" [routerLink]="['/products/detail', item.productId]">
+        <a class="favorite-image" [routerLink]="item | productUrl">
           <img [src]="getProductImage(item)" [alt]="item.name">
         </a>
 
         <div class="favorite-content">
-          <a class="favorite-title" [routerLink]="['/products/detail', item.productId]">
+          <a class="favorite-title" [routerLink]="item | productUrl">
             {{ item.name }}
           </a>
           <p class="stock-state" [class.out]="item.stock <= 0">

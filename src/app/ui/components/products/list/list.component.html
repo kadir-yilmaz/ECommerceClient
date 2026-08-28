@@ -137,20 +137,17 @@
       </ng-template>
 
       <nav class="pager" aria-label="Page navigation" *ngIf="totalPageCount > 1">
-        <a class="pager-btn" [routerLink]="['/products', currentPageNo - 1 <= 0 ? 1 : currentPageNo - 1]"
-          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+        <button type="button" class="pager-btn" [disabled]="currentPageNo <= 1" (click)="onPageChange(currentPageNo - 1)">
           <i class="fa-solid fa-chevron-left"></i>
-        </a>
-        <a *ngFor="let page of pageList"
+        </button>
+        <button type="button" *ngFor="let page of pageList"
           class="pager-num" [class.active]="page === currentPageNo"
-          [routerLink]="['/products', page]"
-          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+          (click)="onPageChange(page)">
           {{ page }}
-        </a>
-        <a class="pager-btn" [routerLink]="['/products', currentPageNo + 1 >= totalPageCount ? totalPageCount : currentPageNo + 1]"
-          [queryParams]="{category: selectedCategoryId || null, sort: selectedSortType || null}">
+        </button>
+        <button type="button" class="pager-btn" [disabled]="currentPageNo >= totalPageCount" (click)="onPageChange(currentPageNo + 1)">
           <i class="fa-solid fa-chevron-right"></i>
-        </a>
+        </button>
       </nav>
     </div>
   </div>

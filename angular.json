@@ -3,7 +3,7 @@
     "version": 1,
     "newProjectRoot": "projects",
     "projects": {
-        "ECommerceClient": {
+        "ecommerce-angular-client": {
             "projectType": "application",
             "schematics": {
                 "@schematics/angular:component": {
@@ -20,7 +20,7 @@
                 "build": {
                     "builder": "@angular-devkit/build-angular:browser",
                     "options": {
-                        "outputPath": "dist/ecommerce-client",
+                        "outputPath": "dist/ecommerce-angular-client",
                         "index": "src/index.html",
                         "main": "src/main.ts",
                         "polyfills": "src/polyfills.ts",
@@ -82,10 +82,10 @@
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "configurations": {
                         "production": {
-                            "browserTarget": "ECommerceClient:build:production"
+                            "browserTarget": "ecommerce-angular-client:build:production"
                         },
                         "development": {
-                            "browserTarget": "ECommerceClient:build:development"
+                            "browserTarget": "ecommerce-angular-client:build:development"
                         }
                     },
                     "defaultConfiguration": "development"
@@ -93,7 +93,7 @@
                 "extract-i18n": {
                     "builder": "@angular-devkit/build-angular:extract-i18n",
                     "options": {
-                        "browserTarget": "ECommerceClient:build"
+                        "browserTarget": "ecommerce-angular-client:build"
                     }
                 },
                 "test": {
@@ -117,5 +117,8 @@
                 }
             }
         }
+    },
+    "cli": {
+      "analytics": false
     }
 }

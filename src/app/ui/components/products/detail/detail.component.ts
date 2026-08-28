@@ -14,6 +14,7 @@ import { FileService } from '../../../../services/common/models/file.service';
 import { ProductService } from '../../../../services/common/models/product.service';
 import { ReviewService } from '../../../../services/common/models/review.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../../../services/ui/custom-toastr.service';
+import { parseSlug, base62ToUuid } from '../../../../utils/slug-utils';
 
 @Component({
   selector: 'app-detail',
@@ -84,7 +85,21 @@ export class DetailComponent extends BaseComponent implements OnInit {
     this.baseUrl = await this.fileService.getBaseStorageUrl();
 
     this.activatedRoute.params.subscribe(async (params) => {
-      const productId = params["id"];
+      let productId = params["id"];
+      const slug = params["slug"];
+      if (slug) {
+        const parsed = parseSlug(slug);
+        if (parsed.type === 'product' && parsed.id) {
+          productId = parsed.id;
+        }
+      } else if (productId) {
+        const parsed = parseSlug(productId);
+        if (parsed.type === 'product' && parsed.id) {
+          productId = parsed.id;
+        } else {
+          productId = base62ToUuid(productId);
+        }
+      }
       try {
         this.product = await this.productService.readById(productId, () => { }, () => { });
         if (this.product) {
